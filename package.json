@@ -1,0 +1,39 @@
+{
+  "name": "bwc-dwg-workflow",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "dev": "node scripts/dev.mjs",
+    "server": "tsx server/main.ts",
+    "web": "vite --config apps/web/vite.config.ts",
+    "build": "tsc --noEmit && vite build --config apps/web/vite.config.ts",
+    "start": "tsx server/main.ts",
+    "test": "tsx --test tests/*.test.ts",
+    "test:geometry": ".venv/bin/python -m unittest discover -s workers/geometry -p 'test_*.py'",
+    "test:e2e": "playwright test",
+    "probe": "tsx scripts/probe.ts",
+    "mcp": "tsx server/mcp.ts",
+    "host:probe": "tsx scripts/host-probe.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "three": "0.183.2",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.58.2",
+    "@types/node": "22.19.15",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@types/three": "0.183.1",
+    "@vitejs/plugin-react": "5.0.4",
+    "tsx": "4.21.0",
+    "typescript": "5.9.3",
+    "vite": "7.3.1"
+  }
+}
