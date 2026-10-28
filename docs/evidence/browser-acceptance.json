@@ -1,0 +1,10 @@
+{
+  "at": "2026-10-27T17:44:08.782Z",
+  "controlledInput": "6m x 4m, 1m2 opening",
+  "manualResult": "3.45m3",
+  "aiMessage": "将选中轮廓的计量厚度设为200mm并重算",
+  "result": "parameter_volume · 冻结选择集范围4.6 m3所选范围计算完整完整范围总量：4.6输入解析：complete · 转换核验：not_applicablegs_8d570d253f7431be7a8183569所选范围的计算完整性与全图解析完整性分别记录。",
+  "text": "我会按 dwg-workflow，使用冻结的选择范围将计量厚度设为 200 mm，并重新计算。先核验项目版本和工具支持情况。已将冻结选中的 1 个轮廓计量厚度从 150 mm 改为 **200 mm**，并完成重算。\n\n参数体积：23 m²（净面积）× 0.2 m = **4.60 m³**。\n\n结果有效且完整，仅覆盖本次选中范围。完成",
+  "errors": [],
+  "realBuildingPreview": "25230 occurrences with persistent import/conversion gaps"
+}

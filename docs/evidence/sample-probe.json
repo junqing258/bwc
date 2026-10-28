@@ -1,0 +1,5401 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-27T17:45:58.210Z",
+  "platform": "darwin",
+  "architecture": "arm64",
+  "node": "v22.23.1",
+  "scope": "seven real files plus one controlled fixture; parsing and programmatic no-op write probes, no independent CAD acceptance",
+  "samples": [
+    {
+      "name": "controlled.dwg",
+      "source": "controlled_fixture",
+      "sha256": "46aa82172372f775a988e79f02eafae3faca5146ec66898f7c855ebc2199261f",
+      "sizeBytes": 8713,
+      "format": "AC1032",
+      "parser": "ACadSharp 3.8.30",
+      "status": "parsed",
+      "sourceEntityCount": 5,
+      "sourceRecordCount": 7,
+      "occurrenceCount": 11,
+      "entityTypes": {
+        "LWPOLYLINE": 2,
+        "LINE": 7,
+        "TEXT": 1,
+        "VIEWPORT": 1
+      },
+      "insUnits": 6,
+      "diagnosticCount": 0,
+      "diagnosticsByCode": {},
+      "notificationCount": 0,
+      "unknownNotificationClasses": {},
+      "dependencies": [],
+      "resources": [
+        {
+          "kind": "font",
+          "style": "Standard",
+          "path": "",
+          "bigFont": "",
+          "verification": "not_verified"
+        }
+      ],
+      "registeredClasses": [
+        {
+          "dxfName": "SCALE",
+          "cppClassName": "AcDbScale",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 17,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "MLEADERSTYLE",
+          "cppClassName": "AcDbMLeaderStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TABLESTYLE",
+          "cppClassName": "AcDbTableStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "DICTIONARYVAR",
+          "cppClassName": "AcDbDictionaryVar",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 6,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "MATERIAL",
+          "cppClassName": "AcDbMaterial",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 3,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LAYOUT",
+          "cppClassName": "AcDbLayout",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 2,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        }
+      ],
+      "sourceTypes": {
+        "LWPOLYLINE": 2,
+        "LINE": 2,
+        "TEXT": 1,
+        "INSERT": 1,
+        "VIEWPORT": 1
+      },
+      "importCompleteness": "complete",
+      "workerSeconds": 0.5456606,
+      "wallSeconds": 1.240464875,
+      "peakWorkingSetBytes": null,
+      "peakMemoryStatus": "dotnet_metric_unavailable_on_this_platform",
+      "conversionVerification": "not_applicable",
+      "programmaticNoopRoundtrip": {
+        "status": "supported_state_equal",
+        "stateEqual": true,
+        "expected": "91f79e96ae7ca75418087fd2211265ab4251ca829bc0a9e89ec7423997c12dfc",
+        "actual": "91f79e96ae7ca75418087fd2211265ab4251ca829bc0a9e89ec7423997c12dfc",
+        "independentCad": "not_run",
+        "scope": "supported_geometry_layers_blocks_units_only",
+        "completeDelivery": false
+      },
+      "independentCad": "not_run",
+      "originalT3Pair": "not_provided",
+      "completeDelivery": false
+    },
+    {
+      "name": "综合楼附房建筑_t3.dwg",
+      "source": "incoming",
+      "sha256": "f3e4ebe3428e2b2fc21b412b4d8b805c537975b4f1b665c9881cf80daa801247",
+      "sizeBytes": 3457575,
+      "format": "AC1018",
+      "parser": "ACadSharp 3.8.30",
+      "status": "parsed",
+      "sourceEntityCount": 16316,
+      "sourceRecordCount": 37745,
+      "occurrenceCount": 25230,
+      "entityTypes": {
+        "LWPOLYLINE": 2946,
+        "LINE": 11158,
+        "HATCH": 3257,
+        "TEXT": 3980,
+        "ELLIPSE": 17,
+        "OLE2FRAME": 1,
+        "ARC": 1032,
+        "ATTRIB": 542,
+        "CIRCLE": 547,
+        "POLYLINE": 3,
+        "DIMENSION": 1548,
+        "WIPEOUT": 2,
+        "3DFACE": 4,
+        "SOLID": 180,
+        "POINT": 13
+      },
+      "insUnits": 0,
+      "diagnosticCount": 9554,
+      "diagnosticsByCode": {
+        "UNSUPPORTED_ENTITY": 9510,
+        "GEOMETRY_INVALID": 44
+      },
+      "notificationCount": 30104,
+      "unknownNotificationClasses": {
+        "ACDBDETAILVIEWSTYLE": 1,
+        "LSSTROKEPATTERNCOMPONENT": 15115,
+        "LSCOMPOUNDCOMPONENT": 1264,
+        "LSPOINTCOMPONENT": 1410,
+        "LSSYMBOLCOMPONENT": 1584,
+        "LSINTERNALCOMPONENT": 10681,
+        "ACDBSECTIONVIEWSTYLE": 1,
+        "LSDEFINITION": 30,
+        "CELLSTYLEMAP": 1
+      },
+      "dependencies": [],
+      "resources": [
+        {
+          "kind": "font",
+          "style": "Standard",
+          "path": "gbenor.shx",
+          "bigFont": "gbcbig.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_DIM",
+          "path": "SIMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_WINDOW",
+          "path": "SIMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_AXIS",
+          "path": "COMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_SIMPLEX",
+          "path": "SIMPLEX.shx",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "SIMPLEX",
+          "path": "SIMPLEX.SHX",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HZTXT",
+          "path": "romans",
+          "bigFont": "HZTXT",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HZ",
+          "path": "txt",
+          "bigFont": "STF:宋体",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_LABEL",
+          "path": "COMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "-黑体_T3",
+          "path": "SimHei_0.TTF",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "-黑体",
+          "path": "SimHei_0.TTF",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_HZTXT",
+          "path": "bzxw.shx",
+          "bigFont": "bzhz.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "图签-仿宋",
+          "path": "SimFang_0.TTF",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_WDTABLE",
+          "path": "SIMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HYZT1",
+          "path": "",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HYZT2",
+          "path": "SimHei_0.TTF",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "TK.FS(AQADI)",
+          "path": "SimFang_0.TTF",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HT",
+          "path": "SimHei_0.TTF",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HT64F",
+          "path": "romans__.ttf",
+          "bigFont": "HT64F",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "AADRI_ST",
+          "path": "stedi.shx",
+          "bigFont": "hztxt.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "STYLE-1",
+          "path": "",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_DIM_T3",
+          "path": "SIMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "COMPLEX",
+          "path": "COMPLEX",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "DIM_FONT",
+          "path": "SIMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        }
+      ],
+      "registeredClasses": [
+        {
+          "dxfName": "ACDBDICTIONARYWDFLT",
+          "cppClassName": "AcDbDictionaryWithDefault",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDBPLACEHOLDER",
+          "cppClassName": "AcDbPlaceHolder",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LAYOUT",
+          "cppClassName": "AcDbLayout",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 2,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "DICTIONARYVAR",
+          "cppClassName": "AcDbDictionaryVar",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 6,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TABLESTYLE",
+          "cppClassName": "AcDbTableStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "MATERIAL",
+          "cppClassName": "AcDbMaterial",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 3,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "VISUALSTYLE",
+          "cppClassName": "AcDbVisualStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 25,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "GROUND_PLANE_BACKGROUND",
+          "cppClassName": "AcDbGroundPlaneBackground",
+          "applicationName": "SCENEOE",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "NPOCOLLECTION",
+          "cppClassName": "AcDbImpNonPersistentObjectsCollection",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACSH_CONE_CLASS",
+          "cppClassName": "AcDbShCone",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACAD_EVALUATION_GRAPH",
+          "cppClassName": "AcDbEvalGraph",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACSH_HISTORY_CLASS",
+          "cppClassName": "AcDbShHistory",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "SOLID_BACKGROUND",
+          "cppClassName": "AcDbSolidBackground",
+          "applicationName": "SCENEOE",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACSH_BOX_CLASS",
+          "cppClassName": "AcDbShBox",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "SCALE",
+          "cppClassName": "AcDbScale",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 17,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "MLEADERSTYLE",
+          "cppClassName": "AcDbMLeaderStyle",
+          "applicationName": "ACDB_MLEADERSTYLE_CLASS",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "WIPEOUTVARIABLES",
+          "cppClassName": "AcDbWipeoutVariables",
+          "applicationName": "\"WipeOut|Product Desc:     WipeOut Dbx Application|Company:          Autodesk, Inc.|WEB Address:      www.autodesk.com\"",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "CELLSTYLEMAP",
+          "cppClassName": "AcDbCellStyleMap",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDBSECTIONVIEWSTYLE",
+          "cppClassName": "AcDbSectionViewStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDBDETAILVIEWSTYLE",
+          "cppClassName": "AcDbDetailViewStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "SORTENTSTABLE",
+          "cppClassName": "AcDbSortentsTable",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 55,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_WALL",
+          "cppClassName": "TDbWall",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 372,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_OPENING",
+          "cppClassName": "TDbOpening",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 226,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_COLUMN",
+          "cppClassName": "TDbColumn",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 202,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_RADIUSDIM",
+          "cppClassName": "TDbRadiusDim",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 1,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_AXIS_LABEL",
+          "cppClassName": "TDbAxisLabelSet",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 54,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_DIMENSION2",
+          "cppClassName": "TDbDimension2",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 97,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_DRAWINGNAME",
+          "cppClassName": "TDbDrawingName",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 38,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_NORTHTHUMB",
+          "cppClassName": "TDbSymbNorthThumb",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 1,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_ELEVATION",
+          "cppClassName": "TDbSymbElevation",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 325,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_ARROW",
+          "cppClassName": "TDbSymbArrow",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 61,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LSDEFINITION",
+          "cppClassName": "AcDbLSDefinition",
+          "applicationName": "AcDgnLS",
+          "instanceCount": 60,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_LINESTAIR",
+          "cppClassName": "TDbLineStair",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_RECTSTAIR",
+          "cppClassName": "TDbRectStair",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 11,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_BLOCK_INSERT",
+          "cppClassName": "TDbBlockInsert",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 31,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_SYMB_SECTION",
+          "cppClassName": "TDbSymbSection",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 2,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_MULTILEADER",
+          "cppClassName": "TDbSymbMultiLeader",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 43,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_SPACE",
+          "cppClassName": "TDbSpace",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LSSTROKEPATTERNCOMPONENT",
+          "cppClassName": "AcDbLSStrokePatternComponent",
+          "applicationName": "AcDgnLS",
+          "instanceCount": 30230,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LSCOMPOUNDCOMPONENT",
+          "cppClassName": "AcDbLSCompoundComponent",
+          "applicationName": "AcDgnLS",
+          "instanceCount": 2528,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LSPOINTCOMPONENT",
+          "cppClassName": "AcDbLSPointComponent",
+          "applicationName": "AcDgnLS",
+          "instanceCount": 2820,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LSSYMBOLCOMPONENT",
+          "cppClassName": "AcDbLSSymbolComponent",
+          "applicationName": "AcDgnLS",
+          "instanceCount": 3168,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LSINTERNALCOMPONENT",
+          "cppClassName": "AcDbLSInternalComponent",
+          "applicationName": "AcDgnLS",
+          "instanceCount": 21362,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_CURTAIN_WALL",
+          "cppClassName": "TDbCurtainWall",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_DBCONFIG",
+          "cppClassName": "TDbConfig",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 2,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_DIMENSION",
+          "cppClassName": "TDbDimension",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_TEXT",
+          "cppClassName": "TDbText",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 330,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKLINEARPARAMETER",
+          "cppClassName": "AcDbBlockLinearParameter",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKLINEARGRIP",
+          "cppClassName": "AcDbBlockLinearGrip",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKGRIPLOCATIONCOMPONENT",
+          "cppClassName": "AcDbBlockGripExpr",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKSCALEACTION",
+          "cppClassName": "AcDbBlockScaleAction",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKVISIBILITYPARAMETER",
+          "cppClassName": "AcDbBlockVisibilityParameter",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKVISIBILITYGRIP",
+          "cppClassName": "AcDbBlockVisibilityGrip",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDB_DYNAMICBLOCKPURGEPREVENTER_VERSION",
+          "cppClassName": "AcDbDynamicBlockPurgePreventer",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDB_BLOCKREPRESENTATION_DATA",
+          "cppClassName": "AcDbBlockRepresentationData",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_SHEET",
+          "cppClassName": "TDbSheet",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 2,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKSTRETCHACTION",
+          "cppClassName": "AcDbBlockStretchAction",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_ERRORMSG",
+          "cppClassName": "TDbPromptMark",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_DRAWINGINDEX",
+          "cppClassName": "TDbSymbDrawingIndex",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 23,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACAECUSTOBJ",
+          "cppClassName": "AcAeEditorObj",
+          "applicationName": "AcAeEditorObj",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "WIPEOUT",
+          "cppClassName": "AcDbWipeout",
+          "applicationName": "WipeOut|Product Desc: Object Enabler for WipeOut entity | Company: Autodesk, Inc. | WEB Address: www.autodesk.com",
+          "instanceCount": 1,
+          "isAnEntity": true,
+          "proxyFlags": "2175",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_MTEXT",
+          "cppClassName": "TDbMText",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 16,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_RUPTURE",
+          "cppClassName": "TDbSymbRupture",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 32,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_INDEXPOINTER",
+          "cppClassName": "TDbSymbIndexPointer",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 33,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_COMPOSING",
+          "cppClassName": "TDbSymbComposing",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "DIMASSOC",
+          "cppClassName": "AcDbDimAssoc",
+          "applicationName": "\"AcDbDimAssoc|Product Desc:     AcDim ARX App For Dimension|Company:          Autodesk, Inc.|WEB Address:      www.autodesk.com\"",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_HANDRAIL",
+          "cppClassName": "TDbHandRail",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_SLAB",
+          "cppClassName": "TDbSlab",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_APRON",
+          "cppClassName": "TDbApron",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "RASTERVARIABLES",
+          "cppClassName": "AcDbRasterVariables",
+          "applicationName": "ISM",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_WALL_PATCH",
+          "cppClassName": "TDbWallPatch",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 42,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_CUT",
+          "cppClassName": "TDbSymbCut",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ARC_DIMENSION",
+          "cppClassName": "AcDbArcDimension",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_COORD",
+          "cppClassName": "TDbSymbCoord",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_PATH_ARRAY",
+          "cppClassName": "TDbPolyPathArray",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACAD_TABLE",
+          "cppClassName": "AcDbTable",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "EXACXREFPANELOBJECT",
+          "cppClassName": "ExAcXREFPanelObject",
+          "applicationName": "EXAC_ESW",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": true
+        },
+        {
+          "dxfName": "EXACTERMXREFMAP",
+          "cppClassName": "ExAcTermXrefMap",
+          "applicationName": "EXAC_SERVICE",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": true
+        },
+        {
+          "dxfName": "PLOTSETTINGS",
+          "cppClassName": "AcDbPlotSettings",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKPOINTPARAMETER",
+          "cppClassName": "AcDbBlockPointParameter",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKXYGRIP",
+          "cppClassName": "AcDbBlockXYGrip",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_CURVEMESH",
+          "cppClassName": "TDbCurveMesh",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TABLECONTENT",
+          "cppClassName": "AcDbTableContent",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TABLEGEOMETRY",
+          "cppClassName": "AcDbTableGeometry",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "DATATABLE",
+          "cppClassName": "AcDbDataTable",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        }
+      ],
+      "sourceTypes": {
+        "LWPOLYLINE": 1487,
+        "CIRCLE": 130,
+        "ATTDEF": 4,
+        "ARC": 168,
+        "LINE": 17821,
+        "SOLID": 1,
+        "HATCH": 2981,
+        "ELLIPSE": 274,
+        "SPLINE": 88,
+        "INSERT": 3986,
+        "MTEXT": 1548,
+        "POINT": 4647,
+        "TEXT": 2836,
+        "OLE2FRAME": 1,
+        "DIMENSION": 1548,
+        "POLYLINE": 5,
+        "3DFACE": 219,
+        "WIPEOUT": 1
+      },
+      "importCompleteness": "partial",
+      "workerSeconds": 3.48713,
+      "wallSeconds": 35.308186125,
+      "peakWorkingSetBytes": null,
+      "peakMemoryStatus": "dotnet_metric_unavailable_on_this_platform",
+      "conversionVerification": "not_verified",
+      "programmaticNoopRoundtrip": {
+        "status": "failed",
+        "error": "System.ArgumentException: An item with the same key has already been added. Key: 28523\n   at System.Collections.Generic.Dictionary`2.TryInsert(TKey key, TValue value, InsertionBehavior behavior)\n   at System.Collections.Generic.Dictionary`2.Add(TKey key, TValue value)\n   at ACadSharp.IO.DWG.DwgObjectWriter.registerObject(CadObject cadObject)\n   at ACadSharp.IO.DWG.DwgObjectWriter.writeObject(NonGraphicalObject obj)\n   at ACadSharp.IO.DWG.DwgObjectWriter.writeObjects()\n   at ACadSharp.IO.DWG.DwgObjectWriter.Write()\n   at ACadSharp.IO.DwgWriter.writeObjects()\n   at ACadSharp.IO.DwgWriter.Write()\n   at ACadSharp.IO.DwgWriter.Write(String filename, CadDocument document, DwgWriterConfiguration configuration, NotificationEventHandler notification)\n   at Worker.Run(String[] args) in /Users/zhangjunqing/git-bus/bwc/workers/cad/Worker.cs:line 32\n",
+        "completeDelivery": false
+      },
+      "independentCad": "not_run",
+      "originalT3Pair": "not_provided",
+      "completeDelivery": false
+    },
+    {
+      "name": "综合楼附房电气.dwg",
+      "source": "incoming",
+      "sha256": "9b115f14134f8608cd4350d65c7f4bcc41c56ca690d9d9cf6eed999fb936e0f9",
+      "sizeBytes": 6696314,
+      "format": "AC1024",
+      "parser": "ACadSharp 3.8.30",
+      "status": "parsed",
+      "sourceEntityCount": 32265,
+      "sourceRecordCount": 48920,
+      "occurrenceCount": 48009,
+      "entityTypes": {
+        "LWPOLYLINE": 3227,
+        "LINE": 28825,
+        "TEXT": 2826,
+        "ARC": 2378,
+        "ATTRIB": 1162,
+        "CIRCLE": 867,
+        "HATCH": 316,
+        "DIMENSION": 464,
+        "SOLID": 907,
+        "POINT": 1351,
+        "ELLIPSE": 34,
+        "TCH_CABLETRY": 12,
+        "TCH_EFITTING": 8,
+        "POLYLINE": 90,
+        "TCH_EQUIPDIM2": 7,
+        "TCH_WIREDIM2": 24,
+        "SPLINE": 5471,
+        "LEADER": 24,
+        "TCH_MULTILEADER": 6,
+        "ATTDEF": 9,
+        "MTEXT": 1
+      },
+      "insUnits": 0,
+      "diagnosticCount": 10487,
+      "diagnosticsByCode": {
+        "UNSUPPORTED_ENTITY": 10344,
+        "GEOMETRY_INVALID": 86,
+        "COMPATIBILITY_EXPORT_REQUIRED": 57
+      },
+      "notificationCount": 297,
+      "unknownNotificationClasses": {
+        "TCH_DBCONFIG": 1,
+        "TCH_CABLETRY": 12,
+        "TCH_EFITTING": 8,
+        "TCH_EQUIPDIM2": 7,
+        "TCH_WIREDIM2": 24,
+        "TCH_MULTILEADER": 6,
+        "TDBINTERFACERECORD": 1
+      },
+      "dependencies": [],
+      "resources": [
+        {
+          "kind": "font",
+          "style": "Standard",
+          "path": "gbenor.shx",
+          "bigFont": "gbcbig.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_DIM",
+          "path": "SIMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_WINDOW",
+          "path": "SIMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_AXIS",
+          "path": "COMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_SIMPLEX",
+          "path": "SIMPLEX.shx",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "SIMPLEX",
+          "path": "SIMPLEX.SHX",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HZTXT",
+          "path": "romans",
+          "bigFont": "HZTXT",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HZ",
+          "path": "txt",
+          "bigFont": "STF:宋体",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_LABEL",
+          "path": "COMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "-黑体_T3",
+          "path": "simhei.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "-黑体",
+          "path": "simhei.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_HZTXT",
+          "path": "bzxw.shx",
+          "bigFont": "bzhz.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "图签-仿宋",
+          "path": "",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_WDTABLE",
+          "path": "SIMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HYZT1",
+          "path": "",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HYZT2",
+          "path": "simhei.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "TK.FS(AQADI)",
+          "path": "",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HT",
+          "path": "simhei.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HT64F",
+          "path": "romans__.ttf",
+          "bigFont": "HT64F",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "AADRI_ST",
+          "path": "stedi.shx",
+          "bigFont": "hztxt.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "STYLE-1",
+          "path": "",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_DIM_T3",
+          "path": "SIMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "COMPLEX",
+          "path": "COMPLEX",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "DIM_FONT",
+          "path": "bzxw.shx",
+          "bigFont": "bzhz.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TEL_ATTDEF",
+          "path": "GBENOR",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TEL_DIM",
+          "path": "SIMPLEX",
+          "bigFont": "HZTXT",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "Annotative",
+          "path": "bzxw.shx",
+          "bigFont": "bzhz.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "TG_LINETYPE",
+          "path": "SIMPLEX",
+          "bigFont": "HZTXT",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "宋体",
+          "path": "",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "黑体",
+          "path": "simhei.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "-宋体",
+          "path": "",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "LC-黑体",
+          "path": "simhei.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "黑体_T3",
+          "path": "simhei.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_COMPLEX",
+          "path": "complex_.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "SIMIM",
+          "path": "smsim.shx",
+          "bigFont": "smfs.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "GBHZ",
+          "path": "gbenor.shx",
+          "bigFont": "gbcbig.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "冯士飞",
+          "path": "romanc.shx",
+          "bigFont": "GBHZFS.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "FST",
+          "path": "simhei.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "WPFZT1",
+          "path": "romans.shx",
+          "bigFont": "gbhzfs.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "WPF2",
+          "path": "romanc.shx",
+          "bigFont": "gbhzfs.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "电气说明",
+          "path": "txt.shx",
+          "bigFont": "hztxt.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "BZ",
+          "path": "SIMPLEX.shx",
+          "bigFont": "HZTXT.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "TG_LINETYPE_THUND",
+          "path": "SIMPLEX",
+          "bigFont": "HZTXT",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "回路标注",
+          "path": "",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "XD-AD-中文",
+          "path": "simhei.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "冯士飞-300",
+          "path": "romanc.shx",
+          "bigFont": "GBHZFS.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HZ2",
+          "path": "ROMAND.SHX",
+          "bigFont": "HZTXT.SHX",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "DXF",
+          "path": "bzxw.shx",
+          "bigFont": "bzhz.shx",
+          "verification": "not_verified"
+        }
+      ],
+      "registeredClasses": [
+        {
+          "dxfName": "ACDBDICTIONARYWDFLT",
+          "cppClassName": "AcDbDictionaryWithDefault",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDBPLACEHOLDER",
+          "cppClassName": "AcDbPlaceHolder",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LAYOUT",
+          "cppClassName": "AcDbLayout",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 2,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "DICTIONARYVAR",
+          "cppClassName": "AcDbDictionaryVar",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 10,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TABLESTYLE",
+          "cppClassName": "AcDbTableStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "MATERIAL",
+          "cppClassName": "AcDbMaterial",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 3,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "VISUALSTYLE",
+          "cppClassName": "AcDbVisualStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 26,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "GROUND_PLANE_BACKGROUND",
+          "cppClassName": "AcDbGroundPlaneBackground",
+          "applicationName": "SCENEOE",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "NPOCOLLECTION",
+          "cppClassName": "AcDbImpNonPersistentObjectsCollection",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACSH_CONE_CLASS",
+          "cppClassName": "AcDbShCone",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACAD_EVALUATION_GRAPH",
+          "cppClassName": "AcDbEvalGraph",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACSH_HISTORY_CLASS",
+          "cppClassName": "AcDbShHistory",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "SOLID_BACKGROUND",
+          "cppClassName": "AcDbSolidBackground",
+          "applicationName": "SCENEOE",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACSH_BOX_CLASS",
+          "cppClassName": "AcDbShBox",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "SCALE",
+          "cppClassName": "AcDbScale",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 17,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "MLEADERSTYLE",
+          "cppClassName": "AcDbMLeaderStyle",
+          "applicationName": "ACDB_MLEADERSTYLE_CLASS",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "WIPEOUTVARIABLES",
+          "cppClassName": "AcDbWipeoutVariables",
+          "applicationName": "\"WipeOut|Product Desc:     WipeOut Dbx Application|Company:          Autodesk, Inc.|WEB Address:      www.autodesk.com\"",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "CELLSTYLEMAP",
+          "cppClassName": "AcDbCellStyleMap",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDBSECTIONVIEWSTYLE",
+          "cppClassName": "AcDbSectionViewStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 2,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDBDETAILVIEWSTYLE",
+          "cppClassName": "AcDbDetailViewStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 2,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "SORTENTSTABLE",
+          "cppClassName": "AcDbSortentsTable",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 34,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_WALL",
+          "cppClassName": "TDbWall",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_OPENING",
+          "cppClassName": "TDbOpening",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_COLUMN",
+          "cppClassName": "TDbColumn",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_RADIUSDIM",
+          "cppClassName": "TDbRadiusDim",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_AXIS_LABEL",
+          "cppClassName": "TDbAxisLabelSet",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_DIMENSION2",
+          "cppClassName": "TDbDimension2",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_DRAWINGNAME",
+          "cppClassName": "TDbDrawingName",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_NORTHTHUMB",
+          "cppClassName": "TDbSymbNorthThumb",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_ELEVATION",
+          "cppClassName": "TDbSymbElevation",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_ARROW",
+          "cppClassName": "TDbSymbArrow",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LSDEFINITION",
+          "cppClassName": "AcDbLSDefinition",
+          "applicationName": "AcDgnLS",
+          "instanceCount": 31,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_LINESTAIR",
+          "cppClassName": "TDbLineStair",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_RECTSTAIR",
+          "cppClassName": "TDbRectStair",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_BLOCK_INSERT",
+          "cppClassName": "TDbBlockInsert",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_SYMB_SECTION",
+          "cppClassName": "TDbSymbSection",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_MULTILEADER",
+          "cppClassName": "TDbSymbMultiLeader",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 6,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_SPACE",
+          "cppClassName": "TDbSpace",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LSSTROKEPATTERNCOMPONENT",
+          "cppClassName": "AcDbLSStrokePatternComponent",
+          "applicationName": "AcDgnLS",
+          "instanceCount": 15116,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LSCOMPOUNDCOMPONENT",
+          "cppClassName": "AcDbLSCompoundComponent",
+          "applicationName": "AcDgnLS",
+          "instanceCount": 1265,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LSPOINTCOMPONENT",
+          "cppClassName": "AcDbLSPointComponent",
+          "applicationName": "AcDgnLS",
+          "instanceCount": 1411,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LSSYMBOLCOMPONENT",
+          "cppClassName": "AcDbLSSymbolComponent",
+          "applicationName": "AcDgnLS",
+          "instanceCount": 1585,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LSINTERNALCOMPONENT",
+          "cppClassName": "AcDbLSInternalComponent",
+          "applicationName": "AcDgnLS",
+          "instanceCount": 10682,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_CURTAIN_WALL",
+          "cppClassName": "TDbCurtainWall",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_DBCONFIG",
+          "cppClassName": "TDbConfig",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 255,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_DIMENSION",
+          "cppClassName": "TDbDimension",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_TEXT",
+          "cppClassName": "TDbText",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKLINEARPARAMETER",
+          "cppClassName": "AcDbBlockLinearParameter",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKLINEARGRIP",
+          "cppClassName": "AcDbBlockLinearGrip",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKGRIPLOCATIONCOMPONENT",
+          "cppClassName": "AcDbBlockGripExpr",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKSCALEACTION",
+          "cppClassName": "AcDbBlockScaleAction",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKVISIBILITYPARAMETER",
+          "cppClassName": "AcDbBlockVisibilityParameter",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKVISIBILITYGRIP",
+          "cppClassName": "AcDbBlockVisibilityGrip",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDB_DYNAMICBLOCKPURGEPREVENTER_VERSION",
+          "cppClassName": "AcDbDynamicBlockPurgePreventer",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDB_BLOCKREPRESENTATION_DATA",
+          "cppClassName": "AcDbBlockRepresentationData",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_SHEET",
+          "cppClassName": "TDbSheet",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKSTRETCHACTION",
+          "cppClassName": "AcDbBlockStretchAction",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_ERRORMSG",
+          "cppClassName": "TDbPromptMark",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_DRAWINGINDEX",
+          "cppClassName": "TDbSymbDrawingIndex",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACAECUSTOBJ",
+          "cppClassName": "AcAeEditorObj",
+          "applicationName": "AcAeEditorObj",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "DisablesProxyWarningDialog",
+          "wasZombie": true
+        },
+        {
+          "dxfName": "WIPEOUT",
+          "cppClassName": "AcDbWipeout",
+          "applicationName": "\"WipeOut|Product Desc: Object Enabler for WipeOut entity                        |Company: Autodesk, Inc.                        |WEB Address: www.autodesk.com\"",
+          "instanceCount": 1,
+          "isAnEntity": true,
+          "proxyFlags": "2175",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_MTEXT",
+          "cppClassName": "TDbMText",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_RUPTURE",
+          "cppClassName": "TDbSymbRupture",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_INDEXPOINTER",
+          "cppClassName": "TDbSymbIndexPointer",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_COMPOSING",
+          "cppClassName": "TDbSymbComposing",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "DIMASSOC",
+          "cppClassName": "AcDbDimAssoc",
+          "applicationName": "\"AcDbDimAssoc|Product Desc:     AcDim ARX App For Dimension|Company:          Autodesk, Inc.|WEB Address:      www.autodesk.com\"",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_HANDRAIL",
+          "cppClassName": "TDbHandRail",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_SLAB",
+          "cppClassName": "TDbSlab",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_APRON",
+          "cppClassName": "TDbApron",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "RASTERVARIABLES",
+          "cppClassName": "AcDbRasterVariables",
+          "applicationName": "ISM",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_WALL_PATCH",
+          "cppClassName": "TDbWallPatch",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_CUT",
+          "cppClassName": "TDbSymbCut",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ARC_DIMENSION",
+          "cppClassName": "AcDbArcDimension",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_COORD",
+          "cppClassName": "TDbSymbCoord",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_PATH_ARRAY",
+          "cppClassName": "TDbPolyPathArray",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACAD_TABLE",
+          "cppClassName": "AcDbTable",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "EXACXREFPANELOBJECT",
+          "cppClassName": "ExAcXREFPanelObject",
+          "applicationName": "EXAC_ESW",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": true
+        },
+        {
+          "dxfName": "EXACTERMXREFMAP",
+          "cppClassName": "ExAcTermXrefMap",
+          "applicationName": "EXAC_SERVICE",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": true
+        },
+        {
+          "dxfName": "PLOTSETTINGS",
+          "cppClassName": "AcDbPlotSettings",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKPOINTPARAMETER",
+          "cppClassName": "AcDbBlockPointParameter",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKXYGRIP",
+          "cppClassName": "AcDbBlockXYGrip",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_CURVEMESH",
+          "cppClassName": "TDbCurveMesh",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TABLECONTENT",
+          "cppClassName": "AcDbTableContent",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TABLEGEOMETRY",
+          "cppClassName": "AcDbTableGeometry",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "DATATABLE",
+          "cppClassName": "AcDbDataTable",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "AEC_REFEDIT_STATUS_TRACKER",
+          "cppClassName": "AecDbRefEditStatusTracker",
+          "applicationName": "AecArchBase60|Product Desc: Autodesk Architectural Desktop 2007 |Company: Autodesk,Inc. |WEB Address: www.autodesk.com",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TDBINTERFACERECORD",
+          "cppClassName": "TDbInterfaceRecord",
+          "applicationName": "\"tch_PipeBase | 缺乏解释器天正图形看不见, 请下载天正插件 | 网址: www.tangent.com.cn\"",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_CABLETRY",
+          "cppClassName": "TDbECabletry",
+          "applicationName": "\"tch_PipeBase | 缺乏解释器天正图形看不见 请下载天正插件 | 网址: www.tangent.com.cn\"",
+          "instanceCount": 12,
+          "isAnEntity": true,
+          "proxyFlags": "3071",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_EFITTING",
+          "cppClassName": "TDbEFitting",
+          "applicationName": "\"tch_PipeBase | 缺乏解释器天正图形看不见 请下载天正插件 | 网址: www.tangent.com.cn\"",
+          "instanceCount": 8,
+          "isAnEntity": true,
+          "proxyFlags": "3071",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_EQUIPDIM2",
+          "cppClassName": "TDbEquipDimNew",
+          "applicationName": "\"TCH_PIPEWIRE|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 7,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_WIREDIM2",
+          "cppClassName": "TDbWireDimNew",
+          "applicationName": "\"TCH_PIPEWIRE|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 24,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        }
+      ],
+      "sourceTypes": {
+        "LWPOLYLINE": 2725,
+        "LINE": 26201,
+        "CIRCLE": 139,
+        "ATTDEF": 173,
+        "ARC": 1258,
+        "SOLID": 82,
+        "SPLINE": 5515,
+        "HATCH": 335,
+        "ELLIPSE": 180,
+        "MTEXT": 1096,
+        "INSERT": 3821,
+        "POINT": 3492,
+        "TEXT": 2958,
+        "DIMENSION": 631,
+        "TCH_CABLETRY": 12,
+        "TCH_EFITTING": 8,
+        "TCH_EQUIPDIM2": 7,
+        "TCH_WIREDIM2": 24,
+        "LEADER": 24,
+        "TCH_MULTILEADER": 6,
+        "POLYLINE": 13,
+        "3DFACE": 219,
+        "WIPEOUT": 1
+      },
+      "importCompleteness": "partial",
+      "workerSeconds": 4.5972973,
+      "wallSeconds": 35.482173041,
+      "peakWorkingSetBytes": null,
+      "peakMemoryStatus": "dotnet_metric_unavailable_on_this_platform",
+      "conversionVerification": "not_verified",
+      "programmaticNoopRoundtrip": {
+        "status": "failed",
+        "error": "System.ArgumentException: An item with the same key has already been added. Key: 28509\n   at System.Collections.Generic.Dictionary`2.TryInsert(TKey key, TValue value, InsertionBehavior behavior)\n   at System.Collections.Generic.Dictionary`2.Add(TKey key, TValue value)\n   at ACadSharp.IO.DWG.DwgObjectWriter.registerObject(CadObject cadObject)\n   at ACadSharp.IO.DWG.DwgObjectWriter.writeObject(NonGraphicalObject obj)\n   at ACadSharp.IO.DWG.DwgObjectWriter.writeObjects()\n   at ACadSharp.IO.DWG.DwgObjectWriter.Write()\n   at ACadSharp.IO.DwgWriter.writeObjects()\n   at ACadSharp.IO.DwgWriter.Write()\n   at ACadSharp.IO.DwgWriter.Write(String filename, CadDocument document, DwgWriterConfiguration configuration, NotificationEventHandler notification)\n   at Worker.Run(String[] args) in /Users/zhangjunqing/git-bus/bwc/workers/cad/Worker.cs:line 32\n",
+        "completeDelivery": false
+      },
+      "independentCad": "not_run",
+      "originalT3Pair": "not_provided",
+      "completeDelivery": false
+    },
+    {
+      "name": "综合楼附房结构_t3.dwg",
+      "source": "incoming",
+      "sha256": "247b3f593ba4cb09ba91de3b1428631acdb8b4363e47126cdf48b39dbce7db3b",
+      "sizeBytes": 1569890,
+      "format": "AC1018",
+      "parser": "ACadSharp 3.8.30",
+      "status": "parsed",
+      "sourceEntityCount": 19930,
+      "sourceRecordCount": 33207,
+      "occurrenceCount": 25060,
+      "entityTypes": {
+        "HATCH": 835,
+        "LWPOLYLINE": 5072,
+        "LINE": 8923,
+        "DIMENSION": 1501,
+        "TEXT": 7609,
+        "MTEXT": 11,
+        "CIRCLE": 501,
+        "ATTRIB": 409,
+        "ARC": 42,
+        "SOLID": 151,
+        "SPLINE": 6
+      },
+      "insUnits": 0,
+      "diagnosticCount": 6075,
+      "diagnosticsByCode": {
+        "UNSUPPORTED_ENTITY": 6075
+      },
+      "notificationCount": 1,
+      "unknownNotificationClasses": {
+        "CELLSTYLEMAP": 1
+      },
+      "dependencies": [],
+      "resources": [
+        {
+          "kind": "font",
+          "style": "Standard",
+          "path": "tssdeng.shx",
+          "bigFont": "0hztxt.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_DIM",
+          "path": "SIMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_AXIS",
+          "path": "COMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_LABEL",
+          "path": "COMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_DIM_T3",
+          "path": "SIMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "COMPLEX",
+          "path": "COMPLEX",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "FromPkpm",
+          "path": "Pkpmeng",
+          "bigFont": "hztxt",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HZ1",
+          "path": "txt.shx",
+          "bigFont": "hztxt.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "TSSD_Num",
+          "path": "Tssdeng.shx",
+          "bigFont": "hztxt.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "TSSD_Rein",
+          "path": "Tssdeng.shx",
+          "bigFont": "hztxt.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "hztxt",
+          "path": "txt",
+          "bigFont": "hztxt.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "TSSD_Norm",
+          "path": "Tssdeng.shx",
+          "bigFont": "hztxt.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "sft:黑体",
+          "path": "txt.shx",
+          "bigFont": "tssdchn.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "TSSD_Dimension",
+          "path": "Tssdeng.shx",
+          "bigFont": "Hztxt.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "DIM_FONT",
+          "path": "SIMPLEX",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "说明",
+          "path": "simkai.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "标注",
+          "path": "tssdeng.shx",
+          "bigFont": "tssdchn.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HYZT1",
+          "path": "",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HYZT2",
+          "path": "simhei_0.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        }
+      ],
+      "registeredClasses": [
+        {
+          "dxfName": "ACDBDICTIONARYWDFLT",
+          "cppClassName": "AcDbDictionaryWithDefault",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDBPLACEHOLDER",
+          "cppClassName": "AcDbPlaceHolder",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LAYOUT",
+          "cppClassName": "AcDbLayout",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 2,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "DICTIONARYVAR",
+          "cppClassName": "AcDbDictionaryVar",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 11,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TABLESTYLE",
+          "cppClassName": "AcDbTableStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "MATERIAL",
+          "cppClassName": "AcDbMaterial",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 3,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "VISUALSTYLE",
+          "cppClassName": "AcDbVisualStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 4,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "GROUND_PLANE_BACKGROUND",
+          "cppClassName": "AcDbGroundPlaneBackground",
+          "applicationName": "SCENEOE",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": true
+        },
+        {
+          "dxfName": "NPOCOLLECTION",
+          "cppClassName": "AcDbImpNonPersistentObjectsCollection",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACSH_CONE_CLASS",
+          "cppClassName": "AcDbShCone",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACAD_EVALUATION_GRAPH",
+          "cppClassName": "AcDbEvalGraph",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACSH_HISTORY_CLASS",
+          "cppClassName": "AcDbShHistory",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "SOLID_BACKGROUND",
+          "cppClassName": "AcDbSolidBackground",
+          "applicationName": "SCENEOE",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": true
+        },
+        {
+          "dxfName": "ACSH_BOX_CLASS",
+          "cppClassName": "AcDbShBox",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "SCALE",
+          "cppClassName": "AcDbScale",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 17,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "MLEADERSTYLE",
+          "cppClassName": "AcDbMLeaderStyle",
+          "applicationName": "ACDB_MLEADERSTYLE_CLASS",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "WIPEOUTVARIABLES",
+          "cppClassName": "AcDbWipeoutVariables",
+          "applicationName": "\"WipeOut|Product Desc:     WipeOut Dbx Application|Company:          Autodesk, Inc.|WEB Address:      www.autodesk.com\"",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "CELLSTYLEMAP",
+          "cppClassName": "AcDbCellStyleMap",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDBSECTIONVIEWSTYLE",
+          "cppClassName": "AcDbSectionViewStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDBDETAILVIEWSTYLE",
+          "cppClassName": "AcDbDetailViewStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "SORTENTSTABLE",
+          "cppClassName": "AcDbSortentsTable",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 15,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_WALL",
+          "cppClassName": "TDbWall",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_OPENING",
+          "cppClassName": "TDbOpening",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_COLUMN",
+          "cppClassName": "TDbColumn",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_RADIUSDIM",
+          "cppClassName": "TDbRadiusDim",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_AXIS_LABEL",
+          "cppClassName": "TDbAxisLabelSet",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 1,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_DIMENSION2",
+          "cppClassName": "TDbDimension2",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 2,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_DRAWINGNAME",
+          "cppClassName": "TDbDrawingName",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 21,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_NORTHTHUMB",
+          "cppClassName": "TDbSymbNorthThumb",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_ELEVATION",
+          "cppClassName": "TDbSymbElevation",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 33,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_ARROW",
+          "cppClassName": "TDbSymbArrow",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LSDEFINITION",
+          "cppClassName": "AcDbLSDefinition",
+          "applicationName": "AcDgnLS",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_LINESTAIR",
+          "cppClassName": "TDbLineStair",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_RECTSTAIR",
+          "cppClassName": "TDbRectStair",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_BLOCK_INSERT",
+          "cppClassName": "TDbBlockInsert",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_SYMB_SECTION",
+          "cppClassName": "TDbSymbSection",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_MULTILEADER",
+          "cppClassName": "TDbSymbMultiLeader",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 10,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_SPACE",
+          "cppClassName": "TDbSpace",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LSSTROKEPATTERNCOMPONENT",
+          "cppClassName": "AcDbLSStrokePatternComponent",
+          "applicationName": "AcDgnLS",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LSCOMPOUNDCOMPONENT",
+          "cppClassName": "AcDbLSCompoundComponent",
+          "applicationName": "AcDgnLS",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LSPOINTCOMPONENT",
+          "cppClassName": "AcDbLSPointComponent",
+          "applicationName": "AcDgnLS",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LSSYMBOLCOMPONENT",
+          "cppClassName": "AcDbLSSymbolComponent",
+          "applicationName": "AcDgnLS",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LSINTERNALCOMPONENT",
+          "cppClassName": "AcDbLSInternalComponent",
+          "applicationName": "AcDgnLS",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_CURTAIN_WALL",
+          "cppClassName": "TDbCurtainWall",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_DBCONFIG",
+          "cppClassName": "TDbConfig",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 2,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_DIMENSION",
+          "cppClassName": "TDbDimension",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_TEXT",
+          "cppClassName": "TDbText",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKLINEARPARAMETER",
+          "cppClassName": "AcDbBlockLinearParameter",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKLINEARGRIP",
+          "cppClassName": "AcDbBlockLinearGrip",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKGRIPLOCATIONCOMPONENT",
+          "cppClassName": "AcDbBlockGripExpr",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKSCALEACTION",
+          "cppClassName": "AcDbBlockScaleAction",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKVISIBILITYPARAMETER",
+          "cppClassName": "AcDbBlockVisibilityParameter",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKVISIBILITYGRIP",
+          "cppClassName": "AcDbBlockVisibilityGrip",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDB_DYNAMICBLOCKPURGEPREVENTER_VERSION",
+          "cppClassName": "AcDbDynamicBlockPurgePreventer",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDB_BLOCKREPRESENTATION_DATA",
+          "cppClassName": "AcDbBlockRepresentationData",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_SHEET",
+          "cppClassName": "TDbSheet",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKSTRETCHACTION",
+          "cppClassName": "AcDbBlockStretchAction",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_ERRORMSG",
+          "cppClassName": "TDbPromptMark",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_DRAWINGINDEX",
+          "cppClassName": "TDbSymbDrawingIndex",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 2,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACAECUSTOBJ",
+          "cppClassName": "AcAeEditorObj",
+          "applicationName": "AcAeEditorObj",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "DisablesProxyWarningDialog",
+          "wasZombie": true
+        },
+        {
+          "dxfName": "WIPEOUT",
+          "cppClassName": "AcDbWipeout",
+          "applicationName": "WipeOut|Product Desc: Object Enabler for WipeOut entity | Company: Autodesk, Inc. | WEB Address: www.autodesk.com",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "2175",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_MTEXT",
+          "cppClassName": "TDbMText",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_RUPTURE",
+          "cppClassName": "TDbSymbRupture",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 8,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_INDEXPOINTER",
+          "cppClassName": "TDbSymbIndexPointer",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 20,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_COMPOSING",
+          "cppClassName": "TDbSymbComposing",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "DIMASSOC",
+          "cppClassName": "AcDbDimAssoc",
+          "applicationName": "\"AcDbDimAssoc|Product Desc:     AcDim ARX App For Dimension|Company:          Autodesk, Inc.|WEB Address:      www.autodesk.com\"",
+          "instanceCount": 93,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_HANDRAIL",
+          "cppClassName": "TDbHandRail",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_SLAB",
+          "cppClassName": "TDbSlab",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_APRON",
+          "cppClassName": "TDbApron",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "RASTERVARIABLES",
+          "cppClassName": "AcDbRasterVariables",
+          "applicationName": "ISM",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_WALL_PATCH",
+          "cppClassName": "TDbWallPatch",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_CUT",
+          "cppClassName": "TDbSymbCut",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ARC_DIMENSION",
+          "cppClassName": "AcDbArcDimension",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_COORD",
+          "cppClassName": "TDbSymbCoord",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_PATH_ARRAY",
+          "cppClassName": "TDbPolyPathArray",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACAD_TABLE",
+          "cppClassName": "AcDbTable",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "EXACXREFPANELOBJECT",
+          "cppClassName": "ExAcXREFPanelObject",
+          "applicationName": "EXAC_ESW",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": true
+        },
+        {
+          "dxfName": "EXACTERMXREFMAP",
+          "cppClassName": "ExAcTermXrefMap",
+          "applicationName": "EXAC_SERVICE",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": true
+        },
+        {
+          "dxfName": "PLOTSETTINGS",
+          "cppClassName": "AcDbPlotSettings",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKPOINTPARAMETER",
+          "cppClassName": "AcDbBlockPointParameter",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "BLOCKXYGRIP",
+          "cppClassName": "AcDbBlockXYGrip",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_CURVEMESH",
+          "cppClassName": "TDbCurveMesh",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TABLECONTENT",
+          "cppClassName": "AcDbTableContent",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TABLEGEOMETRY",
+          "cppClassName": "AcDbTableGeometry",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "DATATABLE",
+          "cppClassName": "AcDbDataTable",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDB_TEXTOBJECTCONTEXTDATA_CLASS",
+          "cppClassName": "AcDbTextObjectContextData",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_MODI",
+          "cppClassName": "TDbSymbModi",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDBASSOCPERSSUBENTMANAGER",
+          "cppClassName": "AcDbAssocPersSubentManager",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDBPERSSUBENTMANAGER",
+          "cppClassName": "AcDbPersSubentManager",
+          "applicationName": "AcDbPersSubentManager",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "DisablesProxyWarningDialog",
+          "wasZombie": false
+        }
+      ],
+      "sourceTypes": {
+        "LWPOLYLINE": 3735,
+        "CIRCLE": 88,
+        "ATTDEF": 1,
+        "LINE": 12630,
+        "MTEXT": 1359,
+        "INSERT": 3240,
+        "POINT": 4085,
+        "ARC": 43,
+        "HATCH": 472,
+        "DIMENSION": 1361,
+        "TEXT": 6036,
+        "SOLID": 151,
+        "SPLINE": 6
+      },
+      "importCompleteness": "partial",
+      "workerSeconds": 2.7187356,
+      "wallSeconds": 8.475422709000005,
+      "peakWorkingSetBytes": null,
+      "peakMemoryStatus": "dotnet_metric_unavailable_on_this_platform",
+      "conversionVerification": "not_verified",
+      "programmaticNoopRoundtrip": {
+        "status": "supported_state_equal",
+        "stateEqual": true,
+        "expected": "54def0c5fe3a1b98792f2bf318032f730861ec716dc823830d8224e9962e7143",
+        "actual": "54def0c5fe3a1b98792f2bf318032f730861ec716dc823830d8224e9962e7143",
+        "independentCad": "not_run",
+        "scope": "supported_geometry_layers_blocks_units_only",
+        "completeDelivery": false
+      },
+      "independentCad": "not_run",
+      "originalT3Pair": "not_provided",
+      "completeDelivery": false
+    },
+    {
+      "name": "综合楼附房给排水.dwg",
+      "source": "incoming",
+      "sha256": "c7a229b3b216d9c7c8b5f4a79a01da3963fa28b1f9e57ae4b730e01281f033ac",
+      "sizeBytes": 3441956,
+      "format": "AC1018",
+      "parser": "ACadSharp 3.8.30",
+      "status": "parsed",
+      "sourceEntityCount": 25933,
+      "sourceRecordCount": 44029,
+      "occurrenceCount": 46265,
+      "entityTypes": {
+        "LINE": 31981,
+        "LWPOLYLINE": 2346,
+        "ATTRIB": 1868,
+        "TEXT": 2301,
+        "CIRCLE": 473,
+        "ARC": 1716,
+        "HATCH": 392,
+        "DIMENSION": 252,
+        "SOLID": 228,
+        "SPLINE": 4672,
+        "ELLIPSE": 2,
+        "LEADER": 21,
+        "POINT": 13
+      },
+      "insUnits": 1,
+      "diagnosticCount": 6215,
+      "diagnosticsByCode": {
+        "UNSUPPORTED_ENTITY": 6215
+      },
+      "notificationCount": 0,
+      "unknownNotificationClasses": {},
+      "dependencies": [],
+      "resources": [
+        {
+          "kind": "font",
+          "style": "Standard",
+          "path": "txt.shx",
+          "bigFont": "bzhz.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HZ2",
+          "path": "ROMAND.SHX",
+          "bigFont": "HZTXT.SHX",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HZ",
+          "path": "SIMPLEX.SHX",
+          "bigFont": "HZTXT.SHX",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "DIM_FONT",
+          "path": "bzxw.shx",
+          "bigFont": "bzhz.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "CZH",
+          "path": "bzxw.shx",
+          "bigFont": "bzhz.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "DXF",
+          "path": "bzxw.shx",
+          "bigFont": "bzhz.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_WINDOW",
+          "path": "SIMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "C3",
+          "path": "SIMPLEX.SHX",
+          "bigFont": "HZTXT.SHX",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_DIM",
+          "path": "SIMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_AXIS",
+          "path": "COMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "COMPLEX",
+          "path": "COMPLEX",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "-黑体",
+          "path": "SIMHEI.TTF",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "黑体",
+          "path": "SIMHEI.TTF",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "XD-AD-中文",
+          "path": "SimSun.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "XD-AD-西文",
+          "path": "gbenor.shx",
+          "bigFont": "gbcbig.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "公司名等",
+          "path": "SIMHEI.TTF",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "ASHADE",
+          "path": "txt.shx",
+          "bigFont": "hztxt.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HZTXT",
+          "path": "TXT",
+          "bigFont": "HZTXT",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_LABEL",
+          "path": "COMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_DIM_T3",
+          "path": "txt.shx",
+          "bigFont": "hztxt.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_SIMPLEX",
+          "path": "SIMPLEX.shx",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "SIMPLEX",
+          "path": "SIMPLEX.SHX",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "图签-仿宋",
+          "path": "SIMFANG.TTF",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HYZT1",
+          "path": "SimSun.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HYZT2",
+          "path": "SIMHEI.TTF",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HT64F",
+          "path": "romans__.ttf",
+          "bigFont": "HT64F",
+          "verification": "not_verified"
+        }
+      ],
+      "registeredClasses": [
+        {
+          "dxfName": "ACDBDICTIONARYWDFLT",
+          "cppClassName": "AcDbDictionaryWithDefault",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "DICTIONARYVAR",
+          "cppClassName": "AcDbDictionaryVar",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 2,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "SORTENTSTABLE",
+          "cppClassName": "AcDbSortentsTable",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 13,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "MATERIAL",
+          "cppClassName": "AcDbMaterial",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        }
+      ],
+      "sourceTypes": {
+        "LWPOLYLINE": 1224,
+        "LINE": 31228,
+        "SOLID": 6,
+        "CIRCLE": 73,
+        "ATTDEF": 186,
+        "ARC": 1330,
+        "MTEXT": 303,
+        "INSERT": 1895,
+        "POINT": 928,
+        "TEXT": 1573,
+        "HATCH": 285,
+        "DIMENSION": 303,
+        "SPLINE": 4672,
+        "ELLIPSE": 2,
+        "LEADER": 21
+      },
+      "importCompleteness": "partial",
+      "workerSeconds": 3.3283057,
+      "wallSeconds": 9.845299874999997,
+      "peakWorkingSetBytes": null,
+      "peakMemoryStatus": "dotnet_metric_unavailable_on_this_platform",
+      "conversionVerification": "not_verified",
+      "programmaticNoopRoundtrip": {
+        "status": "supported_state_equal",
+        "stateEqual": true,
+        "expected": "92df245aa80416390754186ebb46b73694cf079199125105a7f6c74e8495dd8c",
+        "actual": "92df245aa80416390754186ebb46b73694cf079199125105a7f6c74e8495dd8c",
+        "independentCad": "not_run",
+        "scope": "supported_geometry_layers_blocks_units_only",
+        "completeDelivery": false
+      },
+      "independentCad": "not_run",
+      "originalT3Pair": "not_provided",
+      "completeDelivery": false
+    },
+    {
+      "name": "单体20211206（2022.1.4）.dwg",
+      "source": "original",
+      "sha256": "b0e314565705e746a39a00017f42296ca9f21872e26759e88c49d3c8248ef278",
+      "sizeBytes": 625645,
+      "format": "AC1018",
+      "parser": "ACadSharp 3.8.30",
+      "status": "parsed",
+      "sourceEntityCount": 6155,
+      "sourceRecordCount": 12359,
+      "occurrenceCount": 15101,
+      "entityTypes": {
+        "REGION": 2,
+        "TEXT": 1150,
+        "LINE": 10993,
+        "CIRCLE": 332,
+        "ATTRIB": 175,
+        "DIMENSION": 551,
+        "SOLID": 197,
+        "LWPOLYLINE": 1121,
+        "ARC": 302,
+        "POINT": 4,
+        "POLYLINE": 16,
+        "HATCH": 247,
+        "SPLINE": 4,
+        "MTEXT": 6,
+        "ATTDEF": 1
+      },
+      "insUnits": 0,
+      "diagnosticCount": 2414,
+      "diagnosticsByCode": {
+        "UNSUPPORTED_ENTITY": 2412,
+        "GEOMETRY_INVALID": 2
+      },
+      "notificationCount": 18,
+      "unknownNotificationClasses": {
+        "TCH_PSCONFIG": 1,
+        "LSSTROKEPATTERNCOMPONENT": 10,
+        "CELLSTYLEMAP": 1
+      },
+      "dependencies": [],
+      "resources": [
+        {
+          "kind": "font",
+          "style": "Standard",
+          "path": "gbenor.shx",
+          "bigFont": "gbcbig.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "黑体",
+          "path": "SIMHEI.TTF",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "DIM_FONT",
+          "path": "SIMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "COMPLEX",
+          "path": "COMPLEX",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "SIMPLEX",
+          "path": "SIMPLEX.SHX",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "TK-H2",
+          "path": "SimSun.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_DIM",
+          "path": "SIMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_HZTXT",
+          "path": "txt.shx",
+          "bigFont": "smfs.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HZ1",
+          "path": "SimSun.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "DS6HT",
+          "path": "SIMHEI.TTF",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "H1",
+          "path": "SimSun.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HT0",
+          "path": "SIMHEI.TTF",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_SIMPLEX",
+          "path": "SIMPLEX.shx",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "-宋体",
+          "path": "txt.shx",
+          "bigFont": "smfs.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_LABEL",
+          "path": "COMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "H2",
+          "path": "simplex.shx",
+          "bigFont": "hztxt.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HZ",
+          "path": "romans.shx",
+          "bigFont": "hztxt.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "T",
+          "path": "SIMHEI.TTF",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "QQS",
+          "path": "stylu.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        }
+      ],
+      "registeredClasses": [
+        {
+          "dxfName": "ACDBDICTIONARYWDFLT",
+          "cppClassName": "AcDbDictionaryWithDefault",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDBPLACEHOLDER",
+          "cppClassName": "AcDbPlaceHolder",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LAYOUT",
+          "cppClassName": "AcDbLayout",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 3,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "DICTIONARYVAR",
+          "cppClassName": "AcDbDictionaryVar",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 7,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TABLESTYLE",
+          "cppClassName": "AcDbTableStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "MATERIAL",
+          "cppClassName": "AcDbMaterial",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 3,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "VISUALSTYLE",
+          "cppClassName": "AcDbVisualStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 3,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "GROUND_PLANE_BACKGROUND",
+          "cppClassName": "AcDbGroundPlaneBackground",
+          "applicationName": "SCENEOE",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": true
+        },
+        {
+          "dxfName": "NPOCOLLECTION",
+          "cppClassName": "AcDbImpNonPersistentObjectsCollection",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACSH_CONE_CLASS",
+          "cppClassName": "AcDbShCone",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACAD_EVALUATION_GRAPH",
+          "cppClassName": "AcDbEvalGraph",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACSH_HISTORY_CLASS",
+          "cppClassName": "AcDbShHistory",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "SOLID_BACKGROUND",
+          "cppClassName": "AcDbSolidBackground",
+          "applicationName": "SCENEOE",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": true
+        },
+        {
+          "dxfName": "ACSH_BOX_CLASS",
+          "cppClassName": "AcDbShBox",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "SCALE",
+          "cppClassName": "AcDbScale",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 34,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "MLEADERSTYLE",
+          "cppClassName": "AcDbMLeaderStyle",
+          "applicationName": "ACDB_MLEADERSTYLE_CLASS",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "WIPEOUTVARIABLES",
+          "cppClassName": "AcDbWipeoutVariables",
+          "applicationName": "\"WipeOut|Product Desc:     WipeOut Dbx Application|Company:          Autodesk, Inc.|WEB Address:      www.autodesk.com\"",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "CELLSTYLEMAP",
+          "cppClassName": "AcDbCellStyleMap",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_DBCONFIG",
+          "cppClassName": "TDbConfig",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "SORTENTSTABLE",
+          "cppClassName": "AcDbSortentsTable",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 18,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_MULTILEADER",
+          "cppClassName": "TDbSymbMultiLeader",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_COLUMN",
+          "cppClassName": "TDbColumn",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_DIMENSION2",
+          "cppClassName": "TDbDimension2",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_RUPTURE",
+          "cppClassName": "TDbSymbRupture",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_ARROW",
+          "cppClassName": "TDbSymbArrow",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_DRAWINGNAME",
+          "cppClassName": "TDbDrawingName",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_TEXT",
+          "cppClassName": "TDbText",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_ELEVATION",
+          "cppClassName": "TDbSymbElevation",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_WALL",
+          "cppClassName": "TDbWall",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_ERRORMSG",
+          "cppClassName": "TDbPromptMark",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_OPENING",
+          "cppClassName": "TDbOpening",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_RECTSTAIR",
+          "cppClassName": "TDbRectStair",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "EXACXREFPANELOBJECT",
+          "cppClassName": "ExAcXREFPanelObject",
+          "applicationName": "EXAC_ESW",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": true
+        },
+        {
+          "dxfName": "TCH_LINESTAIR",
+          "cppClassName": "TDbLineStair",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_CURTAIN_WALL",
+          "cppClassName": "TDbCurtainWall",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_MTEXT",
+          "cppClassName": "TDbMText",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_HANDRAIL",
+          "cppClassName": "TDbHandRail",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_SLAB",
+          "cppClassName": "TDbSlab",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "DIMASSOC",
+          "cppClassName": "AcDbDimAssoc",
+          "applicationName": "\"AcDbDimAssoc|Product Desc:     AcDim ARX App For Dimension|Company:          Autodesk, Inc.|WEB Address:      www.autodesk.com\"",
+          "instanceCount": 6,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_AUTOSTAIR",
+          "cppClassName": "TDbAutoStair",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_SPACE",
+          "cppClassName": "TDbSpace",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "WIPEOUT",
+          "cppClassName": "AcDbWipeout",
+          "applicationName": "\"WipeOut|Product Desc: Object Enabler for WipeOut entity\t\t\t\t\t\t|Company: Autodesk, Inc.\t\t\t\t\t\t|WEB Address: www.autodesk.com\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed, TransformAllowed, ColorChangeAllowed, LayerChangeAllowed, LinetypeChangeAllowed, LinetypeScaleChangeAllowed, VisibilityChangeAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_COORD",
+          "cppClassName": "TDbSymbCoord",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "AEC_REFEDIT_STATUS_TRACKER",
+          "cppClassName": "AecDbRefEditStatusTracker",
+          "applicationName": "AecArchBase70|Product Desc: Autodesk Architectural Desktop 2007 |Company: Autodesk,Inc. |WEB Address: www.autodesk.com",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed",
+          "wasZombie": true
+        },
+        {
+          "dxfName": "TCH_BLOCK_INSERT",
+          "cppClassName": "TDbBlockInsert",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACAECUSTOBJ",
+          "cppClassName": "AcAeEditorObj",
+          "applicationName": "AcAeEditorObj",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "DisablesProxyWarningDialog",
+          "wasZombie": true
+        },
+        {
+          "dxfName": "ACDB_DYNAMICBLOCKPURGEPREVENTER_VERSION",
+          "cppClassName": "AcDbDynamicBlockPurgePreventer",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_SYMB_SECTION",
+          "cppClassName": "TDbSymbSection",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDBSECTIONVIEWSTYLE",
+          "cppClassName": "AcDbSectionViewStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDBDETAILVIEWSTYLE",
+          "cppClassName": "AcDbDetailViewStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_MODI",
+          "cppClassName": "TDbSymbModi",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_DRAWINGINDEX",
+          "cppClassName": "TDbSymbDrawingIndex",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_COMPOSING",
+          "cppClassName": "TDbSymbComposing",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "RASTERVARIABLES",
+          "cppClassName": "AcDbRasterVariables",
+          "applicationName": "ISM",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "IMAGEDEF",
+          "cppClassName": "AcDbRasterImageDef",
+          "applicationName": "ISM",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "IMAGEDEF_REACTOR",
+          "cppClassName": "AcDbRasterImageDefReactor",
+          "applicationName": "ISM",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "IMAGE",
+          "cppClassName": "AcDbRasterImage",
+          "applicationName": "ISM",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed, TransformAllowed, ColorChangeAllowed, LayerChangeAllowed, LinetypeChangeAllowed, LinetypeScaleChangeAllowed, VisibilityChangeAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_INDEXPOINTER",
+          "cppClassName": "TDbSymbIndexPointer",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "SPATIAL_FILTER",
+          "cppClassName": "AcDbSpatialFilter",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_DIMENSION",
+          "cppClassName": "TDbDimension",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_AXIS_LABEL",
+          "cppClassName": "TDbAxisLabelSet",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_MTEXTNEW",
+          "cppClassName": "TDbMTextNew",
+          "applicationName": "\"TCH_PIPEWIRE|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_PSCONFIG",
+          "cppClassName": "TDbPsConfig",
+          "applicationName": "TCH_PIPEWIRE",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LSDEFINITION",
+          "cppClassName": "AcDbLSDefinition",
+          "applicationName": "AcDgnLS",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LSSTROKEPATTERNCOMPONENT",
+          "cppClassName": "AcDbLSStrokePatternComponent",
+          "applicationName": "AcDgnLS",
+          "instanceCount": 10,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        }
+      ],
+      "sourceTypes": {
+        "SOLID": 30,
+        "CIRCLE": 180,
+        "ATTDEF": 11,
+        "LINE": 5407,
+        "LWPOLYLINE": 739,
+        "INSERT": 1916,
+        "MTEXT": 557,
+        "POINT": 1666,
+        "REGION": 2,
+        "TEXT": 914,
+        "DIMENSION": 551,
+        "HATCH": 158,
+        "ARC": 216,
+        "SPLINE": 4,
+        "POLYLINE": 8
+      },
+      "importCompleteness": "partial",
+      "workerSeconds": 1.3305016,
+      "wallSeconds": 3.0496448750000127,
+      "peakWorkingSetBytes": null,
+      "peakMemoryStatus": "dotnet_metric_unavailable_on_this_platform",
+      "conversionVerification": "not_verified",
+      "programmaticNoopRoundtrip": {
+        "status": "failed",
+        "error": "System.ArgumentException: An item with the same key has already been added. Key: 18380\n   at System.Collections.Generic.Dictionary`2.TryInsert(TKey key, TValue value, InsertionBehavior behavior)\n   at System.Collections.Generic.Dictionary`2.Add(TKey key, TValue value)\n   at ACadSharp.IO.DWG.DwgObjectWriter.registerObject(CadObject cadObject)\n   at ACadSharp.IO.DWG.DwgObjectWriter.writeObject(NonGraphicalObject obj)\n   at ACadSharp.IO.DWG.DwgObjectWriter.writeObjects()\n   at ACadSharp.IO.DWG.DwgObjectWriter.Write()\n   at ACadSharp.IO.DwgWriter.writeObjects()\n   at ACadSharp.IO.DwgWriter.Write()\n   at ACadSharp.IO.DwgWriter.Write(String filename, CadDocument document, DwgWriterConfiguration configuration, NotificationEventHandler notification)\n   at Worker.Run(String[] args) in /Users/zhangjunqing/git-bus/bwc/workers/cad/Worker.cs:line 32\n",
+        "completeDelivery": false
+      },
+      "independentCad": "not_run",
+      "originalT3Pair": "not_provided",
+      "completeDelivery": false
+    },
+    {
+      "name": "总图-20211231.dwg",
+      "source": "original",
+      "sha256": "c4c047e63cdb110e495902933f7327b1d2f14b5595489260c5853d158c994585",
+      "sizeBytes": 531853,
+      "format": "AC1018",
+      "parser": "ACadSharp 3.8.30",
+      "status": "parsed",
+      "sourceEntityCount": 979,
+      "sourceRecordCount": 6644,
+      "occurrenceCount": 8433,
+      "entityTypes": {
+        "LINE": 6394,
+        "ARC": 473,
+        "TEXT": 446,
+        "LWPOLYLINE": 254,
+        "HATCH": 103,
+        "DIMENSION": 44,
+        "POLYLINE": 595,
+        "CIRCLE": 82,
+        "ELLIPSE": 6,
+        "ATTRIB": 6,
+        "TCH_COORD": 6,
+        "SOLID": 20,
+        "MTEXT": 2,
+        "VIEWPORT": 2
+      },
+      "insUnits": 4,
+      "diagnosticCount": 328,
+      "diagnosticsByCode": {
+        "UNSUPPORTED_ENTITY": 322,
+        "COMPATIBILITY_EXPORT_REQUIRED": 6
+      },
+      "notificationCount": 19,
+      "unknownNotificationClasses": {
+        "TCH_DBCONFIG": 1,
+        "TCH_COORD": 6,
+        "LSSTROKEPATTERNCOMPONENT": 8,
+        "CELLSTYLEMAP": 1
+      },
+      "dependencies": [],
+      "resources": [
+        {
+          "kind": "font",
+          "style": "Standard",
+          "path": "SimSun.ttf",
+          "bigFont": "C:\\Program Files\\AutoCAD 2004\\Fonts\\Chinese.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "黑体",
+          "path": "SIMHEI.TTF",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_DIM",
+          "path": "SIMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_HZTXT",
+          "path": "txt.shx",
+          "bigFont": "hztxt.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "DIM_FONT",
+          "path": "SIMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "DS6HT",
+          "path": "SIMHEI.TTF",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "H1",
+          "path": "SimSun.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "-宋体",
+          "path": "SimSun.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "TK-H2",
+          "path": "SimSun.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "unnamed0",
+          "path": "SSAAA.SHX",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "xdx",
+          "path": "complex.shx",
+          "bigFont": "hztxt.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "zdx",
+          "path": "",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_LABEL",
+          "path": "COMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HT",
+          "path": "SIMHEI.TTF",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "COMPLEX",
+          "path": "COMPLEX",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "等线体",
+          "path": "SIMHEI.TTF",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "SXFS",
+          "path": "romans.shx",
+          "bigFont": "FS64F.SHX",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_DIM_T3",
+          "path": "SIMPLEX",
+          "bigFont": "GBCBIG",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "hztxt",
+          "path": "txt.shx",
+          "bigFont": "hztxt.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "ZD",
+          "path": "txt.shx",
+          "bigFont": "HZTXT.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "宋体_T3_T3",
+          "path": "NSimSun.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "_TCH_SUNANA",
+          "path": "SimSun.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "SM",
+          "path": "txt.shx",
+          "bigFont": "hztxt.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "DS6FS",
+          "path": "tssdeng.shx",
+          "bigFont": "tssdchn.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "Z",
+          "path": "ARIAL.TTF",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "song",
+          "path": "SimSun.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "T",
+          "path": "SIMHEI.TTF",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "QQS",
+          "path": "stylu.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        }
+      ],
+      "registeredClasses": [
+        {
+          "dxfName": "ACDBDICTIONARYWDFLT",
+          "cppClassName": "AcDbDictionaryWithDefault",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDBPLACEHOLDER",
+          "cppClassName": "AcDbPlaceHolder",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LAYOUT",
+          "cppClassName": "AcDbLayout",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 3,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "DICTIONARYVAR",
+          "cppClassName": "AcDbDictionaryVar",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 6,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "WIPEOUTVARIABLES",
+          "cppClassName": "AcDbWipeoutVariables",
+          "applicationName": "\"WipeOut|Product Desc:     WipeOut Dbx Application|Company:          Autodesk, Inc.|WEB Address:      www.autodesk.com\"",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "MATERIAL",
+          "cppClassName": "AcDbMaterial",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 3,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "VISUALSTYLE",
+          "cppClassName": "AcDbVisualStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 3,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TABLESTYLE",
+          "cppClassName": "AcDbTableStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "SCALE",
+          "cppClassName": "AcDbScale",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 18,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "MLEADERSTYLE",
+          "cppClassName": "AcDbMLeaderStyle",
+          "applicationName": "ACDB_MLEADERSTYLE_CLASS",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "SORTENTSTABLE",
+          "cppClassName": "AcDbSortentsTable",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 24,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_DBCONFIG",
+          "cppClassName": "TDbConfig",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "DIMASSOC",
+          "cppClassName": "AcDbDimAssoc",
+          "applicationName": "\"AcDbDimAssoc|Product Desc:     AcDim ARX App For Dimension|Company:          Autodesk, Inc.|WEB Address:      www.autodesk.com\"",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "CELLSTYLEMAP",
+          "cppClassName": "AcDbCellStyleMap",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "RASTERVARIABLES",
+          "cppClassName": "AcDbRasterVariables",
+          "applicationName": "ISM",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "IMAGEDEF",
+          "cppClassName": "AcDbRasterImageDef",
+          "applicationName": "ISM",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "IMAGEDEF_REACTOR",
+          "cppClassName": "AcDbRasterImageDefReactor",
+          "applicationName": "ISM",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "IMAGE",
+          "cppClassName": "AcDbRasterImage",
+          "applicationName": "ISM",
+          "instanceCount": 0,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed, TransformAllowed, ColorChangeAllowed, LayerChangeAllowed, LinetypeChangeAllowed, LinetypeScaleChangeAllowed, VisibilityChangeAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_COORD",
+          "cppClassName": "TDbSymbCoord",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 6,
+          "isAnEntity": true,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDBSECTIONVIEWSTYLE",
+          "cppClassName": "AcDbSectionViewStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDBDETAILVIEWSTYLE",
+          "cppClassName": "AcDbDetailViewStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "AEC_REFEDIT_STATUS_TRACKER",
+          "cppClassName": "AecDbRefEditStatusTracker",
+          "applicationName": "AecArchBase70|Product Desc: Autodesk Architectural Desktop 2007 |Company: Autodesk,Inc. |WEB Address: www.autodesk.com",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "NPOCOLLECTION",
+          "cppClassName": "AcDbImpNonPersistentObjectsCollection",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "LSSTROKEPATTERNCOMPONENT",
+          "cppClassName": "AcDbLSStrokePatternComponent",
+          "applicationName": "AcDgnLS",
+          "instanceCount": 8,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACAD_EVALUATION_GRAPH",
+          "cppClassName": "AcDbEvalGraph",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACAECUSTOBJ",
+          "cppClassName": "AcAeEditorObj",
+          "applicationName": "AcAeEditorObj",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "DisablesProxyWarningDialog",
+          "wasZombie": true
+        },
+        {
+          "dxfName": "ACDB_DYNAMICBLOCKPURGEPREVENTER_VERSION",
+          "cppClassName": "AcDbDynamicBlockPurgePreventer",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        }
+      ],
+      "sourceTypes": {
+        "LWPOLYLINE": 378,
+        "CIRCLE": 19,
+        "ATTDEF": 1,
+        "LINE": 4185,
+        "INSERT": 386,
+        "MTEXT": 50,
+        "POINT": 125,
+        "ARC": 85,
+        "TEXT": 944,
+        "HATCH": 71,
+        "DIMENSION": 44,
+        "POLYLINE": 264,
+        "TCH_COORD": 6,
+        "VIEWPORT": 2,
+        "SOLID": 81,
+        "ELLIPSE": 3
+      },
+      "importCompleteness": "partial",
+      "workerSeconds": 1.0765625,
+      "wallSeconds": 2.3984706670000016,
+      "peakWorkingSetBytes": null,
+      "peakMemoryStatus": "dotnet_metric_unavailable_on_this_platform",
+      "conversionVerification": "not_verified",
+      "programmaticNoopRoundtrip": {
+        "status": "failed",
+        "error": "System.ArgumentException: An item with the same key has already been added. Key: 14138\n   at System.Collections.Generic.Dictionary`2.TryInsert(TKey key, TValue value, InsertionBehavior behavior)\n   at System.Collections.Generic.Dictionary`2.Add(TKey key, TValue value)\n   at ACadSharp.IO.DWG.DwgObjectWriter.registerObject(CadObject cadObject)\n   at ACadSharp.IO.DWG.DwgObjectWriter.writeObject(NonGraphicalObject obj)\n   at ACadSharp.IO.DWG.DwgObjectWriter.writeObjects()\n   at ACadSharp.IO.DWG.DwgObjectWriter.Write()\n   at ACadSharp.IO.DwgWriter.writeObjects()\n   at ACadSharp.IO.DwgWriter.Write()\n   at ACadSharp.IO.DwgWriter.Write(String filename, CadDocument document, DwgWriterConfiguration configuration, NotificationEventHandler notification)\n   at Worker.Run(String[] args) in /Users/zhangjunqing/git-bus/bwc/workers/cad/Worker.cs:line 32\n",
+        "completeDelivery": false
+      },
+      "independentCad": "not_run",
+      "originalT3Pair": "not_provided",
+      "completeDelivery": false
+    },
+    {
+      "name": "科华厂房-加雨棚.dwg",
+      "source": "original",
+      "sha256": "50ed42b31758eedeafd1473d62d249b9682b48e42d93bff9acf4e50bb8f61cb9",
+      "sizeBytes": 2367278,
+      "format": "AC1018",
+      "parser": "ACadSharp 3.8.30",
+      "status": "parsed",
+      "sourceEntityCount": 41487,
+      "sourceRecordCount": 58206,
+      "occurrenceCount": 50862,
+      "entityTypes": {
+        "HATCH": 542,
+        "LINE": 27426,
+        "LWPOLYLINE": 8737,
+        "DIMENSION": 1668,
+        "CIRCLE": 691,
+        "TEXT": 9304,
+        "ARC": 631,
+        "SOLID": 511,
+        "SPLINE": 12,
+        "LEADER": 2,
+        "ATTRIB": 1056,
+        "3DFACE": 200,
+        "INSERT": 1,
+        "MTEXT": 77,
+        "POINT": 2,
+        "ATTDEF": 2
+      },
+      "insUnits": 0,
+      "diagnosticCount": 7424,
+      "diagnosticsByCode": {
+        "UNSUPPORTED_ENTITY": 7423,
+        "UNSUPPORTED_INSERT_FEATURE": 1
+      },
+      "notificationCount": 1,
+      "unknownNotificationClasses": {
+        "CELLSTYLEMAP": 1
+      },
+      "dependencies": [],
+      "resources": [
+        {
+          "kind": "font",
+          "style": "STANDARD",
+          "path": "txt.shx",
+          "bigFont": "!hzdx.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "H1",
+          "path": "",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "hzdx",
+          "path": "txt.shx",
+          "bigFont": "hzdx.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "PkpmHz",
+          "path": "Pkpmeng",
+          "bigFont": "hztxt",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "tssd_rein",
+          "path": "tssdeng.shx",
+          "bigFont": "hztxt.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "DS6HT",
+          "path": "simhei.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "TSSD_Norm",
+          "path": "Tssdeng.shx",
+          "bigFont": "tssdchn.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "tssd",
+          "path": "tssdeng.shx",
+          "bigFont": "hztxt.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "-黑体",
+          "path": "simhei.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "TSSD_DIMENSION",
+          "path": "tssdeng.shx",
+          "bigFont": "tssdchn.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "HHZTXT",
+          "path": "txt.shx",
+          "bigFont": "hzdx.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "金慧字体",
+          "path": "tssdeng.shx",
+          "bigFont": "tssdchn.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "GW_黑体",
+          "path": "simhei.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "GW_黑体RDs",
+          "path": "simhei.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "GW_黑体hq",
+          "path": "simhei.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "GW_ATT",
+          "path": "txt.shx",
+          "bigFont": "gbcbig.shx",
+          "verification": "not_verified"
+        },
+        {
+          "kind": "font",
+          "style": "T",
+          "path": "simhei.ttf",
+          "bigFont": "",
+          "verification": "not_verified"
+        }
+      ],
+      "registeredClasses": [
+        {
+          "dxfName": "LWPOLYLINE",
+          "cppClassName": "AcDbPolyline",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 5475,
+          "isAnEntity": true,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "DICTIONARYVAR",
+          "cppClassName": "AcDbDictionaryVar",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 6,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "HATCH",
+          "cppClassName": "AcDbHatch",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 290,
+          "isAnEntity": true,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDBDICTIONARYWDFLT",
+          "cppClassName": "AcDbDictionaryWithDefault",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "MATERIAL",
+          "cppClassName": "AcDbMaterial",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 3,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "VISUALSTYLE",
+          "cppClassName": "AcDbVisualStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 3,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TABLESTYLE",
+          "cppClassName": "AcDbTableStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "SORTENTSTABLE",
+          "cppClassName": "AcDbSortentsTable",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 12,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "SCALE",
+          "cppClassName": "AcDbScale",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 17,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "MLEADERSTYLE",
+          "cppClassName": "AcDbMLeaderStyle",
+          "applicationName": "ACDB_MLEADERSTYLE_CLASS",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDBSECTIONVIEWSTYLE",
+          "cppClassName": "AcDbSectionViewStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACDBDETAILVIEWSTYLE",
+          "cppClassName": "AcDbDetailViewStyle",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "TCH_DBCONFIG",
+          "cppClassName": "TDbConfig",
+          "applicationName": "\"TCH_KERNAL|缺乏解释器天正图形看不见, 请下载天正插件|网址: www.tangent.com.cn\"",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed",
+          "wasZombie": true
+        },
+        {
+          "dxfName": "CELLSTYLEMAP",
+          "cppClassName": "AcDbCellStyleMap",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACAD_EVALUATION_GRAPH",
+          "cppClassName": "AcDbEvalGraph",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "ACAECUSTOBJ",
+          "cppClassName": "AcAeEditorObj",
+          "applicationName": "AcAeEditorObj",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "DisablesProxyWarningDialog",
+          "wasZombie": true
+        },
+        {
+          "dxfName": "ACDB_DYNAMICBLOCKPURGEPREVENTER_VERSION",
+          "cppClassName": "AcDbDynamicBlockPurgePreventer",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 1,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "DIMASSOC",
+          "cppClassName": "AcDbDimAssoc",
+          "applicationName": "\"AcDbDimAssoc|Product Desc:     AcDim ARX App For Dimension|Company:          Autodesk, Inc.|WEB Address:      www.autodesk.com\"",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "None",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "RAPIDRTRENDERSETTINGS",
+          "cppClassName": "AcDbRapidRTRenderSettings",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "MENTALRAYRENDERSETTINGS",
+          "cppClassName": "AcDbMentalRayRenderSettings",
+          "applicationName": "SCENEOE",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "DisablesProxyWarningDialog",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "SOLID_BACKGROUND",
+          "cppClassName": "AcDbSolidBackground",
+          "applicationName": "SCENEOE",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "4095",
+          "wasZombie": false
+        },
+        {
+          "dxfName": "NPOCOLLECTION",
+          "cppClassName": "AcDbImpNonPersistentObjectsCollection",
+          "applicationName": "ObjectDBX Classes",
+          "instanceCount": 0,
+          "isAnEntity": false,
+          "proxyFlags": "EraseAllowed, CloningAllowed, DisablesProxyWarningDialog",
+          "wasZombie": false
+        }
+      ],
+      "sourceTypes": {
+        "LWPOLYLINE": 5475,
+        "LINE": 30320,
+        "INSERT": 3823,
+        "MTEXT": 1744,
+        "POINT": 5010,
+        "ARC": 529,
+        "HATCH": 290,
+        "DIMENSION": 1668,
+        "CIRCLE": 691,
+        "TEXT": 8005,
+        "SOLID": 250,
+        "LEADER": 2,
+        "3DFACE": 200,
+        "ATTDEF": 196,
+        "SPLINE": 3
+      },
+      "importCompleteness": "partial",
+      "workerSeconds": 6.770855,
+      "wallSeconds": 21.565933707999996,
+      "peakWorkingSetBytes": null,
+      "peakMemoryStatus": "dotnet_metric_unavailable_on_this_platform",
+      "conversionVerification": "not_verified",
+      "programmaticNoopRoundtrip": {
+        "status": "supported_state_equal",
+        "stateEqual": true,
+        "expected": "a919887367c24301a08cdfe40a8603e8c1643377eebaf2eaa147939ef76131e4",
+        "actual": "a919887367c24301a08cdfe40a8603e8c1643377eebaf2eaa147939ef76131e4",
+        "independentCad": "not_run",
+        "scope": "supported_geometry_layers_blocks_units_only",
+        "completeDelivery": false
+      },
+      "independentCad": "not_run",
+      "originalT3Pair": "not_provided",
+      "completeDelivery": false
+    }
+  ]
+}

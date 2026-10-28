@@ -7,7 +7,7 @@ using CSMath;
 
 if (args.Length > 0 && args[0] == "api")
 {
-    foreach (var t in new[] { typeof(Insert), typeof(LwPolyline), typeof(Polyline2D), typeof(TextEntity), typeof(BlockRecord), typeof(ACadSharp.Blocks.Block), typeof(CSMath.Transform), typeof(ACadSharp.Header.CadHeader), typeof(ACadSharp.Color) }) {
+    foreach (var t in new[] { typeof(CadDocument), typeof(ACadSharp.Objects.TableStyle), typeof(ACadSharp.Objects.TableStyle.CellStyle), typeof(Insert), typeof(LwPolyline), typeof(Polyline2D), typeof(TextEntity), typeof(BlockRecord), typeof(ACadSharp.Blocks.Block), typeof(CSMath.Transform), typeof(ACadSharp.Header.CadHeader), typeof(ACadSharp.Color) }) {
         Console.WriteLine(t.FullName);
         foreach(var p in t.GetProperties()) Console.WriteLine($"  {p.PropertyType.Name} {p.Name}");
         foreach(var c in t.GetConstructors()) Console.WriteLine($"  {c}");

@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22.13" },
+  "engines": {
+    "node": ">=22.13"
+  },
   "scripts": {
     "setup": "node scripts/setup.mjs",
     "dev": "node scripts/dev.mjs",
@@ -13,10 +15,13 @@
     "start": "tsx server/main.ts",
     "test": "tsx --test tests/*.test.ts",
     "test:geometry": ".venv/bin/python -m unittest discover -s workers/geometry -p 'test_*.py'",
-    "test:e2e": "playwright test",
     "probe": "tsx scripts/probe.ts",
     "mcp": "tsx server/mcp.ts",
-    "host:probe": "tsx scripts/host-probe.ts"
+    "host:probe": "tsx scripts/host-probe.ts",
+    "format": "prettier --write server apps/web scripts tests tsconfig.json package.json",
+    "check": "npm test && npm run test:geometry && npm run build",
+    "host:smoke": "tsx scripts/bridge-smoke.ts",
+    "launch": "node scripts/launch.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.29.0",
@@ -26,12 +31,12 @@
     "zod": "3.25.76"
   },
   "devDependencies": {
-    "@playwright/test": "1.58.2",
     "@types/node": "22.19.15",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@types/three": "0.183.1",
     "@vitejs/plugin-react": "5.0.4",
+    "prettier": "3.8.1",
     "tsx": "4.21.0",
     "typescript": "5.9.3",
     "vite": "7.3.1"
