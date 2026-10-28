@@ -1,10 +1,10 @@
-import { createApplication } from "../server/main.ts";
+import { createApplication } from "../apps/server/main.ts";
 import { mkdtempSync, writeFileSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { ROOT } from "../server/workers.ts";
-import { id } from "../server/util.ts";
-import type { Operation } from "../server/types.ts";
+import { ROOT } from "../apps/server/workers.ts";
+import { id } from "../apps/server/util.ts";
+import type { Operation } from "../apps/server/types.ts";
 
 const root = mkdtempSync(join(tmpdir(), "bwc-host-smoke-"));
 const app = createApplication({ dataDir: root, port: 4311 });

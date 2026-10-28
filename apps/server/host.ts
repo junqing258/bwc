@@ -110,7 +110,7 @@ export class HostBridge {
           args: [
             "--import",
             import.meta.resolve("tsx"),
-            join(ROOT, "server/mcp.ts"),
+            join(ROOT, "apps/server/mcp.ts"),
           ],
           env: {
             BWC_URL: this.url,

@@ -4,6 +4,18 @@
 
 **当前交付是受支持二维子集的真实闭环，规划尚未全部验收。** 七份真实 DWG 均已运行解析与不改另存探测；真实图纸仍有未支持内容，不能宣称完整显示或完整编辑交付。详情见 [实施进度与验收](docs/实施进度与验收.md)、[样本实测](docs/evidence/样本解析实测.md)。
 
+## 目录结构
+
+```text
+apps/web/               React/Three.js 工作台
+apps/server/            Node 项目服务、HTTP API 与 MCP
+apps/workers/cad/       .NET DWG Worker
+apps/workers/geometry/  Python 几何 Worker
+scripts/                安装、启动与验证脚本
+tests/                  集成与契约测试
+skills/                 随应用加载的 AI Skill
+```
+
 ## 启动
 
 本机基线：Node 22.23.1、.NET SDK 10.0.403（Worker 目标 net8.0，允许运行时向上兼容）、Python 3.12、uv；macOS arm64 已验证。AI 另需已登录的 Codex CLI，当前实测版本 0.164.0。没有 AI 账号也能操作人工工具。
@@ -56,7 +68,7 @@ agent-workspace/                宿主工作目录及 dwg-workflow Skill
 
 ## 工具与 AI
 
-[server/tools.ts](server/tools.ts) 定义领域工具和 schema，HTTP `POST /api/call` 与 MCP 共用实现。公共调用包含 projectId；读取可显式固定 workingRevision/geometrySnapshotId；修改必须包含冻结范围、基础版本、operationId 与服务端已保存的 intentId。
+[apps/server/tools.ts](apps/server/tools.ts) 定义领域工具和 schema，HTTP `POST /api/call` 与 MCP 共用实现。公共调用包含 projectId；读取可显式固定 workingRevision/geometrySnapshotId；修改必须包含冻结范围、基础版本、operationId 与服务端已保存的 intentId。
 
 [dwg-workflow Skill](skills/dwg-workflow/SKILL.md) 随宿主工作目录加载，普通安装不修改全局 Codex 配置。账号凭据由宿主管理。项目设置可选择摘要或详细几何，MCP 实际输出按策略裁剪并记录发送类别和版本。原始 DWG 附件上传尚未实现。
 

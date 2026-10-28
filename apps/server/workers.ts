@@ -9,7 +9,7 @@ import {
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { DomainError } from "./util.ts";
-export const ROOT = resolve(import.meta.dirname, "..");
+export const ROOT = resolve(import.meta.dirname, "../..");
 export function runProcess(
   command: string,
   args: string[],
@@ -85,7 +85,7 @@ export async function worker<T>(
       await runProcess(
         "dotnet",
         [
-          join(ROOT, "workers/cad/bin/Release/net8.0/CadWorker.dll"),
+          join(ROOT, "apps/workers/cad/bin/Release/net8.0/CadWorker.dll"),
           input,
           output,
         ],
@@ -97,7 +97,7 @@ export async function worker<T>(
           (existsSync(join(ROOT, ".venv/bin/python"))
             ? join(ROOT, ".venv/bin/python")
             : "python3"),
-        [join(ROOT, "workers/geometry/worker.py"), input, output],
+        [join(ROOT, "apps/workers/geometry/worker.py"), input, output],
         signal,
       );
     return JSON.parse(readFileSync(output, "utf8"));

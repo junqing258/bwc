@@ -3,9 +3,9 @@ import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createApplication, compactPayload } from "../server/main.ts";
-import { HostBridge, parseMessageOperation } from "../server/host.ts";
-import { id, now } from "../server/util.ts";
+import { createApplication, compactPayload } from "../apps/server/main.ts";
+import { HostBridge, parseMessageOperation } from "../apps/server/host.ts";
+import { id, now } from "../apps/server/util.ts";
 
 test("HTTP schemas, origin checks, MCP project binding and data policy share domain results", async () => {
   const root = mkdtempSync(join(tmpdir(), "bwc-http-")),

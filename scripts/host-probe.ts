@@ -1,5 +1,5 @@
-import { JsonRpcProcess } from "../server/rpc.ts";
-import { ROOT } from "../server/workers.ts";
+import { JsonRpcProcess } from "../apps/server/rpc.ts";
+import { ROOT } from "../apps/server/workers.ts";
 import { writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 const notifications: any[] = [];

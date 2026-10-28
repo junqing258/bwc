@@ -1,9 +1,9 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
-import { worker, ROOT } from "../server/workers.ts";
-import { WorkflowService } from "../server/service.ts";
-import { hash, now } from "../server/util.ts";
-import type { Artifact } from "../server/types.ts";
+import { worker, ROOT } from "../apps/server/workers.ts";
+import { WorkflowService } from "../apps/server/service.ts";
+import { hash, now } from "../apps/server/util.ts";
+import type { Artifact } from "../apps/server/types.ts";
 const service = new WorkflowService();
 await service.fixture();
 const samples = service.samples();

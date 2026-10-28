@@ -3,8 +3,8 @@ import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { worker } from "../server/workers.ts";
-import type { Artifact } from "../server/types.ts";
+import { worker } from "../apps/server/workers.ts";
+import type { Artifact } from "../apps/server/types.ts";
 
 test("native OCS elevation, circle centre, nested nonzero base points and signed transforms", async () => {
   const dir = mkdtempSync(join(tmpdir(), "bwc-coordinates-")),

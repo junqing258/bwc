@@ -6,7 +6,7 @@ import type {
   Operation,
   Selection,
   Snapshot,
-} from "../../../server/types";
+} from "../../server/types";
 const num = (v: number | null | undefined) =>
   v == null
     ? "—"

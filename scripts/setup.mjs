@@ -3,7 +3,7 @@ import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 const root = resolve(import.meta.dirname, "..");
 for (const [cmd, args] of [
-  ["dotnet", ["build", "workers/cad", "-c", "Release"]],
+  ["dotnet", ["build", "apps/workers/cad", "-c", "Release"]],
   ["uv", ["venv", "--python", "3.12", ".venv"]],
   [
     "uv",
@@ -13,7 +13,7 @@ for (const [cmd, args] of [
       "--python",
       resolve(root, ".venv/bin/python"),
       "-r",
-      "workers/geometry/requirements.txt",
+      "apps/workers/geometry/requirements.txt",
     ],
   ],
 ]) {

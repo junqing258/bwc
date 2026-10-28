@@ -3,9 +3,9 @@ import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { WorkflowService } from "../server/service.ts";
-import { HostBridge } from "../server/host.ts";
-import { DomainError, id } from "../server/util.ts";
+import { WorkflowService } from "../apps/server/service.ts";
+import { HostBridge } from "../apps/server/host.ts";
+import { DomainError, id } from "../apps/server/util.ts";
 async function setup() {
   const root = mkdtempSync(join(tmpdir(), "bwc-host-contract-")),
     service = new WorkflowService(root),

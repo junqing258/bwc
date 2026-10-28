@@ -39,7 +39,7 @@ const child = spawn(
   [
     "--import",
     new URL("../node_modules/tsx/dist/loader.mjs", import.meta.url).href,
-    resolve(root, "server/main.ts"),
+    resolve(root, "apps/server/main.ts"),
   ],
   { cwd: root, stdio: "inherit" },
 );

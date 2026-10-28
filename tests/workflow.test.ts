@@ -3,11 +3,11 @@ import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { WorkflowService } from "../server/service.ts";
-import type { Job, Operation, Selection } from "../server/types.ts";
-import { id } from "../server/util.ts";
-import { dwgExport, resultExport } from "../server/exports.ts";
-import { toolRegistry } from "../server/tools.ts";
+import { WorkflowService } from "../apps/server/service.ts";
+import type { Job, Operation, Selection } from "../apps/server/types.ts";
+import { id } from "../apps/server/util.ts";
+import { dwgExport, resultExport } from "../apps/server/exports.ts";
+import { toolRegistry } from "../apps/server/tools.ts";
 async function jobResult(service: WorkflowService, pid: string, job: Job) {
   let j = job;
   const end = Date.now() + 30000;

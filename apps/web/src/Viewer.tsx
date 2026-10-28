@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as T from "three";
-import type { Occurrence, Vec3 } from "../../../server/types";
-import { bounds, evaluate, sample } from "../../../server/geometry";
+import type { Occurrence, Vec3 } from "../../server/types";
+import { bounds, evaluate, sample } from "../../server/geometry";
 interface Props {
   occurrences: Occurrence[];
   selected: string[];
