@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Viewer from "./Viewer";
 import ImportDiagnostics from "./ImportDiagnostics";
 import QuickQuestions, { type QuickQuestion } from "./QuickQuestions";
+import Markdown from "./Markdown";
 import { api, call, operationId, waitJob } from "./api";
 import type {
   Occurrence,
@@ -872,7 +873,11 @@ export default function App() {
                     <div className="conversation" key={t.id}>
                       <div className="user-message">{t.text}</div>
                       <div className="assistant-message">
-                        {t.response || "消息已受理，等待宿主…"}
+                        {t.response ? (
+                          <Markdown text={t.response} />
+                        ) : (
+                          "消息已受理，等待宿主…"
+                        )}
                         {t.error?.message && (
                           <p className="conversation-error">
                             AI 服务：{t.error.message}

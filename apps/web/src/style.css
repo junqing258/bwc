@@ -969,6 +969,92 @@ td .text-button {
   font-size: 9px;
   margin-top: 8px;
 }
+.assistant-message .md {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.assistant-message .md > :first-child {
+  margin-top: 0;
+}
+.assistant-message .md > :last-child {
+  margin-bottom: 0;
+}
+.assistant-message .md p {
+  margin: 6px 0;
+}
+.assistant-message .md h1,
+.assistant-message .md h2,
+.assistant-message .md h3,
+.assistant-message .md h4,
+.assistant-message .md h5,
+.assistant-message .md h6 {
+  font-size: 12px;
+  margin: 10px 0 4px;
+  color: #2c3e5d;
+}
+.assistant-message .md ul,
+.assistant-message .md ol {
+  margin: 6px 0;
+  padding-left: 18px;
+}
+.assistant-message .md li {
+  margin: 3px 0;
+}
+.assistant-message .md code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  background: #eef2f8;
+  border: 1px solid #dfe6f0;
+  border-radius: 4px;
+  padding: 1px 5px;
+  color: #41506b;
+}
+.assistant-message .md pre {
+  background: #f4f6fa;
+  border: 1px solid #dfe6f0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  margin: 8px 0;
+  white-space: pre;
+}
+.assistant-message .md pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #34435e;
+}
+.assistant-message .md blockquote {
+  margin: 6px 0;
+  padding: 4px 10px;
+  border-left: 3px solid #c8d6ea;
+  color: #6b7f9e;
+}
+.assistant-message .md table {
+  border-collapse: collapse;
+  margin: 8px 0;
+  font-size: 10px;
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+.assistant-message .md th,
+.assistant-message .md td {
+  border: 1px solid #dfe6f0;
+  padding: 4px 8px;
+  text-align: left;
+}
+.assistant-message .md th {
+  background: #f4f6fa;
+}
+.assistant-message .md a {
+  color: #2f6fed;
+}
+.assistant-message .md hr {
+  border: none;
+  border-top: 1px solid #dfe6f0;
+  margin: 10px 0;
+}
 .host-event {
   font-size: 9px;
   color: #a2afbf;
