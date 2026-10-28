@@ -32,8 +32,10 @@ export default function ImportDiagnostics({
       <h2>解析覆盖与待核验项</h2>
       <p className="muted">
         快照适配器 {summary.adapterVersion} ·
-        当前适配器可读取填充边界与缓存标注。
-        {summary.adapterVersion === "bwc-cad-1"
+        当前适配器可读取填充边界与带插入偏移的缓存标注。
+        {["bwc-cad-1", "bwc-cad-2", "bwc-cad-3"].includes(
+          summary.adapterVersion,
+        )
           ? "本快照需重新解析才能使用新增能力。"
           : ""}
       </p>

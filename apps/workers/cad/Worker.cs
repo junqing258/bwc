@@ -18,7 +18,7 @@ static partial class Worker
             if (args.Length != 2) throw new ArgumentException("Usage: CadWorker <request.json> <response.json>");
             var request = JsonNode.Parse(File.ReadAllText(args[0]))!;
             string mode = request["mode"]?.GetValue<string>() ?? "parse";
-            if (mode == "fixture") { string? fixtureMode=request["fixtureMode"]?.GetValue<string>(); if(fixtureMode=="coverage"||fixtureMode=="diagnostics") CoverageFixture(request["output"]!.GetValue<string>(),fixtureMode=="diagnostics"); else Fixture(request["output"]!.GetValue<string>(), fixtureMode=="transforms"); File.WriteAllText(args[1], "{\"status\":\"created\"}"); return Task.FromResult(0); }
+            if (mode == "fixture") { string? fixtureMode=request["fixtureMode"]?.GetValue<string>(); if(fixtureMode=="dimensions") DimensionFixture(request["output"]!.GetValue<string>()); else if(fixtureMode=="coverage"||fixtureMode=="diagnostics") CoverageFixture(request["output"]!.GetValue<string>(),fixtureMode=="diagnostics"); else Fixture(request["output"]!.GetValue<string>(), fixtureMode=="transforms"); File.WriteAllText(args[1], "{\"status\":\"created\"}"); return Task.FromResult(0); }
             var notifications = new List<string>(); var watch = Stopwatch.StartNew();
             string input = request["input"]!.GetValue<string>();
             var doc = DwgReader.Read(input, new DwgReaderConfiguration { Failsafe = false, KeepUnknownEntities = true, KeepUnknownNonGraphicalObjects = true }, (_, e) => notifications.Add(e.Message));
@@ -101,7 +101,7 @@ static partial class Worker
                         var segment = new JsonObject { ["insertHandle"] = H(ins) }; if(ins.IsMultiple) segment["arrayCell"] = new JsonObject { ["row"] = row, ["column"] = col };
                         var next = (JsonArray)path.DeepClone(); next.Add(segment); var ocs = M.Ocs(A(ins.Normal));
                         // Array spacing is rotated but not scaled; base point is subtracted before scaling.
-                        var blockMatrix = M.Mul(ocs, M.Mul(M.T(A(ins.InsertPoint)), M.Mul(M.R(ins.Rotation), M.Mul(M.T(new[]{col * ins.ColumnSpacing, row * ins.RowSpacing, 0.0}), M.Mul(M.S(ins.XScale, ins.YScale, ins.ZScale), M.T(A(ins.Block.BlockEntity.BasePoint).Select(v => -v).ToArray()))))));
+                        var blockMatrix = InsertMatrix(ins,row,col);
                         Expand(ins.Block.Entities.Where(x => x is not AttributeDefinition), M.Mul(matrix, blockMatrix), next, space, layerName, color, visiting, visible);
                         // ATTRIB points are in the parent's coordinates. Only array-cell displacement is added.
                         var offset = M.Vector(M.Mul(ocs,M.R(ins.Rotation)),new[]{col*ins.ColumnSpacing,row*ins.RowSpacing,0.0});
@@ -122,12 +122,16 @@ static partial class Worker
         var blockStates = doc.BlockRecords.OrderBy(b => b.Name).Select(b => new { b.Name, basePoint = A(b.BlockEntity.BasePoint), flags = b.Flags.ToString(), units = (int)b.Units, xrefPath = b.BlockEntity.XRefPath }).ToArray();
         var fingerprint = Hash(JsonSerializer.Serialize(new { insUnits = (int)doc.Header.InsUnits, layers, blocks = blockStates, entities = sources }, Json));
         return JsonSerializer.SerializeToNode(new {
-            schemaVersion = 1, adapterVersion = "bwc-cad-3", coordinateContractVersion = "bwc-wcs-1", parser = "ACadSharp", parserVersion = "3.8.30", dwgVersion = doc.Header.Version.ToString(), insUnits = (int)doc.Header.InsUnits,
+            schemaVersion = 1, adapterVersion = "bwc-cad-4", coordinateContractVersion = "bwc-wcs-1", parser = "ACadSharp", parserVersion = "3.8.30", dwgVersion = doc.Header.Version.ToString(), insUnits = (int)doc.Header.InsUnits,
             sourceEntityCount = doc.Entities.Count, sourceRecordCount = sources.Count, sources, occurrences, layers, blocks = blockStates, classes, dependencies, resources, diagnostics, notifications, stateFingerprint = fingerprint,
             importCompleteness = diagnostics.Count > 0 || notifications.Count > 0 ? "partial" : "complete",
-            displayLimitations = new[]{"Browser fonts; SHX/MTEXT formatting, line patterns, weights and per-child dimension colours are approximate.","HATCH/SOLID/3DFACE show boundaries only; hatch patterns, fills and hidden face edges are not reproduced. DIMENSION uses cached picture only, never quantity geometry.","XREF, clipped/dynamic inserts, spline boundaries, WIPEOUT and OLE are unsupported. Non-default dimension picture coordinates require verification."}
+            displayLimitations = new[]{"Browser fonts; SHX/MTEXT formatting, line patterns, weights and per-child dimension colours are approximate.","HATCH/SOLID/3DFACE show boundaries only; hatch patterns, fills and hidden face edges are not reproduced. DIMENSION uses cached picture with clone displacement, never quantity geometry.","XREF, clipped/dynamic inserts, spline boundaries, WIPEOUT and OLE are unsupported. Dimension pictures with non-default normals or nonzero block base points require verification."}
         }, Json)!.AsObject();
     }
+    // Shared by ordinary blocks and nested inserts inside dimension pictures.
+    // Array spacing is rotated but not scaled; subtract the base point before scaling.
+    static double[] InsertMatrix(Insert ins,int row,int col) =>
+        M.Mul(M.Ocs(A(ins.Normal)),M.Mul(M.T(A(ins.InsertPoint)),M.Mul(M.R(ins.Rotation),M.Mul(M.T(new[]{col*ins.ColumnSpacing,row*ins.RowSpacing,0.0}),M.Mul(M.S(ins.XScale,ins.YScale,ins.ZScale),M.T(A(ins.Block.BlockEntity.BasePoint).Select(x=>-x).ToArray()))))));
     static object? Geometry(Entity e)
     {
         if(e is Line l) return new { kind = "path", closed = false, segments = new object[]{new { kind = "line", start = A(l.StartPoint), end = A(l.EndPoint) }} };

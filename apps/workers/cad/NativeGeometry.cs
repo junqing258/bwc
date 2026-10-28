@@ -64,8 +64,13 @@ static partial class Worker
     static object DimensionGeometry(Dimension d)
     {
         if(d.Block==null||d.Block.Entities.Count==0) throw new InvalidOperationException("DIMENSION_PICTURE_MISSING");
-        if(d.Normal!=XYZ.AxisZ||d.InsertionPoint!=XYZ.Zero||d.Block.BlockEntity.BasePoint!=XYZ.Zero)
+        if(d.Normal!=XYZ.AxisZ||d.Block.BlockEntity.BasePoint!=XYZ.Zero)
             throw new InvalidOperationException("DIMENSION_PICTURE_COORDINATES_UNVERIFIED");
+        // DIMENSION group 12 is the OCS displacement of the cached picture (e.g.
+        // baseline/continued clones), not its definition point or text position.
+        // With the supported +Z normal, OCS and the owner's coordinates coincide.
+        // Apply this once, before the enclosing INSERT's transform in Expand().
+        var pictureMatrix=M.T(A(d.InsertionPoint));
         var parts=new List<JsonNode>(); var refs=new List<object>(); var visiting=new HashSet<string>();
         void ExpandPicture(IEnumerable<Entity> entities,double[] matrix,int depth) {
             if(depth>16) throw new InvalidOperationException("DIMENSION_PICTURE_DEPTH");
@@ -77,7 +82,7 @@ static partial class Worker
                 if(child is Insert ins) {
                     if(ins.SpatialFilter!=null||ins.Block.IsDynamic||!string.IsNullOrEmpty(ins.Block.BlockEntity.XRefPath)||!visiting.Add(ins.Block.Name)) throw new InvalidOperationException("DIMENSION_PICTURE_INSERT_UNSUPPORTED");
                     for(int row=0;row<Math.Max(1,(int)ins.RowCount);row++) for(int col=0;col<Math.Max(1,(int)ins.ColumnCount);col++) {
-                        var bm=M.Mul(M.Ocs(A(ins.Normal)),M.Mul(M.T(A(ins.InsertPoint)),M.Mul(M.R(ins.Rotation),M.Mul(M.T(new[]{col*ins.ColumnSpacing,row*ins.RowSpacing,0.0}),M.Mul(M.S(ins.XScale,ins.YScale,ins.ZScale),M.T(A(ins.Block.BlockEntity.BasePoint).Select(x=>-x).ToArray()))))));
+                        var bm=InsertMatrix(ins,row,col);
                         ExpandPicture(ins.Block.Entities,M.Mul(matrix,bm),depth+1);
                     }
                     visiting.Remove(ins.Block.Name);
@@ -88,9 +93,9 @@ static partial class Worker
                 }
             }
         }
-        visiting.Add(d.Block.Name); ExpandPicture(d.Block.Entities,M.Identity(),0);
+        visiting.Add(d.Block.Name); ExpandPicture(d.Block.Entities,pictureMatrix,0);
         if(parts.Count==0) throw new InvalidOperationException("DIMENSION_PICTURE_EMPTY");
-        return new{kind="annotation",parts,native=new{type=d.GetType().Name,block=d.Block.Name,measurement=d.Measurement,textOverride=d.Text,normal=A(d.Normal),insertion=A(d.InsertionPoint),definition=A(d.DefinitionPoint),pictureSourceRefs=refs},quantityRole="annotation_only"};
+        return new{kind="annotation",parts,native=new{type=d.GetType().Name,block=d.Block.Name,measurement=d.Measurement,textOverride=d.Text,normal=A(d.Normal),insertion=A(d.InsertionPoint),definition=A(d.DefinitionPoint),pictureMatrix,pictureSourceRefs=refs},quantityRole="annotation_only"};
     }
     static void CoverageFixture(string output,bool diagnostics=false)
     {

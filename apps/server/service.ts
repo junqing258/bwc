@@ -380,7 +380,7 @@ export class WorkflowService {
       {
         revision: ctx.revision.id,
         sourceSha256: drawing.sha256,
-        adapterVersion: "bwc-cad-3",
+        adapterVersion: "bwc-cad-4",
       },
       async (signal, job) => {
         assert(
