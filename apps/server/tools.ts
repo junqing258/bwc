@@ -48,8 +48,14 @@ export function toolRegistry(service: WorkflowService) {
       (i) => service.getJob(i),
     ),
     dwg_reparse: tool(
-      "用当前适配器重新解析同一不可变源文件及已应用补丁，保留身份和业务参数，发布新快照；旧结果失效",
-      z.object({ ...context, operationId: op }).strict(),
+      "用当前适配器重新解析并发布新快照。AI 必须提供当前轮次 intentId、workingRevision、geometrySnapshotId，仅接受明确消息“请重新解析当前图纸”；诊断问题不授权重解析。保留原图、身份和业务参数，旧结果失效",
+      z
+        .object({
+          ...context,
+          operationId: op,
+          intentId: z.string().optional(),
+        })
+        .strict(),
       (i) => service.reparse(i),
     ),
     job_cancel: tool(
@@ -61,6 +67,18 @@ export function toolRegistry(service: WorkflowService) {
       "实际实体统计、单位和导入缺口，源记录与实例数分开",
       ContextSchema.strict(),
       (i) => service.summary(i),
+    ),
+    dwg_diagnostics: tool(
+      "读取冻结快照的解析诊断、精确组 ID、受影响实例与可执行建议。groupId 可分页读取某组；返回辅助定位和计量资格，不能凭解释清除缺口",
+      z
+        .object({
+          ...context,
+          groupId: z.string().optional(),
+          offset: z.number().int().min(0).optional(),
+          limit: z.number().int().min(1).max(50).optional(),
+        })
+        .strict(),
+      (i) => service.diagnostics(i),
     ),
     dwg_layers: tool("读取快照的有效图层", ContextSchema.strict(), (i) =>
       service.layers(i),

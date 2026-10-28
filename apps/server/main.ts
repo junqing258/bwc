@@ -17,6 +17,7 @@ import { z } from "zod";
 import { WorkflowService } from "./service.ts";
 import { toolRegistry } from "./tools.ts";
 import { HostBridge, type Session } from "./host.ts";
+import { isReparseInstruction } from "./maintenance.ts";
 import { assert, DomainError, hash, id, now, within } from "./util.ts";
 import { ROOT } from "./workers.ts";
 import { OperationSchema, SelectionRef } from "./schemas.ts";
@@ -117,7 +118,7 @@ export function createApplication(
         const t = registry[b.tool as keyof typeof registry];
         assert(t, "UNKNOWN_TOOL", "领域工具不存在");
         assert(
-          !["project_list", "dwg_import", "dwg_reparse"].includes(b.tool),
+          !["project_list", "dwg_import"].includes(b.tool),
           "UNSUPPORTED_OPERATION",
           "宿主仅操作已打开项目",
         );
@@ -130,6 +131,15 @@ export function createApplication(
           )
           .at(-1);
         assert(active, "SESSION_IDLE", "没有正在执行的宿主轮次");
+        if (b.tool === "dwg_reparse")
+          assert(
+            b.input.intentId === active.intentId &&
+              isReparseInstruction(active.text) &&
+              b.input.workingRevision === active.context.workingRevision &&
+              b.input.geometrySnapshotId === active.context.geometrySnapshotId,
+            "INTENT_MISMATCH",
+            "重解析仅接受当前轮次明确指令及其冻结修订；可直接发送“请重新解析当前图纸”",
+          );
         if (b.tool === "change_propose")
           assert(
             b.input.intentId === active.intentId,
@@ -488,7 +498,14 @@ export function compactPayload(value: any, mode: string): any {
     for (const [k, v] of Object.entries(value)) {
       if (
         mode === "summary" &&
-        ["geometry", "matrix", "delta", "sources", "occurrences"].includes(k)
+        [
+          "geometry",
+          "diagnosticPreview",
+          "matrix",
+          "delta",
+          "sources",
+          "occurrences",
+        ].includes(k)
       ) {
         out[k] = { omittedByDataPolicy: true };
         continue;

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Viewer from "./Viewer";
 import ImportDiagnostics from "./ImportDiagnostics";
+import QuickQuestions, { type QuickQuestion } from "./QuickQuestions";
 import { api, call, operationId, waitJob } from "./api";
 import type {
   Occurrence,
@@ -51,6 +52,7 @@ export default function App() {
     [layerFilter, setLayerFilter] = useState(""),
     [typeFilter, setTypeFilter] = useState(""),
     [textFilter, setTextFilter] = useState("");
+  const [diagnosticFilter, setDiagnosticFilter] = useState<string | null>(null);
   const [issuePage, setIssuePage] = useState(0);
   const [issues, setIssues] = useState<any[]>([]),
     [modal, setModal] = useState(""),
@@ -78,6 +80,13 @@ export default function App() {
     [message, setMessage] = useState(""),
     [hostEvents, setHostEvents] = useState<any[]>([]),
     [policy, setPolicy] = useState("summary");
+  const [questionScope, setQuestionScope] = useState<
+    QuickQuestion["scope"] | null
+  >(null);
+  const composerInput = useRef<HTMLTextAreaElement>(null);
+  const aiPending = turns.some((t) =>
+    ["accepted", "sending", "running", "delivery_uncertain"].includes(t.status),
+  );
   const pidRef = useRef(pid),
     revisionRef = useRef<string | null>(null),
     selectionSeq = useRef(0),
@@ -99,7 +108,7 @@ export default function App() {
     () =>
       new Set<string>(
         (preview?.occurrences ?? [])
-          .filter((o: Occurrence) => o.geometry)
+          .filter((o: Occurrence) => o.geometry || o.diagnosticPreview)
           .map((o: Occurrence) => o.occurrenceId),
       ),
     [preview],
@@ -129,6 +138,7 @@ export default function App() {
       selectionSeq.current++;
       setSelection(null);
       setSelected([]);
+      setDiagnosticFilter(null);
       setHoles(null);
     }
     revisionRef.current = p.revision?.id ?? null;
@@ -173,6 +183,8 @@ export default function App() {
     setIssues([]);
     setSession(null);
     setTurns([]);
+    setMessage("");
+    setQuestionScope(null);
     setHostEvents([]);
     setError("");
     setExported(null);
@@ -181,6 +193,7 @@ export default function App() {
     setIsolated(false);
     setLayerFilter("");
     setTypeFilter("");
+    setDiagnosticFilter(null);
     setTextFilter("");
     localStorage.setItem("bwc-project", projectId);
     await refresh(projectId);
@@ -339,6 +352,7 @@ export default function App() {
   async function runQuery(cursor?: string) {
     const filter = {
       space: "model",
+      ...(diagnosticFilter ? { diagnosticGroupId: diagnosticFilter } : {}),
       ...(layerFilter ? { layers: [layerFilter] } : {}),
       ...(typeFilter ? { entityTypes: [typeFilter] } : {}),
       ...(textFilter ? { text: textFilter } : {}),
@@ -478,15 +492,20 @@ export default function App() {
     setExported(out);
     setModal("exports");
   }
-  async function sendMessage() {
+  async function sendMessage(prompt?: string, wholeDrawing = false) {
     if (!project?.revision) throw new Error("请先导入 DWG");
+    const fromComposer = prompt === undefined;
+    if (fromComposer && questionScope === "selection" && !selection)
+      throw new Error("请先选择并冻结对象");
+    const drawingScope =
+      wholeDrawing || (fromComposer && questionScope === "drawing");
     let s = session;
     if (!s) {
       s = await api("session/create", { projectId: pid });
       setSession(s);
       localStorage.setItem(`bwc-session:${pid}`, s.id);
     }
-    const text = message;
+    const text = prompt ?? message;
     const t = await api("session/message", {
       projectId: pid,
       sessionId: s.id,
@@ -495,7 +514,7 @@ export default function App() {
       context: {
         workingRevision: project.revision.id,
         geometrySnapshotId: project.revision.geometrySnapshotId,
-        ...(selection
+        ...(selection && !drawingScope
           ? { selectionSet: { id: selection.id, version: 1 } }
           : {}),
         dataPolicyVersion: project.dataPolicy.id,
@@ -503,6 +522,19 @@ export default function App() {
     });
     setTurns((old) => [...old, t]);
     setMessage("");
+    setQuestionScope(null);
+  }
+  function pickQuestion(question: QuickQuestion) {
+    setMessage(question.prompt);
+    setQuestionScope(question.scope);
+    composerInput.current?.focus();
+  }
+  async function diagnose(groupId?: string) {
+    setModal("");
+    await sendMessage(
+      `请使用 dwg_diagnostics 排查${groupId ? `当前诊断组 ${groupId}` : "整张图纸的解析不完整问题"}，区分规范几何缺失、显示限制和文档保持待核验。给出实际实例数和下一步；对有模型实例的诊断组，用 diagnosticGroupId 冻结准确范围并定位。辅助定位不是已解析几何，缺项不按零计量。只做诊断，不修改图纸或重新解析。`,
+      true,
+    );
   }
   const switchTab = (t: string) => setTab(t);
   return (
@@ -827,6 +859,13 @@ export default function App() {
                       >
                         登记兼容副本 →
                       </button>
+                      <button
+                        className="outline"
+                        disabled={busy}
+                        onClick={() => void guarded(() => diagnose())}
+                      >
+                        让 AI 排查解析问题
+                      </button>
                     </div>
                   )}
                   {turns.map((t) => (
@@ -834,6 +873,11 @@ export default function App() {
                       <div className="user-message">{t.text}</div>
                       <div className="assistant-message">
                         {t.response || "消息已受理，等待宿主…"}
+                        {t.error?.message && (
+                          <p className="conversation-error">
+                            AI 服务：{t.error.message}
+                          </p>
+                        )}
                         <small>{stateLabel[t.status] ?? t.status}</small>
                       </div>
                       {t.status === "delivery_uncertain" && (
@@ -944,19 +988,35 @@ export default function App() {
                     void guarded(sendMessage);
                   }}
                 >
+                  <QuickQuestions
+                    hasSelection={!!selection && viewSynchronized}
+                    unitsConfirmed={!!summary?.unitProfile.confirmed}
+                    hasGaps={summary?.importCompleteness === "partial"}
+                    disabled={busy || aiPending || !viewSynchronized}
+                    onPick={pickQuestion}
+                  />
                   <label htmlFor="task-input">任务目标 / 补充依据</label>
                   <textarea
+                    ref={composerInput}
                     id="task-input"
                     placeholder="检查选中轮廓；或将计量厚度设为150mm并重算"
                     value={message}
-                    onChange={(e) => setMessage(e.target.value)}
+                    onChange={(e) => {
+                      setMessage(e.target.value);
+                      if (!e.target.value.trim()) setQuestionScope(null);
+                    }}
                   />
                   <div>
                     <small>
                       {policy === "summary"
                         ? "发送摘要及明确参数"
                         : "允许发送详细几何"}{" "}
-                      · {selection ? "携带冻结选择" : "未选范围"}
+                      ·{" "}
+                      {questionScope === "drawing"
+                        ? "整张图纸"
+                        : selection
+                          ? `选中 ${selection.members.length} 个对象`
+                          : "未选范围"}
                     </small>
                     <button
                       type="button"
@@ -983,7 +1043,12 @@ export default function App() {
                     </button>
                     <button
                       className="primary"
-                      disabled={!message.trim() || busy}
+                      disabled={
+                        !message.trim() ||
+                        busy ||
+                        aiPending ||
+                        (questionScope === "selection" && !selection)
+                      }
                     >
                       发送 ↑
                     </button>
@@ -1047,7 +1112,10 @@ export default function App() {
                     <select
                       aria-label="实体类型筛选"
                       value={typeFilter}
-                      onChange={(e) => setTypeFilter(e.target.value)}
+                      onChange={(e) => {
+                        setTypeFilter(e.target.value);
+                        setDiagnosticFilter(null);
+                      }}
                     >
                       <option value="">全部类型</option>
                       {Object.keys(summary?.entityTypes ?? {})
@@ -1069,6 +1137,17 @@ export default function App() {
                     >
                       查询
                     </button>
+                    {diagnosticFilter && (
+                      <button
+                        className="text-button"
+                        onClick={() => {
+                          setDiagnosticFilter(null);
+                          setNotice("已移除诊断组筛选，请重新查询。");
+                        }}
+                      >
+                        诊断组筛选中 ×
+                      </button>
+                    )}
                     <button
                       className="text-button"
                       disabled={!query?.total || busy}
@@ -1186,6 +1265,13 @@ export default function App() {
                           handle {currentObject.sourceHandle}
                         </p>
                         <code>{currentObject.occurrenceId}</code>
+                        {!currentObject.geometry &&
+                          currentObject.diagnosticPreview && (
+                            <p className="muted">
+                              当前显示为辅助定位：
+                              {currentObject.diagnosticPreview.limitation}
+                            </p>
+                          )}
                         {currentObject.geometry?.kind === "annotation" && (
                           <p className="muted">
                             尺寸标注仅供阅读，不作为长度、面积或体积计量对象；标注文字可能含人工覆盖值。
@@ -1864,15 +1950,17 @@ export default function App() {
                 summary={summary}
                 busy={busy}
                 onReparse={() => void guarded(reparse)}
-                onInspect={(type) => {
+                onDiagnose={(groupId) => void guarded(() => diagnose(groupId))}
+                onInspect={(group) => {
                   void guarded(async () => {
-                    setTypeFilter(type);
+                    setTypeFilter(group.entityType);
+                    setDiagnosticFilter(group.id);
                     setLayerFilter("");
                     setTextFilter("");
                     setQuery(
                       await call("dwg_query", {
                         ...ctx(),
-                        filter: { space: "model", entityTypes: [type] },
+                        filter: { space: "model", diagnosticGroupId: group.id },
                         pageSize: 50,
                       }),
                     );

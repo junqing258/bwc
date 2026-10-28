@@ -18,7 +18,7 @@ static partial class Worker
             if (args.Length != 2) throw new ArgumentException("Usage: CadWorker <request.json> <response.json>");
             var request = JsonNode.Parse(File.ReadAllText(args[0]))!;
             string mode = request["mode"]?.GetValue<string>() ?? "parse";
-            if (mode == "fixture") { if(request["fixtureMode"]?.GetValue<string>() == "coverage") CoverageFixture(request["output"]!.GetValue<string>()); else Fixture(request["output"]!.GetValue<string>(), request["fixtureMode"]?.GetValue<string>() == "transforms"); File.WriteAllText(args[1], "{\"status\":\"created\"}"); return Task.FromResult(0); }
+            if (mode == "fixture") { string? fixtureMode=request["fixtureMode"]?.GetValue<string>(); if(fixtureMode=="coverage"||fixtureMode=="diagnostics") CoverageFixture(request["output"]!.GetValue<string>(),fixtureMode=="diagnostics"); else Fixture(request["output"]!.GetValue<string>(), fixtureMode=="transforms"); File.WriteAllText(args[1], "{\"status\":\"created\"}"); return Task.FromResult(0); }
             var notifications = new List<string>(); var watch = Stopwatch.StartNew();
             string input = request["input"]!.GetValue<string>();
             var doc = DwgReader.Read(input, new DwgReaderConfiguration { Failsafe = false, KeepUnknownEntities = true, KeepUnknownNonGraphicalObjects = true }, (_, e) => notifications.Add(e.Message));
@@ -77,7 +77,8 @@ static partial class Worker
                 try { geometry = Geometry(e); JsonSerializer.Serialize(geometry, Json); } catch(Exception ex) { diagnostics.Add(new { code = "GEOMETRY_INVALID", handle = H(e), reason = ex.Message }); geometry = null;geometryFailed=true; }
                 var ins = e as Insert;
                 sources.Add(new { handle = H(e), type = e.ObjectName, runtimeType = e.GetType().Name, owner = b.Name, layer = e.Layer.Name, color = e.Color.Index, trueColor = e.Color.TrueColor, invisible = e.IsInvisible, geometry,
-                    nativePolyline = e is LwPolyline rawPoly ? new {vertices=rawPoly.Vertices.Select(v=>new{point=new[]{v.Location.X,v.Location.Y},v.Bulge,v.StartWidth,v.EndWidth}),rawPoly.IsClosed,rawPoly.Elevation,normal=A(rawPoly.Normal),rawPoly.Thickness} : null,
+                    nativePolyline = e is LwPolyline rawPoly ? new {vertices=rawPoly.Vertices.Select(v=>new{point=new[]{v.Location.X,v.Location.Y},v.Bulge,v.StartWidth,v.EndWidth}),rawPoly.IsClosed,rawPoly.Elevation,normal=A(rawPoly.Normal),rawPoly.Thickness,rawPoly.ConstantWidth} : null,
+                    nativeEvidence=NativeEvidence(e),
                     paperViewport = e is Viewport vp ? new { representsPaper = vp.RepresentsPaper, center = A(vp.Center), width = vp.Width, height = vp.Height, viewCenter = new[]{vp.ViewCenter.X,vp.ViewCenter.Y}, viewDirection = A(vp.ViewDirection), viewTarget = A(vp.ViewTarget), viewHeight = vp.ViewHeight, twistAngle = vp.TwistAngle, status = vp.Status.ToString() } : null,
                     insert = ins == null ? null : new { block = ins.Block.Name, point = A(ins.InsertPoint), normal = A(ins.Normal), rotation = ins.Rotation, scale = new[]{ins.XScale, ins.YScale, ins.ZScale}, basePoint = A(ins.Block.BlockEntity.BasePoint), rowCount = ins.RowCount, columnCount = ins.ColumnCount, rowSpacing = ins.RowSpacing, columnSpacing = ins.ColumnSpacing, attributes = ins.Attributes.Select(a => new { a.Tag, a.Value }).ToArray() } });
                 if(geometry == null && !geometryFailed && ins == null && !(e is Viewport paper && paper.RepresentsPaper)) diagnostics.Add(new { code = e.ObjectName.StartsWith("TCH_") ? "COMPATIBILITY_EXPORT_REQUIRED" : "UNSUPPORTED_ENTITY", handle = H(e), entityType = e.ObjectName, owner = b.Name });
@@ -111,7 +112,9 @@ static partial class Worker
                 JsonNode? geometry = null;
                 try { var raw = Geometry(e); if(raw != null) geometry = TransformGeometry(JsonSerializer.SerializeToNode(raw, Json)!, matrix); }
                 catch(Exception ex) { diagnostics.Add(new { code = "GEOMETRY_INVALID", handle = H(e), reason = ex.Message }); }
-                occurrences.Add(new { sourceHandle = H(e), entityType = e.ObjectName, layer = layerName, space, instancePath = path.DeepClone(), occurrenceKey = H(e) + "/" + path.ToJsonString(), geometry, visible, color = Hex(color), matrix });
+                JsonNode? diagnosticPreview=null;
+                if(geometry==null)try{diagnosticPreview=DiagnosticPreview(e,matrix);}catch{ /* Unsupported evidence must not abort the import. */ }
+                occurrences.Add(new { sourceHandle = H(e), entityType = e.ObjectName, layer = layerName, space, instancePath = path.DeepClone(), occurrenceKey = H(e) + "/" + path.ToJsonString(), geometry, diagnosticPreview, visible, color = Hex(color), matrix });
             }
         }
         foreach(var b in doc.BlockRecords.Where(b => b.Name.StartsWith("*Model_Space", StringComparison.OrdinalIgnoreCase) || b.Name.StartsWith("*Paper_Space", StringComparison.OrdinalIgnoreCase)))
@@ -119,7 +122,7 @@ static partial class Worker
         var blockStates = doc.BlockRecords.OrderBy(b => b.Name).Select(b => new { b.Name, basePoint = A(b.BlockEntity.BasePoint), flags = b.Flags.ToString(), units = (int)b.Units, xrefPath = b.BlockEntity.XRefPath }).ToArray();
         var fingerprint = Hash(JsonSerializer.Serialize(new { insUnits = (int)doc.Header.InsUnits, layers, blocks = blockStates, entities = sources }, Json));
         return JsonSerializer.SerializeToNode(new {
-            schemaVersion = 1, adapterVersion = "bwc-cad-2", coordinateContractVersion = "bwc-wcs-1", parser = "ACadSharp", parserVersion = "3.8.30", dwgVersion = doc.Header.Version.ToString(), insUnits = (int)doc.Header.InsUnits,
+            schemaVersion = 1, adapterVersion = "bwc-cad-3", coordinateContractVersion = "bwc-wcs-1", parser = "ACadSharp", parserVersion = "3.8.30", dwgVersion = doc.Header.Version.ToString(), insUnits = (int)doc.Header.InsUnits,
             sourceEntityCount = doc.Entities.Count, sourceRecordCount = sources.Count, sources, occurrences, layers, blocks = blockStates, classes, dependencies, resources, diagnostics, notifications, stateFingerprint = fingerprint,
             importCompleteness = diagnostics.Count > 0 || notifications.Count > 0 ? "partial" : "complete",
             displayLimitations = new[]{"Browser fonts; SHX/MTEXT formatting, line patterns, weights and per-child dimension colours are approximate.","HATCH/SOLID/3DFACE show boundaries only; hatch patterns, fills and hidden face edges are not reproduced. DIMENSION uses cached picture only, never quantity geometry.","XREF, clipped/dynamic inserts, spline boundaries, WIPEOUT and OLE are unsupported. Non-default dimension picture coordinates require verification."}

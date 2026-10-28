@@ -31,6 +31,7 @@ export interface Turn {
   status: string;
   text: string;
   response: string;
+  error?: { code: string; message: string };
   context: any;
   createdAt: string;
 }
@@ -83,7 +84,27 @@ export class HostBridge {
     );
     return {
       ...session,
-      turns: s.all<Turn>("turn").filter((t) => t.sessionId === session.id),
+      turns: s
+        .all<Turn>("turn")
+        .filter((t) => t.sessionId === session.id)
+        .map((t) => {
+          if (t.status !== "failed" || t.error) return t;
+          const row = s.db
+            .prepare(
+              "SELECT json FROM events WHERE channel=? AND json_extract(json,'$.type')='error' AND json_extract(json,'$.turnId')=? ORDER BY seq DESC LIMIT 1",
+            )
+            .get(`session:${session.id}`, t.id) as { json: string } | undefined;
+          const event = row ? JSON.parse(row.json) : null;
+          return event?.message
+            ? {
+                ...t,
+                error: {
+                  code: event.code ?? "HOST_TURN_FAILED",
+                  message: event.message,
+                },
+              }
+            : t;
+        }),
       events: s.events(`session:${session.id}`, input.after ?? 0),
     };
   }
@@ -352,6 +373,10 @@ export class HostBridge {
       const latest = s.get<Turn>("turn", turn.id);
       latest.status =
         latest.status === "sending" ? "delivery_uncertain" : "failed";
+      latest.error = {
+        code: (e as DomainError).code ?? "HOST_UNAVAILABLE",
+        message: (e as Error).message,
+      };
       s.put("turn", latest);
       s.event(`session:${session.id}`, {
         type: "error",
@@ -404,6 +429,12 @@ export class HostBridge {
     if (method === "turn/completed") {
       turn.status = params.turn?.status ?? "completed";
       turn.hostTurnId = params.turn?.id ?? turn.hostTurnId;
+      if (turn.status === "completed") delete turn.error;
+      else if (params.turn?.error?.message)
+        turn.error = {
+          code: "HOST_TURN_FAILED",
+          message: params.turn.error.message,
+        };
       s.put("turn", turn);
       payload.type = "turn_completed";
       payload.status = turn.status;
@@ -412,6 +443,11 @@ export class HostBridge {
     if (method === "error") {
       payload.type = "error";
       payload.message = params.error?.message;
+      turn.error = {
+        code: "HOST_TURN_FAILED",
+        message: params.error?.message ?? "AI 宿主轮次失败",
+      };
+      s.put("turn", turn);
     }
     s.event(`session:${session.id}`, payload);
   }

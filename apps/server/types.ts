@@ -46,6 +46,12 @@ export interface Occurrence {
   }[];
   occurrenceKey: string;
   geometry: Geometry | null;
+  diagnosticPreview?: {
+    kind: string;
+    geometry: Geometry;
+    quantityEligible: false;
+    limitation: string;
+  } | null;
   visible: boolean;
   color: string;
   matrix: number[];
@@ -66,6 +72,17 @@ export interface Artifact {
     owner: string;
     layer: string;
     geometry: Geometry | null;
+    nativePolyline?: {
+      vertices: {
+        point: number[];
+        bulge: number;
+        startWidth: number;
+        endWidth: number;
+      }[];
+      constantWidth?: number;
+      [key: string]: unknown;
+    } | null;
+    nativeEvidence?: unknown;
     insert?: unknown;
   }[];
   occurrences: Occurrence[];
@@ -169,6 +186,8 @@ export interface Selection {
   evidence: string;
 }
 export interface Filter {
+  diagnosticGroupId?: string;
+  geometryKinds?: Geometry["kind"][];
   entityTypes?: string[];
   layers?: string[];
   text?: string;

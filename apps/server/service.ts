@@ -1,4 +1,10 @@
-import { importReport, groupIssues } from "./diagnostics.ts";
+import {
+  importReport,
+  groupIssues,
+  diagnosticHandles,
+  diagnosticAdvice,
+} from "./diagnostics.ts";
+import { isReparseInstruction } from "./maintenance.ts";
 import { primitives } from "./geometry.ts";
 import {
   copyFileSync,
@@ -344,6 +350,16 @@ export class WorkflowService {
     const s = this.catalog.open(input.projectId),
       ctx = s.context(input.workingRevision, input.geometrySnapshotId);
     const drawing = s.get<Drawing>("drawing", ctx.snapshot.drawingVersion);
+    if (input.intentId) {
+      const intent = s.get<Intent>("intent", input.intentId);
+      assert(
+        intent.origin === "message" &&
+          intent.workingRevision === ctx.revision.id &&
+          isReparseInstruction(intent.text),
+        "INTENT_MISMATCH",
+        "重新解析需要该轮次明确的当前图纸重解析指令",
+      );
+    }
     const source = s.file(drawing.path, drawing.sha256);
     return this.job(
       s,
@@ -352,7 +368,7 @@ export class WorkflowService {
       {
         revision: ctx.revision.id,
         sourceSha256: drawing.sha256,
-        adapterVersion: "bwc-cad-2",
+        adapterVersion: "bwc-cad-3",
       },
       async (signal, job) => {
         assert(
@@ -528,10 +544,23 @@ export class WorkflowService {
     };
   }
   async matching(s: ProjectStore, snapshot: Snapshot, filter: Filter) {
+    const a = filter.diagnosticGroupId ? s.artifact(snapshot) : null;
+    if (a)
+      assert(
+        importReport(a).diagnosticGroups.some(
+          (g) => g.id === filter.diagnosticGroupId,
+        ),
+        "DIAGNOSTIC_NOT_FOUND",
+        "诊断组不属于该快照",
+      );
+    const handles = a ? diagnosticHandles(a, filter.diagnosticGroupId!) : null;
     let rows = s
       .occurrences(snapshot.id, filter.rectangle)
       .filter(
         (o) =>
+          (!handles || handles.has(o.sourceHandle)) &&
+          (!filter.geometryKinds ||
+            (!!o.geometry && filter.geometryKinds.includes(o.geometry.kind))) &&
           (!filter.space || o.space === filter.space) &&
           (!filter.entityTypes || filter.entityTypes.includes(o.entityType)) &&
           (!filter.layers || filter.layers.includes(o.layer)) &&
@@ -603,6 +632,7 @@ export class WorkflowService {
       .map((o) => ({
         ...o,
         geometry: undefined,
+        diagnosticPreview: undefined,
         business: snap.business[o.occurrenceId],
       }));
     return {
@@ -616,6 +646,100 @@ export class WorkflowService {
           ? `${q.id}:${offset + pageSize}`
           : null,
       importCompleteness: snap.importCompleteness,
+    };
+  }
+  diagnostics(input: any) {
+    const s = this.catalog.open(input.projectId),
+      { revision, snapshot } = s.context(
+        input.workingRevision,
+        input.geometrySnapshotId,
+      ),
+      a = s.artifact(snapshot),
+      report = importReport(a);
+    const groups = report.diagnosticGroups.map((g) => ({
+      ...g,
+      ...diagnosticAdvice(g.entityType, g.code),
+    }));
+    const group = input.groupId
+      ? groups.find((g) => g.id === input.groupId)
+      : null;
+    if (input.groupId)
+      assert(group, "DIAGNOSTIC_NOT_FOUND", "诊断组不属于该快照");
+    const handles = group
+      ? diagnosticHandles(a, group.id)
+      : new Set(a.diagnostics.flatMap((d) => (d.handle ? [d.handle] : [])));
+    const objects = a.occurrences.filter((o) => handles.has(o.sourceHandle));
+    const sources = a.sources.filter((s) => handles.has(s.handle));
+    const offset = input.offset ?? 0,
+      limit = input.limit ?? 25;
+    return {
+      workingRevision: revision.id,
+      geometrySnapshotId: snapshot.id,
+      parseArtifactVersion: snapshot.parseArtifactVersion,
+      adapterVersion: a.adapterVersion ?? "bwc-cad-1",
+      coverage: {
+        modelGeometry: report.modelWithoutGeometry ? "partial" : "covered",
+        displayFidelity: "approximate",
+        documentPreservation:
+          a.importCompleteness === "complete"
+            ? "no_known_import_gaps"
+            : "requires_verification",
+        quantityReadiness: snapshot.units.confirmed
+          ? "requires_shape_and_scope_validation"
+          : "units_unconfirmed",
+        independentCad: "not_run",
+      },
+      report,
+      groups: group ? [group] : groups,
+      affectedTotal: objects.length,
+      offset,
+      nextOffset: offset + limit < objects.length ? offset + limit : null,
+      items: objects.slice(offset, offset + limit).map((o) => ({
+        occurrenceId: o.occurrenceId,
+        sourceHandle: o.sourceHandle,
+        entityType: o.entityType,
+        space: o.space,
+        layer: o.layer,
+        instancePath: o.instancePath,
+        hasCanonicalGeometry: !!o.geometry,
+        hasDiagnosticPreview: !!o.diagnosticPreview,
+        quantityEligible:
+          !!o.geometry && ["path", "region"].includes(o.geometry.kind),
+      })),
+      sourceSamples: sources.slice(0, 3).map((source) => ({
+        handle: source.handle,
+        type: source.type,
+        owner: source.owner,
+        vertexSummary: source.nativePolyline
+          ? {
+              vertexCount: source.nativePolyline.vertices.length,
+              distinctPositionCount: new Set(
+                source.nativePolyline.vertices.map((v) =>
+                  JSON.stringify(v.point),
+                ),
+              ).size,
+              nonzeroBulgeCount: source.nativePolyline.vertices.filter(
+                (v) => v.bulge !== 0,
+              ).length,
+            }
+          : null,
+        geometry: {
+          nativePolyline: source.nativePolyline,
+          nativeEvidence: source.nativeEvidence,
+        },
+      })),
+      sourceSampleCount: Math.min(3, sources.length),
+      sourceTotal: sources.length,
+      suggestedFilter: group ? { diagnosticGroupId: group.id } : null,
+      computableCandidateFilter: {
+        space: "model",
+        geometryKinds: ["path", "region"],
+      },
+      limitations: [
+        "辅助定位不消除解析缺口，不进入工程量。",
+        "读取通知待核验，不能通过 AI 解释自动放行完整 DWG 交付。",
+        "可计算候选仍需采用单位并通过轮廓和业务参数检查，不能当成全图工程量。",
+      ],
     };
   }
   async selection(input: any) {

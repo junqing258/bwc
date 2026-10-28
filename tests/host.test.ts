@@ -32,6 +32,51 @@ async function settled(store: any, turnId: string) {
   throw new Error("turn did not settle");
 }
 
+test("provider failures remain visible per turn, including legacy failures read from event evidence", async () => {
+  const x = await setup(),
+    bridge = new HostBridge(x.service, "http://127.0.0.1:0", "test");
+  try {
+    const session = bridge.create({ projectId: x.pid }),
+      tid = id("turn");
+    x.store.put("turn", {
+      id: tid,
+      sessionId: session.id,
+      status: "running",
+      response: "正在读取诊断",
+      text: "排查解析问题",
+    });
+    bridge.active.set(session.id, tid);
+    const message =
+      "Selected model is at capacity. Please try a different model.";
+    bridge.notification(session, "error", { error: { message } });
+    bridge.notification(session, "turn/completed", {
+      turn: { id: "native_turn", status: "failed" },
+    });
+    assert.equal(
+      bridge.read({ projectId: x.pid, sessionId: session.id }).turns[0].error
+        ?.message,
+      message,
+    );
+    const legacy = x.store.get<any>("turn", tid);
+    delete legacy.error;
+    x.store.put("turn", legacy);
+    assert.equal(
+      bridge.read({ projectId: x.pid, sessionId: session.id }).turns[0].error
+        ?.message,
+      message,
+    );
+    assert.equal(
+      x.store.get<any>("turn", tid).error,
+      undefined,
+      "reading legacy evidence does not rewrite history",
+    );
+  } finally {
+    bridge.close();
+    x.service.close();
+    rmSync(x.root, { recursive: true, force: true });
+  }
+});
+
 test("commit with lost host receipt: duplicate message returns same record; reconcile never repeats write", async () => {
   const x = await setup(),
     bridge = new HostBridge(x.service, "http://127.0.0.1:0", "test");

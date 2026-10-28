@@ -9,7 +9,8 @@ export function importReport(artifact: Artifact) {
     { model: number; other: number }
   >();
   let modelTotal = 0,
-    modelWithGeometry = 0;
+    modelWithGeometry = 0,
+    modelWithDiagnosticPreview = 0;
   for (const o of artifact.occurrences) {
     const count = occurrencesByHandle.get(o.sourceHandle) ?? {
       model: 0,
@@ -19,6 +20,7 @@ export function importReport(artifact: Artifact) {
       count.model++;
       modelTotal++;
       if (o.geometry) modelWithGeometry++;
+      else if (o.diagnosticPreview) modelWithDiagnosticPreview++;
     } else count.other++;
     occurrencesByHandle.set(o.sourceHandle, count);
   }
@@ -68,6 +70,7 @@ export function importReport(artifact: Artifact) {
         if (!c) uninstantiatedSources++;
       }
       return {
+        id: diagnosticId(g.code, g.entityType, g.reason),
         code: g.code,
         entityType: g.entityType,
         reason: g.reason,
@@ -116,6 +119,7 @@ export function importReport(artifact: Artifact) {
     modelTotal,
     modelWithGeometry,
     modelWithoutGeometry: modelTotal - modelWithGeometry,
+    modelWithDiagnosticPreview,
     diagnosticCount: artifact.diagnostics.length,
     diagnosticGroups,
     notificationCount: artifact.notifications.length,
@@ -126,6 +130,53 @@ export function importReport(artifact: Artifact) {
       "records_including_block_definitions_and_repeated_occurrences",
     notificationImpact: "requires_verification",
     importCompleteness: artifact.importCompleteness,
+  };
+}
+
+export const diagnosticId = (code: string, type: string, reason = "") =>
+  "dg_" + hash(JSON.stringify([code, type, reason])).slice(0, 24);
+export function diagnosticHandles(a: Artifact, groupId: string) {
+  const types = new Map(a.sources.map((s) => [s.handle, s.type]));
+  return new Set(
+    a.diagnostics
+      .filter(
+        (d) =>
+          diagnosticId(
+            d.code,
+            d.entityType ?? types.get(d.handle ?? "") ?? "UNKNOWN",
+            d.reason ?? "",
+          ) === groupId,
+      )
+      .flatMap((d) => (d.handle ? [d.handle] : [])),
+  );
+}
+export function diagnosticAdvice(type: string, code: string) {
+  if (code === "GEOMETRY_INVALID")
+    return {
+      category: "geometry_extraction",
+      action: "inspect_source_in_independent_cad",
+      explanation:
+        "核对读取后的原始数据及原 CAD。辅助点位只用于定位；无法确定的曲线保持不可计量。",
+    };
+  if (type === "WIPEOUT")
+    return {
+      category: "display_semantics",
+      action: "verify_mask_and_draw_order",
+      explanation:
+        "可辅助定位图像范围；遮罩边界、遮挡和绘制顺序需核验，不把范围当作构件面积。",
+    };
+  if (type === "OLE2FRAME")
+    return {
+      category: "embedded_content",
+      action: "inspect_or_convert_embedded_content",
+      explanation:
+        "可辅助定位 OLE 框角；嵌入内容仍需在原应用检查或导出为可核验资料。",
+    };
+  return {
+    category: "unsupported_source",
+    action: "adapter_or_compatible_copy_required",
+    explanation:
+      "先判断是否影响当前选择范围；源记录未实例化也不代表文档保持已验证。",
   };
 }
 

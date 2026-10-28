@@ -1,4 +1,6 @@
-import type { Geometry, Segment, Vec3 } from "./types.ts";
+import type { Geometry, Occurrence, Segment, Vec3 } from "./types.ts";
+export const displayGeometry = (o: Occurrence) =>
+  o.geometry ?? o.diagnosticPreview?.geometry ?? null;
 export type Primitive = Exclude<Geometry, { kind: "region" | "annotation" }>;
 /** Display traversal only: annotation parts retain their parent occurrence identity. */
 export function primitives(g: Geometry | null): Primitive[] {

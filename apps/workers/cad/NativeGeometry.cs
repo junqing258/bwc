@@ -92,7 +92,7 @@ static partial class Worker
         if(parts.Count==0) throw new InvalidOperationException("DIMENSION_PICTURE_EMPTY");
         return new{kind="annotation",parts,native=new{type=d.GetType().Name,block=d.Block.Name,measurement=d.Measurement,textOverride=d.Text,normal=A(d.Normal),insertion=A(d.InsertionPoint),definition=A(d.DefinitionPoint),pictureSourceRefs=refs},quantityRole="annotation_only"};
     }
-    static void CoverageFixture(string output)
+    static void CoverageFixture(string output,bool diagnostics=false)
     {
         Fixture(output);
         var doc=DwgReader.Read(output);var layer=new Layer("COVERAGE");doc.Layers.Add(layer);
@@ -118,6 +118,11 @@ static partial class Worker
         picture.Entities.Add(new Insert(arrow){InsertPoint=new XYZ(20,0,0),Rotation=Math.PI/2,XScale=-2});
         doc.Entities.Add(new Face3D{FirstCorner=new XYZ(80,0,0),SecondCorner=new XYZ(82,0,0),ThirdCorner=new XYZ(82,2,0),FourthCorner=new XYZ(80,2,0),Layer=layer});
         var broken=new LwPolyline(new IVector[]{new XY(40,40),new XY(40,40)}){IsClosed=true,Layer=layer};foreach(var v in broken.Vertices)v.Bulge=1;doc.Entities.Add(broken);
+        if(diagnostics) {
+            var w=new Wipeout{Layer=layer,InsertPoint=new XYZ(90,10,0),UVector=new XYZ(2,0,0),VVector=new XYZ(0,3,0),Size=new XY(1,1),ClippingState=true};
+            w.ClipBoundaryVertices.Add(new XY(-.5,-.5));w.ClipBoundaryVertices.Add(new XY(.5,.5));doc.Entities.Add(w);
+            doc.Entities.Add(new Ole2Frame{Layer=layer,UpperLeftCorner=new XYZ(100,20,0),LowerRightCorner=new XYZ(104,17,0),BinaryData=new byte[]{1,2,3,4},OleData=Array.Empty<byte>()});
+        }
         DwgWriter.Write(output,doc);
     }
 }

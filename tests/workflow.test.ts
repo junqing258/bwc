@@ -538,7 +538,7 @@ test("candidate DWG roundtrip and source/report export keep delivery gates expli
       ),
     );
     assert.equal(report.completeDelivery, false);
-    assert.equal(report.adapter.adapterVersion, "bwc-cad-2");
+    assert.equal(report.adapter.adapterVersion, "bwc-cad-3");
     assert.equal(
       report.parseArtifactVersion,
       s.catalog.open(pid).context().snapshot.parseArtifactVersion,

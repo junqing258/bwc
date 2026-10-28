@@ -61,6 +61,11 @@ export const OperationSchema = z.discriminatedUnion("kind", [
 ]);
 export const FilterSchema = z
   .object({
+    diagnosticGroupId: z.string().max(100).optional(),
+    geometryKinds: z
+      .array(z.enum(["path", "region", "annotation", "point", "text"]))
+      .max(5)
+      .optional(),
     entityTypes: z.array(z.string()).max(100).optional(),
     layers: z.array(z.string()).max(1000).optional(),
     text: z.string().max(1000).optional(),

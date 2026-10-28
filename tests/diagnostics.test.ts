@@ -1,6 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { importReport, groupIssues } from "../apps/server/diagnostics.ts";
+import {
+  importReport,
+  groupIssues,
+  diagnosticId,
+} from "../apps/server/diagnostics.ts";
 import type { Artifact } from "../apps/server/types.ts";
 
 test("coverage separates block-definition records, unique sources and actual model occurrences", () => {
@@ -34,6 +38,7 @@ test("coverage separates block-definition records, unique sources and actual mod
   assert.equal(report.modelWithGeometry, 1);
   assert.equal(report.modelWithoutGeometry, 2);
   assert.deepEqual(report.diagnosticGroups[0], {
+    id: diagnosticId("UNSUPPORTED_ENTITY", "HATCH"),
     code: "UNSUPPORTED_ENTITY",
     entityType: "HATCH",
     reason: "",

@@ -1,0 +1,140 @@
+{
+  "recordedAt": "2026-10-28T02:42:08.241Z",
+  "basis": "actual_workbench_messages_and_persisted_domain_calls",
+  "projectId": "p_f32cf479e4a3433e83baaef1dd55662f",
+  "currentRevision": "r_26eefa68be604a9997b162ccd308e6ef",
+  "geometrySnapshotId": "gs_a16a5974268546d0da33d2275bc33effbd23edda3411060fff44da802863b746",
+  "parseArtifactVersion": "pa_119bc91956684472b76cd9dcadac8481",
+  "adapterVersion": "bwc-cad-3",
+  "sourceSha256": "f3e4ebe3428e2b2fc21b412b4d8b805c537975b4f1b665c9881cf80daa801247",
+  "sourceHashVerified": true,
+  "previousArtifactHashVerified": true,
+  "unitsConfirmed": false,
+  "model": {
+    "total": 25230,
+    "canonical": 25205,
+    "missing": 25,
+    "diagnosticPreview": 25
+  },
+  "diagnostics": 136,
+  "notifications": 30104,
+  "flows": [
+    {
+      "turnId": "turn_78636bd490644e2f8c3f7e23ac2d3232",
+      "status": "failed",
+      "text": "请重新解析当前图纸",
+      "context": {
+        "workingRevision": "r_867ae991ce9b4e4a840ffb4347d6c18c",
+        "geometrySnapshotId": "gs_996b4bed82938e0f36b29865e9a2c959cdf3dec0e8d0d2fd9c08349595415765",
+        "dataPolicyVersion": "dp_e0b111213ce9485a9d7bcdc83124633a"
+      },
+      "response": "我会按 dwg-workflow 流程，使用冻结的修订和快照重新解析当前图纸，再核对覆盖变化与剩余缺口。",
+      "tools": [
+        "dwg_summary",
+        "project_open",
+        "dwg_capabilities"
+      ],
+      "jobs": [],
+      "error": "Selected model is at capacity. Please try a different model."
+    },
+    {
+      "turnId": "turn_4b8f3a1d1da8426aa9bf799c25946d17",
+      "status": "completed",
+      "text": "请使用 dwg_diagnostics 排查整张图纸的解析不完整问题，区分规范几何缺失、显示限制和文档保持待核验。给出实际实例数和下一步；对有模型实例的诊断组，用 diagnosticGroupId 冻结准确范围并定位。辅助定位不是已解析几何，缺项不按零计量。只做诊断，不修改图纸或重新解析。",
+      "context": {
+        "workingRevision": "r_867ae991ce9b4e4a840ffb4347d6c18c",
+        "geometrySnapshotId": "gs_996b4bed82938e0f36b29865e9a2c959cdf3dec0e8d0d2fd9c08349595415765",
+        "dataPolicyVersion": "dp_e0b111213ce9485a9d7bcdc83124633a"
+      },
+      "response": "按你最新要求，本次只做诊断，不重新解析或修改图纸。我会区分三类缺口，并将有模型实例的诊断组冻结为准确范围、逐组定位。已完成冻结快照的整图诊断，未修改图纸、未重新解析。解析状态仍为 **partial**。\n\n全图有 **25,230 个模型实例**：25,205 个有规范几何，25 个缺少规范几何。另有 16,316 个源实体、37,745 条源记录；136 条诊断记录不等于136个问题实例，也不是已确认构件数。\n\n| 诊断组 | 源实体数 | 模型实例数 | 问题与下一步 |\n|---|---:|---:|---|\n| LWPOLYLINE | 22 | **22** | 端点重合但 bulge 非零，半径无法确定。保留原始证据，在独立 CAD 中复核 |\n| WIPEOUT | 1 | **2** | 缺少遮罩语义；核验遮挡边界和绘制顺序 |\n| OLE2FRAME | 1 | **1** | 嵌入内容未读取；在原应用检查或导出可核验资料 |\n| SPLINE | 88 | **0** | 未实例化的源记录；需适配器支持或经核验的兼容副本 |\n| POLYLINE | 2 | **0** | 未实例化的源记录；需核查类型及兼容转换 |\n\n三个有模型实例的组均已按真实 `diagnosticGroupId` 冻结，分别包含 **22、2、1 个实例**，并成功发送逐组定位事件。WIPEOUT 的两个嵌套实例分别保留，未按同一 handle 合并。两个无模型实例的组未创建空选择集。\n\n三类边界分别是：\n\n- **规范几何缺失：**上述25个模型实例均不可计量；当前快照的 `diagnosticPreview` 数为0。辅助点位、参考范围或OLE框角，即使可用于定位，也不代表几何或内容已解析。\n- **显示限制：**字体、SHX/MTEXT格式、线型线宽存在近似；HATCH、SOLID、3DFACE仅显示边界；标注使用缓存图形，不能作为计量几何。\n- **文档保持待核验：**有 **30,104 条读取通知、17组**，涉及未知非图形对象、缺失引用及未分类通知。字体资源未核验，独立CAD验收未执行；不能因通知名称像样式对象就判定无影响。\n\n下一步应先独立复核22个异常曲线，再核验遮罩、OLE内容及未支持源记录，并对通知和显示资源做文档对照验收。单位目前未采用（INSUNITS=0）；有规范几何的部分仍需通过单位、轮廓和业务参数检查。**缺项保持未算，不按零计量。**",
+      "tools": [
+        "dwg_capabilities",
+        "dwg_summary",
+        "dwg_diagnostics",
+        "dwg_diagnostics",
+        "dwg_diagnostics",
+        "dwg_diagnostics",
+        "selection_create",
+        "selection_create",
+        "selection_create",
+        "viewer_focus",
+        "viewer_focus",
+        "viewer_focus"
+      ],
+      "jobs": []
+    },
+    {
+      "turnId": "turn_d868bf2fa3f34638b8a66d3ec17858c3",
+      "status": "completed",
+      "text": "请重新解析当前图纸",
+      "context": {
+        "workingRevision": "r_867ae991ce9b4e4a840ffb4347d6c18c",
+        "geometrySnapshotId": "gs_996b4bed82938e0f36b29865e9a2c959cdf3dec0e8d0d2fd9c08349595415765",
+        "selectionSet": {
+          "id": "sel_31e21bd6168e4191a651222b124ac9a3",
+          "version": 1
+        },
+        "dataPolicyVersion": "dp_e0b111213ce9485a9d7bcdc83124633a"
+      },
+      "response": "我会使用本轮保存的意图和冻结版本，按 dwg-workflow 重新解析整张图纸，再核对新快照的覆盖变化和剩余缺口。已完成重新解析并发布新修订：`r_26eefa68be604a9997b162ccd308e6ef`。任务已结束，结果仍为 **partial（部分解析）**。\n\n| 覆盖情况 | 解析前 | 解析后 |\n|---|---:|---:|\n| 模型实例总数 | 25,230 | 25,230 |\n| 有规范几何 | 25,205 | 25,205 |\n| 缺少规范几何 | 25 | 25 |\n| 有辅助定位预览 | 0 | **25** |\n\n本次新增了25个问题实例的辅助定位预览，**不代表几何已修复，也不能用于计量**。\n\n剩余缺口仍包括22个异常 LWPOLYLINE、2个 WIPEOUT、1个 OLE，以及未实例化的88条 SPLINE和2条 POLYLINE源记录。30,104条读取通知仍待核验；显示仍有近似，文档保持尚未验证，单位尚未采用。\n\n下一步需在独立CAD中复核异常曲线、遮罩和嵌入内容。缺项保持未算，不按零计量。",
+      "tools": [
+        "dwg_capabilities",
+        "project_open",
+        "dwg_summary",
+        "dwg_reparse",
+        "job_get",
+        "job_get",
+        "dwg_diagnostics",
+        "dwg_summary"
+      ],
+      "jobs": [
+        {
+          "id": "job_b7dbc6599c7d44548c319a58eb02e9f2",
+          "kind": "reparse",
+          "status": "partial",
+          "before": 25,
+          "after": 25,
+          "diagnosticPreviewAfter": 25
+        }
+      ]
+    }
+  ],
+  "tests": {
+    "node": 23,
+    "python": 13,
+    "typescript": "passed",
+    "build": "passed"
+  },
+  "independentCad": "not_run",
+  "diagnosticSelections": [
+    {
+      "id": "sel_31e21bd6168e4191a651222b124ac9a3",
+      "workingRevision": "r_867ae991ce9b4e4a840ffb4347d6c18c",
+      "groupId": "dg_6eb726ac6e543184428a4269",
+      "members": 1
+    },
+    {
+      "id": "sel_5c0cb1af1a944d6c9c58ce9b428973b3",
+      "workingRevision": "r_867ae991ce9b4e4a840ffb4347d6c18c",
+      "groupId": "dg_bb80dbf8d4f0ca52b75f7d21",
+      "members": 2
+    },
+    {
+      "id": "sel_7f1bc60458644031b174a92423110595",
+      "workingRevision": "r_867ae991ce9b4e4a840ffb4347d6c18c",
+      "groupId": "dg_ad8a2f6e595f0092d6c7fbdf",
+      "members": 22
+    }
+  ],
+  "uiVerification": {
+    "exactDiagnosticGroupQueryCount": 22,
+    "sourcePointPreviewVisible": true,
+    "previewNotQuantityLabelVisible": true,
+    "legacyProviderErrorVisible": true,
+    "screenshots": [
+      "diagnostic-preview-v3.png",
+      "unparsed-source-location.png",
+      "ai-reparse-workbench.png"
+    ]
+  }
+}

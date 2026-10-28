@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import * as T from "three";
 import type { Occurrence, Vec3 } from "../../server/types";
-import { bounds, evaluate, sample, primitives } from "../../server/geometry";
+import {
+  bounds,
+  evaluate,
+  sample,
+  primitives,
+  displayGeometry,
+} from "../../server/geometry";
 interface Props {
   occurrences: Occurrence[];
   selected: string[];
@@ -117,14 +123,29 @@ export default function Viewer(p: Props) {
           ]
         : visible;
       for (const o of ordered) {
-        for (const g of primitives(o.geometry)) {
+        for (const g of primitives(displayGeometry(o))) {
           if (g.kind === "point") {
             const [x, y] = screen(g.position);
             if (x < 0 || x > width || y < 0 || y > height) continue;
-            context.fillStyle = state.current.selected.includes(o.occurrenceId)
-              ? "#2563eb"
-              : "#65748a";
+            context.fillStyle = !o.geometry
+              ? "#d97706"
+              : state.current.selected.includes(o.occurrenceId)
+                ? "#2563eb"
+                : "#65748a";
             context.fillRect(x - 1.5, y - 1.5, 3, 3);
+            if (!o.geometry) {
+              context.strokeStyle = "#d97706";
+              context.beginPath();
+              context.moveTo(x - 6, y);
+              context.lineTo(x + 6, y);
+              context.moveTo(x, y - 6);
+              context.lineTo(x, y + 6);
+              context.stroke();
+              if (selected.has(o.occurrenceId)) {
+                context.font = "12px sans-serif";
+                context.fillText(`${o.entityType} 辅助定位`, x + 9, y - 9);
+              }
+            }
             continue;
           }
           if (g.kind !== "text") continue;
@@ -150,12 +171,14 @@ export default function Viewer(p: Props) {
         cs: number[] = [];
       const ids: string[] = [];
       for (const o of objects) {
-        for (const g of primitives(o.geometry)) {
+        for (const g of primitives(displayGeometry(o))) {
           if (g.kind !== "path") continue;
           const color = new T.Color(
-            o.color === "#000000" || o.color === "#ffffff"
-              ? "#687b92"
-              : o.color,
+            !o.geometry
+              ? "#d97706"
+              : o.color === "#000000" || o.color === "#ffffff"
+                ? "#687b92"
+                : o.color,
           );
           for (const segment of g.segments) {
             const pts = sample(
@@ -192,7 +215,7 @@ export default function Viewer(p: Props) {
         ? visible.filter((o) => state.current.selected.includes(o.occurrenceId))
         : visible;
       const boxes = objects
-        .map((o) => bounds(o.geometry))
+        .map((o) => bounds(displayGeometry(o)))
         .filter(Boolean) as number[][];
       if (!boxes.length) return;
       const minX = boxes.reduce((n, b) => Math.min(n, b[0]), Infinity),
@@ -201,8 +224,8 @@ export default function Viewer(p: Props) {
         maxY = boxes.reduce((n, b) => Math.max(n, b[3]), -Infinity);
       cx = (minX + maxX) / 2 - origin[0];
       cy = (minY + maxY) / 2 - origin[1];
-      span =
-        Math.max(maxY - minY, ((maxX - minX) * height) / width, 1e-8) * 1.2;
+      const extent = Math.max(maxY - minY, ((maxX - minX) * height) / width);
+      span = extent > 1e-8 ? extent * 1.2 : Math.max(span / 10, 1);
       render();
     }
     function doHighlight() {
@@ -336,7 +359,7 @@ export default function Viewer(p: Props) {
           maxY = Math.max(a[1], b[1]);
         const ids = visible
           .filter((o) => {
-            const box = bounds(o.geometry);
+            const box = bounds(displayGeometry(o));
             return (
               box &&
               box[0] >= minX &&
@@ -361,7 +384,7 @@ export default function Viewer(p: Props) {
         : undefined;
       if (!selected) {
         selected = visible.find((o) => {
-          return primitives(o.geometry).some((g) => {
+          return primitives(displayGeometry(o)).some((g) => {
             if (g.kind !== "text" && g.kind !== "point") return false;
             const [sx, sy] = screen(g.position);
             return Math.hypot(sx - x, sy - y) < 14;

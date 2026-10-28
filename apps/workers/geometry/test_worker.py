@@ -95,5 +95,12 @@ class GeometryTests(unittest.TestCase):
             r=run({'occurrences':[annotation],'scale':1,'quantityKind':kind})
             self.assertIsNone(r['items'][0]['value']);self.assertEqual(r['items'][0]['reason'],'ANNOTATION_NOT_MEASURABLE')
 
+    def test_diagnostic_preview_never_becomes_quantity_geometry(self):
+        missing=occurrence('missing',None)
+        missing['diagnosticPreview']={'geometry':self.outer['geometry'],'quantityEligible':False}
+        for kind in ('length','net_area','parameter_volume'):
+            r=run({'occurrences':[missing],'scale':1,'quantityKind':kind})
+            self.assertIsNone(r['items'][0]['value']);self.assertEqual(r['items'][0]['reason'],'UNSUPPORTED_GEOMETRY')
+
 
 if __name__=='__main__':unittest.main()

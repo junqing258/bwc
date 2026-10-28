@@ -217,6 +217,8 @@ def measure(occurrence, kind, scale, business, by_id):
         }
     if scale is None or not math.isfinite(scale) or scale <= 0:
         raise GeometryError("UNITS_UNCONFIRMED")
+    if not g:
+        raise GeometryError("UNSUPPORTED_GEOMETRY")
     if g and g.get("kind") == "annotation":
         raise GeometryError("ANNOTATION_NOT_MEASURABLE")
     if g and g.get("kind") == "point":

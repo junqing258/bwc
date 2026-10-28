@@ -16,10 +16,12 @@ export default function ImportDiagnostics({
   summary,
   onInspect,
   onReparse,
+  onDiagnose,
   busy,
 }: {
   summary: any;
-  onInspect: (type: string) => void;
+  onInspect: (group: any) => void;
+  onDiagnose: (groupId?: string) => void;
   onReparse: () => void;
   busy: boolean;
 }) {
@@ -38,8 +40,11 @@ export default function ImportDiagnostics({
       <p className="muted">
         填充和面显示边界；尺寸标注使用缓存图形，仅供阅读。显示依据不代表面积有效或业务构件已确认。
       </p>
-      <button disabled={busy} onClick={onReparse}>
+      <button className="outline" disabled={busy} onClick={onReparse}>
         使用当前适配器重新解析
+      </button>
+      <button className="outline" disabled={busy} onClick={() => onDiagnose()}>
+        让 AI 排查解析问题
       </button>
       <p className="muted">
         生成新解析快照，保留原图和历史版本。身份核验通过才沿用业务参数；已有计算结果需重算。
@@ -52,6 +57,12 @@ export default function ImportDiagnostics({
             {number(report.modelWithoutGeometry)}{" "}
             个尚无规范几何。这些数量不是已确认的建筑构件数量。
           </p>
+          {!!report.modelWithDiagnosticPreview && (
+            <p className="muted">
+              其中 {number(report.modelWithDiagnosticPreview)}{" "}
+              个缺失实例已有橙色辅助点位或参考范围，可定位核查；仍不参与计量。
+            </p>
+          )}
           <div className="diagnostic-metrics">
             <div>
               <b>{number(report.modelWithGeometry)}</b>
@@ -105,13 +116,20 @@ export default function ImportDiagnostics({
                       {g.modelOccurrences > 0 && g.entityType !== "UNKNOWN" ? (
                         <button
                           className="text-button"
-                          onClick={() => onInspect(g.entityType)}
+                          onClick={() => onInspect(g)}
                         >
-                          查看同类对象
+                          查看本组对象
                         </button>
                       ) : (
                         <span className="muted">无模型实例可查询</span>
                       )}
+                      <button
+                        className="text-button"
+                        disabled={busy}
+                        onClick={() => onDiagnose(g.id)}
+                      >
+                        让 AI 分析本组
+                      </button>
                     </td>
                   </tr>
                 ))}
