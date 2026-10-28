@@ -47,6 +47,11 @@ export function toolRegistry(service: WorkflowService) {
       z.object({ projectId: z.string(), jobId: z.string() }).strict(),
       (i) => service.getJob(i),
     ),
+    dwg_reparse: tool(
+      "用当前适配器重新解析同一不可变源文件及已应用补丁，保留身份和业务参数，发布新快照；旧结果失效",
+      z.object({ ...context, operationId: op }).strict(),
+      (i) => service.reparse(i),
+    ),
     job_cancel: tool(
       "取消领域任务；不会撤销已发布修订",
       z.object({ projectId: z.string(), jobId: z.string() }).strict(),
@@ -113,17 +118,7 @@ export function toolRegistry(service: WorkflowService) {
     issue_list: tool(
       "读取固定快照的问题状态；未运行不是通过",
       ContextSchema.strict(),
-      (i) => {
-        const s = service.catalog.open(i.projectId),
-          c = s.context(i.workingRevision, i.geometrySnapshotId);
-        return {
-          workingRevision: c.revision.id,
-          geometrySnapshotId: c.snapshot.id,
-          issues: s
-            .all<any>("issue")
-            .filter((x) => x.geometrySnapshotId === c.snapshot.id),
-        };
-      },
+      (i) => service.issues(i),
     ),
     change_propose: tool(
       "从已持久化用户指令生成不可变候选、差异与试算。intentId 必须来自工作台消息或界面事件",

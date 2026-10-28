@@ -1,3 +1,5 @@
+import { importReport, groupIssues } from "./diagnostics.ts";
+import { primitives } from "./geometry.ts";
 import {
   copyFileSync,
   existsSync,
@@ -84,7 +86,7 @@ export class WorkflowService {
         validity:
           r.workingRevision === s.meta().currentRevision ? "valid" : "stale",
       })),
-      jobs: s.all("job"),
+      jobs: s.all<Job>("job").map((job) => this.publicJob(job)),
       changes: s.all("change"),
       conversions: s.all("conversion"),
     };
@@ -208,7 +210,9 @@ export class WorkflowService {
     return job;
   }
   getJob(input: any) {
-    return this.catalog.open(input.projectId).get<Job>("job", input.jobId);
+    return this.publicJob(
+      this.catalog.open(input.projectId).get<Job>("job", input.jobId),
+    );
   }
   cancelJob(input: any) {
     const s = this.catalog.open(input.projectId),
@@ -336,6 +340,109 @@ export class WorkflowService {
       }));
     }
   }
+  reparse(input: any) {
+    const s = this.catalog.open(input.projectId),
+      ctx = s.context(input.workingRevision, input.geometrySnapshotId);
+    const drawing = s.get<Drawing>("drawing", ctx.snapshot.drawingVersion);
+    const source = s.file(drawing.path, drawing.sha256);
+    return this.job(
+      s,
+      "reparse",
+      input.operationId,
+      {
+        revision: ctx.revision.id,
+        sourceSha256: drawing.sha256,
+        adapterVersion: "bwc-cad-2",
+      },
+      async (signal, job) => {
+        assert(
+          s.meta().currentRevision === ctx.revision.id,
+          "REVISION_CONFLICT",
+          "只能基于当前修订重新解析",
+        );
+        const before = s.artifact(ctx.snapshot);
+        const artifact = await worker<Artifact>(
+          "cad",
+          { mode: "parse", input: source, patches: ctx.snapshot.patches },
+          signal,
+        );
+        this.assignIds(artifact, drawing.id);
+        const inventory = (a: Artifact) =>
+          canonical({
+            sources: a.sources.map((x) => [x.handle, x.type, x.owner]).sort(),
+            occurrences: a.occurrences
+              .map((x) => [x.occurrenceId, x.entityType, x.space])
+              .sort(),
+          });
+        assert(
+          inventory(before) === inventory(artifact),
+          "REPARSE_IDENTITY_CHANGED",
+          "源实体或实例身份变化，不能自动沿用业务参数；请另行导入核验",
+        );
+        assert(
+          before.insUnits === artifact.insUnits,
+          "REPARSE_UNITS_CHANGED",
+          "源单位声明变化，需要单独核验",
+        );
+        if (drawing.role === "compatible_copy") {
+          artifact.diagnostics.push({
+            code: "CONVERSION_UNVERIFIED",
+            reason: "兼容副本需登记原图、转换来源和独立核验范围",
+          });
+          artifact.importCompleteness = "partial";
+        }
+        const pa = id("pa"),
+          artifactPath = `artifacts/${pa}/geometry.json`;
+        atomicJson(join(s.path, artifactPath), artifact);
+        const snapshot = s.saveSnapshot(
+          {
+            drawingVersion: drawing.id,
+            parseArtifactVersion: pa,
+            coordinateContractVersion: artifact.coordinateContractVersion,
+            artifactPath,
+            artifactSha256: hash(readFileSync(join(s.path, artifactPath))),
+            patches: ctx.snapshot.patches,
+            units: ctx.snapshot.units,
+            business: ctx.snapshot.business,
+            importCompleteness: artifact.importCompleteness,
+          },
+          artifact,
+        );
+        if (signal.aborted) fail("CANCELLED", "任务已取消");
+        const report = {
+          before: importReport(before),
+          after: importReport(artifact),
+        };
+        const revision = this.publish(
+          s,
+          ctx.revision.id,
+          snapshot,
+          job.operationId,
+          () =>
+            s.put("parse", {
+              id: pa,
+              drawingVersion: drawing.id,
+              artifactPath,
+              previousParseArtifactVersion: ctx.snapshot.parseArtifactVersion,
+              adapterVersion: artifact.adapterVersion,
+              sourceSha256: drawing.sha256,
+              completeness: artifact.importCompleteness,
+              report,
+            }),
+        );
+        job.workingRevision = revision.id;
+        job.geometrySnapshotId = snapshot.id;
+        return {
+          workingRevision: revision.id,
+          geometrySnapshotId: snapshot.id,
+          parseArtifactVersion: pa,
+          completeness: artifact.importCompleteness,
+          report,
+        };
+      },
+      ctx,
+    );
+  }
   publish(
     s: ProjectStore,
     base: string | null,
@@ -390,6 +497,7 @@ export class WorkflowService {
       workingRevision: revision.id,
       geometrySnapshotId: snapshot.id,
       drawing: s.get("drawing", snapshot.drawingVersion),
+      adapterVersion: a.adapterVersion ?? "bwc-cad-1",
       unitProfile: snapshot.units,
       sourceEntityCount: a.sourceEntityCount,
       sourceRecordCount: a.sourceRecordCount,
@@ -405,6 +513,7 @@ export class WorkflowService {
       resources: a.resources ?? [],
       registeredClasses: a.classes ?? [],
       displayLimitations: a.displayLimitations,
+      importReport: importReport(a),
       readSeconds: a.readSeconds,
       peakWorkingSetBytes: a.peakWorkingSetBytes,
     };
@@ -427,8 +536,9 @@ export class WorkflowService {
           (!filter.entityTypes || filter.entityTypes.includes(o.entityType)) &&
           (!filter.layers || filter.layers.includes(o.layer)) &&
           (!filter.text ||
-            (o.geometry?.kind === "text" &&
-              o.geometry.text.includes(filter.text))) &&
+            primitives(o.geometry).some(
+              (g) => g.kind === "text" && g.text.includes(filter.text!),
+            )) &&
           (!filter.classification ||
             snapshot.business[o.occurrenceId]?.classification ===
               filter.classification),
@@ -1002,6 +1112,43 @@ export class WorkflowService {
       ctx,
     );
   }
+  publicJob(job: Job): Job {
+    return job.kind === "check" && job.result?.issues
+      ? {
+          ...job,
+          result: {
+            ...job.result,
+            issues: groupIssues(job.result.issues, job.id),
+          },
+        }
+      : job;
+  }
+  issues(input: any) {
+    const s = this.catalog.open(input.projectId),
+      ctx = s.context(input.workingRevision, input.geometrySnapshotId);
+    const jobs = s
+      .all<Job>("job")
+      .filter(
+        (j) =>
+          j.kind === "check" &&
+          j.geometrySnapshotId === ctx.snapshot.id &&
+          ["partial", "succeeded"].includes(j.status) &&
+          j.result?.issues,
+      );
+    const latest = jobs.at(-1);
+    const items =
+      latest?.result.issues ??
+      s
+        .all<any>("issue")
+        .filter((i) => i.geometrySnapshotId === ctx.snapshot.id);
+    return {
+      workingRevision: ctx.revision.id,
+      geometrySnapshotId: ctx.snapshot.id,
+      checkRunId: latest?.id ?? null,
+      historyRunCount: jobs.length,
+      issues: groupIssues(items, latest?.id ?? "legacy"),
+    };
+  }
   check(input: any) {
     const s = this.catalog.open(input.projectId),
       ctx = s.context(input.workingRevision, input.geometrySnapshotId);
@@ -1012,88 +1159,193 @@ export class WorkflowService {
       s,
       "check",
       input.operationId,
-      { revision: ctx.revision.id, selection: sel?.id ?? null },
-      async (signal) => {
-        const a = s.artifact(ctx.snapshot),
-          members =
-            sel?.members ??
+      {
+        revision: ctx.revision.id,
+        selection: sel?.id ?? null,
+        checkerVersion: "bwc-check-2",
+      },
+      async (signal, job) => {
+        const a = s.artifact(ctx.snapshot);
+        const selected = new Set(
+          sel?.members ??
             a.occurrences
               .filter((o) => o.space === "model")
-              .map((o) => o.occurrenceId);
-        const measured = await worker<any>(
-          "geometry",
-          {
-            occurrences: a.occurrences,
-            members,
-            scale: ctx.snapshot.units.metresPerDrawingUnit,
-            business: ctx.snapshot.business,
-            quantityKind: "net_area",
-          },
-          signal,
+              .map((o) => o.occurrenceId),
         );
-        const issues: any[] = [
-          {
-            check: "units",
-            status: ctx.snapshot.units.confirmed ? "passed" : "failed",
-            severity: "blocking",
-            reason: ctx.snapshot.units.confirmed
-              ? "单位已采用"
-              : "UNITS_UNCONFIRMED",
-            occurrenceIds: members,
-          },
-          {
-            check: "import",
-            status: a.importCompleteness === "complete" ? "passed" : "failed",
-            severity: "warning",
-            reason:
-              a.importCompleteness === "complete"
-                ? "当前受支持实体解析完成"
-                : "存在未覆盖对象或读取通知",
-            occurrenceIds: [],
-            evidence: {
-              diagnostics: a.diagnostics,
-              notifications: a.notifications,
-            },
-          },
-          ...measured.items.map((i: any) => ({
-            check: "contour",
-            status:
-              i.status === "valid"
-                ? "passed"
-                : i.reason === "UNSUPPORTED_GEOMETRY"
-                  ? "unsupported"
-                  : "failed",
-            severity: "warning",
-            reason: i.reason ?? "闭合共面轮廓有效",
-            occurrenceIds: [i.id],
-            evidence: i,
-          })),
-          {
-            check: "independent_cad_roundtrip",
-            status: "not_run",
-            severity: "blocking",
-            reason: "需要独立 CAD 对照验收",
-            occurrenceIds: [],
-          },
-          {
-            check: "duplicate_overlap",
-            status: "not_run",
-            severity: "warning",
-            reason: "重复/重叠检查器尚未实现",
-            occurrenceIds: [],
-          },
-        ].map((i) => ({
-          id: id("issue"),
-          checkerVersion: "bwc-check-1",
-          geometrySnapshotId: ctx.snapshot.id,
-          ...i,
-        }));
-        for (const issue of issues) s.put("issue", issue);
+        const objects = a.occurrences.filter((o) =>
+            selected.has(o.occurrenceId),
+          ),
+          members = objects.map((o) => o.occurrenceId);
+        const paths = objects.filter((o) => o.geometry?.kind === "path");
+        const contours = objects.filter(
+          (o) =>
+            o.geometry?.kind === "region" ||
+            (o.geometry?.kind === "path" &&
+              (o.geometry.closed ||
+                ctx.snapshot.business[o.occurrenceId]?.uniform_thickness ||
+                ctx.snapshot.business[o.occurrenceId]?.holes)),
+        );
+        const raw: any[] = [];
+        const add = (
+          check: string,
+          status: string,
+          reason: string,
+          ids: string[],
+          evidence?: any,
+          severity = "warning",
+        ) =>
+          raw.push({
+            check,
+            status,
+            reason,
+            occurrenceIds: ids,
+            evidence,
+            severity,
+            geometrySnapshotId: ctx.snapshot.id,
+            checkerVersion: "bwc-check-2",
+            checkRunId: job.id,
+          });
+        add(
+          "units",
+          ctx.snapshot.units.confirmed ? "passed" : "failed",
+          ctx.snapshot.units.confirmed ? "单位已采用" : "UNITS_UNCONFIRMED",
+          members,
+          undefined,
+          "blocking",
+        );
+        add(
+          "import",
+          a.importCompleteness === "complete" ? "passed" : "failed",
+          a.importCompleteness === "complete"
+            ? "当前受支持实体解析完成"
+            : "存在未覆盖对象或读取通知",
+          [],
+          { importReport: importReport(a) },
+        );
+        const unsupported = objects
+          .filter((o) => !o.geometry)
+          .map((o) => o.occurrenceId);
+        if (unsupported.length)
+          add(
+            "basic_geometry",
+            "unsupported",
+            "UNSUPPORTED_GEOMETRY",
+            unsupported,
+          );
+        const texts = objects
+          .filter(
+            (o) =>
+              o.geometry &&
+              ["text", "annotation", "point"].includes(o.geometry.kind),
+          )
+          .map((o) => o.occurrenceId);
+        if (texts.length)
+          add(
+            "basic_geometry",
+            "not_applicable",
+            "文字、标注和点不参与曲线几何检查",
+            texts,
+          );
+        if (!ctx.snapshot.units.confirmed) {
+          if (paths.length)
+            add(
+              "basic_geometry",
+              "not_run",
+              "UNITS_UNCONFIRMED",
+              paths.map((o) => o.occurrenceId),
+            );
+          if (contours.length)
+            add(
+              "contour",
+              "not_run",
+              "UNITS_UNCONFIRMED",
+              contours.map((o) => o.occurrenceId),
+            );
+        } else {
+          if (paths.length) {
+            const length = await worker<any>(
+              "geometry",
+              {
+                occurrences: paths,
+                members: paths.map((o) => o.occurrenceId),
+                scale: ctx.snapshot.units.metresPerDrawingUnit,
+                business: ctx.snapshot.business,
+                quantityKind: "length",
+              },
+              signal,
+            );
+            for (const i of length.items)
+              add(
+                "basic_geometry",
+                i.status === "valid" ? "passed" : "failed",
+                i.reason ?? "曲线有限且长度非零",
+                [i.id],
+                i,
+              );
+          }
+          if (contours.length) {
+            const area = await worker<any>(
+              "geometry",
+              {
+                occurrences: a.occurrences,
+                members: contours.map((o) => o.occurrenceId),
+                scale: ctx.snapshot.units.metresPerDrawingUnit,
+                business: ctx.snapshot.business,
+                quantityKind: "net_area",
+              },
+              signal,
+            );
+            for (const i of area.items)
+              add(
+                "contour",
+                i.status === "valid" ? "passed" : "failed",
+                i.reason ?? "闭合共面轮廓有效",
+                [i.id],
+                i,
+              );
+          }
+        }
+        const contourIds = new Set(contours.map((o) => o.occurrenceId));
+        const otherPaths = paths
+          .filter((o) => !contourIds.has(o.occurrenceId))
+          .map((o) => o.occurrenceId);
+        if (otherPaths.length)
+          add(
+            "contour",
+            "not_applicable",
+            "开放曲线未声明为面积轮廓",
+            otherPaths,
+          );
+        if (!contours.length)
+          add(
+            "contour",
+            "not_applicable",
+            "当前范围没有已闭合或已声明的面积轮廓",
+            [],
+          );
+        add(
+          "independent_cad_roundtrip",
+          "not_run",
+          "需要独立 CAD 对照验收",
+          [],
+          undefined,
+          "blocking",
+        );
+        add("duplicate_overlap", "not_run", "重复/重叠检查器尚未实现", []);
+        if (signal.aborted) fail("CANCELLED", "任务已取消");
+        const issues = groupIssues(raw, job.id);
+        s.transaction(() => {
+          for (const issue of issues) s.put("issue", issue);
+        });
         return {
           workingRevision: ctx.revision.id,
           geometrySnapshotId: ctx.snapshot.id,
+          checkRunId: job.id,
+          scopeCount: members.length,
           issues,
-          completeness: issues.some((i) => i.status !== "passed")
+          completeness: issues.some(
+            (i) => !["passed", "not_applicable"].includes(i.status),
+          )
             ? "partial"
             : "complete",
         };
@@ -1118,6 +1370,11 @@ export class WorkflowService {
           "TEXT",
           "MTEXT",
           "INSERT",
+          "HATCH (line/arc/ellipse/polyline boundaries)",
+          "DIMENSION (default-coordinate cached picture; independent CAD not_run)",
+          "SOLID (2D boundary)",
+          "3DFACE (boundary; area requires coplanarity)",
+          "POINT",
         ],
         instances: {
           ordinary: "implemented",
@@ -1153,7 +1410,7 @@ export class WorkflowService {
         "proxy graphics",
         "XREF expansion",
         "3D solids",
-        "hatch/dimension rendering",
+        "hatch pattern/fill and dimension regeneration",
         "DWG dependency migration",
         "SHX fidelity",
       ],

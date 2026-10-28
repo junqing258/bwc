@@ -12,6 +12,19 @@ export type Segment =
 export type Geometry =
   | { kind: "path"; closed: boolean; segments: Segment[] }
   | {
+      kind: "region";
+      islandStyle: "Normal" | "Outer" | "Ignore";
+      loops: Extract<Geometry, { kind: "path" }>[];
+      native?: unknown;
+    }
+  | {
+      kind: "annotation";
+      parts: Geometry[];
+      quantityRole: "annotation_only";
+      native?: unknown;
+    }
+  | { kind: "point"; position: Vec3; native?: unknown }
+  | {
       kind: "text";
       text: string;
       position: Vec3;
@@ -42,6 +55,7 @@ export interface Artifact {
   coordinateContractVersion: string;
   parser: string;
   parserVersion: string;
+  adapterVersion?: string;
   dwgVersion: string;
   insUnits: number;
   sourceEntityCount: number;

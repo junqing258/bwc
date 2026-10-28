@@ -37,7 +37,7 @@ const portableOperation = z
 const server = new McpServer({ name: "bwc-dwg-workflow", version: "0.1.0" });
 const registry = toolRegistry({} as WorkflowService);
 for (const [name, tool] of Object.entries(registry)) {
-  if (["project_list", "dwg_import"].includes(name)) continue;
+  if (["project_list", "dwg_import", "dwg_reparse"].includes(name)) continue;
   const readOnly = [
     "project_open",
     "dwg_capabilities",

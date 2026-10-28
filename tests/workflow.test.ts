@@ -8,6 +8,7 @@ import type { Job, Operation, Selection } from "../apps/server/types.ts";
 import { id } from "../apps/server/util.ts";
 import { dwgExport, resultExport } from "../apps/server/exports.ts";
 import { toolRegistry } from "../apps/server/tools.ts";
+import { hash } from "../apps/server/util.ts";
 async function jobResult(service: WorkflowService, pid: string, job: Job) {
   let j = job;
   const end = Date.now() + 30000;
@@ -117,6 +118,87 @@ async function baseline(service: WorkflowService, pid: string) {
   await change(service, pid, { kind: "set_holes", holes: holes.members }, slab);
   return select(service, pid, "受控楼板轮廓");
 }
+
+test("reparse publishes immutable lineage with stable identities, patches, units and business; old results become stale", async () => {
+  const x = await setup();
+  try {
+    const { service: s, pid } = x;
+    let slab = await baseline(s, pid);
+    await change(
+      s,
+      pid,
+      {
+        kind: "move_entities",
+        delta: [0.5, 0, 0],
+        unit: "drawing_unit",
+        coordinateSystem: "drawing_wcs",
+        scope: "entity",
+      },
+      slab,
+    );
+    slab = await select(s, pid, "受控楼板轮廓");
+    const before = ctx(s, pid),
+      store = s.catalog.open(pid),
+      snap = store.context().snapshot;
+    const artifact = store.artifact(snap),
+      source = store.get("drawing", snap.drawingVersion);
+    const sourceHash = hash(readFileSync(join(store.path, source.path)));
+    const oldResult = await jobResult(
+      s,
+      pid,
+      s.takeoff({
+        ...before,
+        selectionSet: { id: slab.id, version: 1 },
+        quantityKind: "parameter_volume",
+        operationId: id("op"),
+      }),
+    );
+    const input = { ...before, operationId: id("reparse") };
+    const job = s.reparse(input),
+      result = await jobResult(s, pid, job);
+    const after = store.context(),
+      parsed = store.artifact(after.snapshot);
+    assert.notEqual(after.snapshot.id, snap.id);
+    assert.equal(after.revision.parent, before.workingRevision);
+    assert.equal(
+      result.parseArtifactVersion,
+      after.snapshot.parseArtifactVersion,
+    );
+    assert.deepEqual(after.snapshot.units, snap.units);
+    assert.deepEqual(after.snapshot.business, snap.business);
+    assert.deepEqual(after.snapshot.patches, snap.patches);
+    assert.deepEqual(
+      parsed.occurrences.map((o) => [o.occurrenceId, o.geometry]),
+      artifact.occurrences.map((o) => [o.occurrenceId, o.geometry]),
+    );
+    assert.equal(hash(readFileSync(join(store.path, source.path))), sourceHash);
+    assert.equal(
+      hash(readFileSync(join(store.path, snap.artifactPath))),
+      snap.artifactSha256,
+    );
+    assert.equal(store.get("takeoff", oldResult.id).validity, "stale");
+    assert.equal(
+      s.reparse(input).id,
+      job.id,
+      "same operation returns original job even after publication",
+    );
+    assert.throws(
+      () =>
+        s.takeoff({
+          ...ctx(s, pid),
+          selectionSet: { id: slab.id, version: 1 },
+          quantityKind: "net_area",
+          operationId: id("op"),
+        }),
+      /过期/,
+    );
+    const parse = store.get("parse", after.snapshot.parseArtifactVersion);
+    assert.equal(parse.previousParseArtifactVersion, snap.parseArtifactVersion);
+    assert.equal(parse.sourceSha256, source.sha256);
+  } finally {
+    x.cleanup();
+  }
+});
 
 test("one real DWG: 23m² / 3.45m³, immutable history, thickness and unit revision", async () => {
   const x = await setup();
@@ -456,6 +538,12 @@ test("candidate DWG roundtrip and source/report export keep delivery gates expli
       ),
     );
     assert.equal(report.completeDelivery, false);
+    assert.equal(report.adapter.adapterVersion, "bwc-cad-2");
+    assert.equal(
+      report.parseArtifactVersion,
+      s.catalog.open(pid).context().snapshot.parseArtifactVersion,
+    );
+    assert.equal(report.importReport.modelWithoutGeometry, 0);
     assert.equal(r.mainDrawing.edited, false);
   } finally {
     x.cleanup();
@@ -544,6 +632,121 @@ test("tampered snapshot manifests and immutable source files are detected before
       /指纹不匹配/,
     );
     assert.equal(store.current().geometrySnapshotId, original.id);
+  } finally {
+    x.cleanup();
+  }
+});
+
+test("checks gate dimensional work once per scope, group evidence, and read only the latest completed run", async () => {
+  const x = await setup();
+  try {
+    const { service: s, pid } = x;
+    const before = ctx(s, pid);
+    const first = s.check({ ...before, operationId: id("check") });
+    const firstResult = await jobResult(s, pid, first);
+    assert.ok(firstResult.issues.length < 12);
+    assert.equal(
+      firstResult.issues.filter(
+        (i: any) => i.check === "units" && i.status === "failed",
+      ).length,
+      1,
+    );
+    assert.ok(
+      firstResult.issues.some(
+        (i: any) =>
+          i.check === "contour" &&
+          i.status === "not_run" &&
+          i.reason === "UNITS_UNCONFIRMED",
+      ),
+    );
+    assert.ok(
+      !firstResult.issues.some(
+        (i: any) => i.check === "contour" && i.status === "failed",
+      ),
+    );
+    const second = s.check({ ...ctx(s, pid), operationId: id("check") });
+    const result = await jobResult(s, pid, second);
+    const listed = s.issues({ projectId: pid });
+    assert.equal(listed.checkRunId, second.id);
+    assert.equal(listed.historyRunCount, 2);
+    assert.equal(listed.issues.length, result.issues.length);
+    const restored = s.open(pid).jobs.find((j: any) => j.id === first.id);
+    assert.ok(restored);
+    assert.equal(restored.result.issues.length, firstResult.issues.length);
+    assert.deepEqual(ctx(s, pid), before);
+  } finally {
+    x.cleanup();
+  }
+});
+
+test("ordinary open lines pass curve checks; only declared area contours fail OPEN_CONTOUR", async () => {
+  const x = await setup();
+  try {
+    const { service: s, pid } = x;
+    await units(s, pid);
+    const q = await s.query({
+      ...ctx(s, pid),
+      filter: { entityTypes: ["LINE"], space: "model" },
+    });
+    const line = q.items.find((o: any) => o.instancePath.length === 0)!;
+    let scope = await s.selection({
+      ...ctx(s, pid),
+      members: [line.occurrenceId],
+    });
+    let result = await jobResult(
+      s,
+      pid,
+      s.check({
+        ...ctx(s, pid),
+        selectionSet: { id: scope.id, version: 1 },
+        operationId: id("check"),
+      }),
+    );
+    assert.ok(
+      result.issues.some(
+        (i: any) => i.check === "basic_geometry" && i.status === "passed",
+      ),
+    );
+    assert.ok(
+      result.issues.some(
+        (i: any) => i.check === "contour" && i.status === "not_applicable",
+      ),
+    );
+    assert.ok(
+      !result.issues.some(
+        (i: any) => i.check === "contour" && i.status === "failed",
+      ),
+    );
+    await change(
+      s,
+      pid,
+      {
+        kind: "set_measurement_parameter",
+        field: "uniform_thickness",
+        value: 150,
+        unit: "mm",
+        unitBinding: "physical_quantity",
+      },
+      scope,
+    );
+    scope = await s.selection({ ...ctx(s, pid), members: [line.occurrenceId] });
+    result = await jobResult(
+      s,
+      pid,
+      s.check({
+        ...ctx(s, pid),
+        selectionSet: { id: scope.id, version: 1 },
+        operationId: id("check"),
+      }),
+    );
+    assert.ok(
+      result.issues.some(
+        (i: any) =>
+          i.check === "contour" &&
+          i.status === "failed" &&
+          i.reason === "OPEN_CONTOUR",
+      ),
+    );
   } finally {
     x.cleanup();
   }

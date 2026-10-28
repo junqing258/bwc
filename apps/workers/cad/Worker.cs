@@ -9,7 +9,7 @@ using ACadSharp.IO;
 using ACadSharp.Tables;
 using CSMath;
 
-static class Worker
+static partial class Worker
 {
     static readonly JsonSerializerOptions Json = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
     public static Task<int> Run(string[] args)
@@ -18,7 +18,7 @@ static class Worker
             if (args.Length != 2) throw new ArgumentException("Usage: CadWorker <request.json> <response.json>");
             var request = JsonNode.Parse(File.ReadAllText(args[0]))!;
             string mode = request["mode"]?.GetValue<string>() ?? "parse";
-            if (mode == "fixture") { Fixture(request["output"]!.GetValue<string>(), request["fixtureMode"]?.GetValue<string>() == "transforms"); File.WriteAllText(args[1], "{\"status\":\"created\"}"); return Task.FromResult(0); }
+            if (mode == "fixture") { if(request["fixtureMode"]?.GetValue<string>() == "coverage") CoverageFixture(request["output"]!.GetValue<string>()); else Fixture(request["output"]!.GetValue<string>(), request["fixtureMode"]?.GetValue<string>() == "transforms"); File.WriteAllText(args[1], "{\"status\":\"created\"}"); return Task.FromResult(0); }
             var notifications = new List<string>(); var watch = Stopwatch.StartNew();
             string input = request["input"]!.GetValue<string>();
             var doc = DwgReader.Read(input, new DwgReaderConfiguration { Failsafe = false, KeepUnknownEntities = true, KeepUnknownNonGraphicalObjects = true }, (_, e) => notifications.Add(e.Message));
@@ -73,13 +73,14 @@ static class Worker
         foreach(var b in doc.BlockRecords.OrderBy(b => b.Name)) {
             if(!string.IsNullOrEmpty(b.BlockEntity.XRefPath)) dependencies.Add(new { kind = "xref", path = b.BlockEntity.XRefPath, blockName = b.Name });
             foreach(var e in b.Entities.OrderBy(e => e.Handle)) {
-                object? geometry = null;
-                try { geometry = Geometry(e); JsonSerializer.Serialize(geometry, Json); } catch(Exception ex) { diagnostics.Add(new { code = "GEOMETRY_INVALID", handle = H(e), reason = ex.Message }); geometry = null; }
+                object? geometry = null;bool geometryFailed=false;
+                try { geometry = Geometry(e); JsonSerializer.Serialize(geometry, Json); } catch(Exception ex) { diagnostics.Add(new { code = "GEOMETRY_INVALID", handle = H(e), reason = ex.Message }); geometry = null;geometryFailed=true; }
                 var ins = e as Insert;
                 sources.Add(new { handle = H(e), type = e.ObjectName, runtimeType = e.GetType().Name, owner = b.Name, layer = e.Layer.Name, color = e.Color.Index, trueColor = e.Color.TrueColor, invisible = e.IsInvisible, geometry,
+                    nativePolyline = e is LwPolyline rawPoly ? new {vertices=rawPoly.Vertices.Select(v=>new{point=new[]{v.Location.X,v.Location.Y},v.Bulge,v.StartWidth,v.EndWidth}),rawPoly.IsClosed,rawPoly.Elevation,normal=A(rawPoly.Normal),rawPoly.Thickness} : null,
                     paperViewport = e is Viewport vp ? new { representsPaper = vp.RepresentsPaper, center = A(vp.Center), width = vp.Width, height = vp.Height, viewCenter = new[]{vp.ViewCenter.X,vp.ViewCenter.Y}, viewDirection = A(vp.ViewDirection), viewTarget = A(vp.ViewTarget), viewHeight = vp.ViewHeight, twistAngle = vp.TwistAngle, status = vp.Status.ToString() } : null,
                     insert = ins == null ? null : new { block = ins.Block.Name, point = A(ins.InsertPoint), normal = A(ins.Normal), rotation = ins.Rotation, scale = new[]{ins.XScale, ins.YScale, ins.ZScale}, basePoint = A(ins.Block.BlockEntity.BasePoint), rowCount = ins.RowCount, columnCount = ins.ColumnCount, rowSpacing = ins.RowSpacing, columnSpacing = ins.ColumnSpacing, attributes = ins.Attributes.Select(a => new { a.Tag, a.Value }).ToArray() } });
-                if(geometry == null && ins == null && !(e is Viewport paper && paper.RepresentsPaper)) diagnostics.Add(new { code = e.ObjectName.StartsWith("TCH_") ? "COMPATIBILITY_EXPORT_REQUIRED" : "UNSUPPORTED_ENTITY", handle = H(e), entityType = e.ObjectName, owner = b.Name });
+                if(geometry == null && !geometryFailed && ins == null && !(e is Viewport paper && paper.RepresentsPaper)) diagnostics.Add(new { code = e.ObjectName.StartsWith("TCH_") ? "COMPATIBILITY_EXPORT_REQUIRED" : "UNSUPPORTED_ENTITY", handle = H(e), entityType = e.ObjectName, owner = b.Name });
             }
         }
         void Expand(IEnumerable<Entity> entities, double[] matrix, JsonArray path, string space, string? inheritedLayer, Color? inheritedColor, HashSet<string> visiting, bool parentVisible)
@@ -118,10 +119,10 @@ static class Worker
         var blockStates = doc.BlockRecords.OrderBy(b => b.Name).Select(b => new { b.Name, basePoint = A(b.BlockEntity.BasePoint), flags = b.Flags.ToString(), units = (int)b.Units, xrefPath = b.BlockEntity.XRefPath }).ToArray();
         var fingerprint = Hash(JsonSerializer.Serialize(new { insUnits = (int)doc.Header.InsUnits, layers, blocks = blockStates, entities = sources }, Json));
         return JsonSerializer.SerializeToNode(new {
-            schemaVersion = 1, coordinateContractVersion = "bwc-wcs-1", parser = "ACadSharp", parserVersion = "3.8.30", dwgVersion = doc.Header.Version.ToString(), insUnits = (int)doc.Header.InsUnits,
+            schemaVersion = 1, adapterVersion = "bwc-cad-2", coordinateContractVersion = "bwc-wcs-1", parser = "ACadSharp", parserVersion = "3.8.30", dwgVersion = doc.Header.Version.ToString(), insUnits = (int)doc.Header.InsUnits,
             sourceEntityCount = doc.Entities.Count, sourceRecordCount = sources.Count, sources, occurrences, layers, blocks = blockStates, classes, dependencies, resources, diagnostics, notifications, stateFingerprint = fingerprint,
             importCompleteness = diagnostics.Count > 0 || notifications.Count > 0 ? "partial" : "complete",
-            displayLimitations = new[]{"Browser fonts; SHX/MTEXT formatting, line patterns and weights are approximate.","XREF, clipped/dynamic inserts, hatches, dimensions and solids are not rendered or measured."}
+            displayLimitations = new[]{"Browser fonts; SHX/MTEXT formatting, line patterns, weights and per-child dimension colours are approximate.","HATCH/SOLID/3DFACE show boundaries only; hatch patterns, fills and hidden face edges are not reproduced. DIMENSION uses cached picture only, never quantity geometry.","XREF, clipped/dynamic inserts, spline boundaries, WIPEOUT and OLE are unsupported. Non-default dimension picture coordinates require verification."}
         }, Json)!.AsObject();
     }
     static object? Geometry(Entity e)
@@ -140,7 +141,7 @@ static class Worker
         }
         if(e is TextEntity t) return new { kind = "text", text = t.Value, position = M.Point(M.Ocs(A(t.Normal)), A(t.InsertPoint)), height = t.Height, rotation = t.Rotation, formatting = "plain_approximation" };
         if(e is MText mt) return new { kind = "text", text = mt.PlainText, position = A(mt.InsertPoint), height = mt.Height, rotation = mt.Rotation, formatting = "plain_approximation" };
-        return null;
+        return NativeGeometry(e);
     }
     static object Poly(double[][] pts, double[] bulges, bool closed, double[] normal)
     {
@@ -148,7 +149,7 @@ static class Worker
         for(int i = 0; i < pts.Length - (closed ? 0 : 1); i++) {
             var p = pts[i]; var q = pts[(i + 1) % pts.Length]; double b = bulges[i];
             if(Math.Abs(b) < 1e-14) segments.Add(new { kind = "line", start = M.Point(matrix,p), end = M.Point(matrix,q) });
-            else { double dx=q[0]-p[0],dy=q[1]-p[1],chord=Math.Sqrt(dx*dx+dy*dy); if(chord==0)throw new InvalidOperationException("Degenerate bulge");
+            else { double dx=q[0]-p[0],dy=q[1]-p[1],chord=Math.Sqrt(dx*dx+dy*dy); if(chord==0)throw new InvalidOperationException("DEGENERATE_BULGE: coincident endpoints with nonzero bulge; radius cannot be determined");
                 double factor=(1-b*b)/(4*b); var center=new[]{(p[0]+q[0])/2-dy*factor,(p[1]+q[1])/2+dx*factor,p[2]}; double radius=chord*(1+b*b)/(4*Math.Abs(b));
                 segments.Add(new { kind = "arc", center = M.Point(matrix,center), u = M.Vector(matrix,new[]{radius,0.0,0.0}), v = M.Vector(matrix,new[]{0.0,radius,0.0}), startAngle = Math.Atan2(p[1]-center[1],p[0]-center[0]), sweep = 4*Math.Atan(b) }); }
         }
@@ -156,7 +157,10 @@ static class Worker
     }
     static JsonNode TransformGeometry(JsonNode g, double[] matrix)
     {
-        if(g["kind"]!.GetValue<string>() == "text") { g["position"] = JsonSerializer.SerializeToNode(M.Point(matrix,V(g["position"]!))); g["height"] = g["height"]!.GetValue<double>() * M.Length(M.Vector(matrix,new[]{0.0,1.0,0.0})); return g; }
+        var kind=g["kind"]!.GetValue<string>();
+        if(kind=="region"||kind=="annotation") { foreach(var p in g[kind=="region"?"loops":"parts"]!.AsArray()) TransformGeometry(p!,matrix); return g; }
+        if(kind=="point") { g["position"]=JsonSerializer.SerializeToNode(M.Point(matrix,V(g["position"]!))); return g; }
+        if(kind == "text") { double angle=g["rotation"]!.GetValue<double>();var x=M.Vector(matrix,new[]{Math.Cos(angle),Math.Sin(angle),0.0});var y=M.Vector(matrix,new[]{-Math.Sin(angle),Math.Cos(angle),0.0});g["rotation"]=Math.Atan2(x[1],x[0]);g["position"] = JsonSerializer.SerializeToNode(M.Point(matrix,V(g["position"]!))); g["height"] = g["height"]!.GetValue<double>() * M.Length(y); return g; }
         foreach(var s in g["segments"]!.AsArray()) foreach(var name in new[]{"start","end","center","u","v"}) if(s![name]!=null) s[name]=JsonSerializer.SerializeToNode(name=="u"||name=="v"?M.Vector(matrix,V(s[name]!)):M.Point(matrix,V(s[name]!)));
         return g;
     }

@@ -6,10 +6,11 @@ import json
 import math
 import sys
 import numpy as np
-from shapely import Polygon, LineString
+from shapely import Polygon, LineString, Point
 from shapely.validation import explain_validity
+from shapely.ops import unary_union, transform
 
-VERSION = "bwc-planar-1"
+VERSION = "bwc-planar-2"
 TOLERANCE_M = 1e-5
 
 
@@ -150,6 +151,53 @@ def contour(g, scale, basis=None):
     return poly, abs(area), basis
 
 
+def surface(g, scale, basis=None):
+    """Exact loop areas; tessellated loops only decide topology/containment."""
+    if not g or g.get("kind") != "region":
+        poly, area, basis = contour(g, scale, basis)
+        return poly, area, basis, area
+    loops = g.get("loops", [])
+    if not loops:
+        raise GeometryError("EMPTY_REGION")
+    polys, areas = [], []
+    for loop in loops:
+        poly, area, basis = contour(loop, scale, basis)
+        polys.append(poly)
+        areas.append(area)
+    depths = [0] * len(polys)
+    for i, a in enumerate(polys):
+        for j, b in enumerate(polys):
+            if i == j:
+                continue
+            if a.boundary.intersects(b.boundary):
+                raise GeometryError("REGION_BOUNDARIES_TOUCH_OR_CROSS")
+            if b.contains(a):
+                depths[i] += 1
+            elif a.intersects(b) and not a.contains(b):
+                raise GeometryError("REGION_LOOPS_OVERLAP")
+    style = g.get("islandStyle")
+    if style not in ("Normal", "Outer", "Ignore"):
+        raise GeometryError("HATCH_STYLE_UNSUPPORTED")
+    filled = unary_union([p for p, d in zip(polys, depths) if d == 0])
+    gross = math.fsum(a for a, d in zip(areas, depths) if d == 0)
+    area = gross
+    max_depth = max(depths)
+    if style == "Ignore":
+        max_depth = 0
+    elif style == "Outer":
+        max_depth = min(1, max_depth)
+    for depth in range(1, max_depth + 1):
+        layer = unary_union([p for p, d in zip(polys, depths) if d == depth])
+        if depth % 2:
+            filled = filled.difference(layer)
+        else:
+            filled = filled.union(layer)
+        area += (-1 if depth % 2 else 1) * math.fsum(a for a, d in zip(areas, depths) if d == depth)
+    if not filled.is_valid or area <= 1e-16:
+        raise GeometryError("REGION_INVALID")
+    return filled, area, basis, gross
+
+
 def measure(occurrence, kind, scale, business, by_id):
     g = occurrence.get("geometry")
     oid = occurrence["occurrenceId"]
@@ -169,6 +217,10 @@ def measure(occurrence, kind, scale, business, by_id):
         }
     if scale is None or not math.isfinite(scale) or scale <= 0:
         raise GeometryError("UNITS_UNCONFIRMED")
+    if g and g.get("kind") == "annotation":
+        raise GeometryError("ANNOTATION_NOT_MEASURABLE")
+    if g and g.get("kind") == "point":
+        raise GeometryError("POINT_NOT_MEASURABLE")
     if kind == "length":
         return {
             "value": length(g, scale),
@@ -177,7 +229,7 @@ def measure(occurrence, kind, scale, business, by_id):
         }
     if kind not in ("net_area", "parameter_volume"):
         raise GeometryError("UNSUPPORTED_METHOD")
-    poly, gross, basis = contour(g, scale)
+    poly, base_area, basis, gross = surface(g, scale)
     holes = attrs.get("holes", [])
     if oid in holes or len(holes) != len(set(holes)):
         raise GeometryError("INVALID_HOLE_REFERENCE")
@@ -186,23 +238,24 @@ def measure(occurrence, kind, scale, business, by_id):
     for hid in holes:
         if hid not in by_id:
             raise GeometryError("HOLE_REFERENCE_INVALID")
-        hp, ha, _ = contour(by_id[hid].get("geometry"), scale, basis)
+        hp, ha, _, _ = surface(by_id[hid].get("geometry"), scale, basis)
         if not poly.contains(hp) or poly.boundary.intersects(hp.boundary):
             raise GeometryError("HOLE_OUTSIDE_OR_TOUCHING")
         if any(hp.intersects(other) for other in hole_polys):
             raise GeometryError("HOLES_OVERLAP")
         hole_polys.append(hp)
         deduction += ha
-    net = gross - deduction
+    net = base_area - deduction
     result = {
         "grossArea": gross,
+        "nativeHoleDeductionArea": gross - base_area,
         "deductionArea": deduction,
         "netArea": net,
         "holes": holes,
         "areaMethod": "analytic_green_integral",
         "topologyToleranceMetres": TOLERANCE_M,
         "value": net,
-        "formula": "gross area - confirmed disjoint internal holes",
+        "formula": "gross area - native island deduction - confirmed disjoint business holes",
     }
     if kind == "parameter_volume":
         t = attrs.get("uniform_thickness")
@@ -226,6 +279,27 @@ def measure(occurrence, kind, scale, business, by_id):
             }
         )
     return result
+
+
+def spatial_shapes(g):
+    if not g:
+        return []
+    kind = g.get("kind")
+    if kind in ("point", "text"):
+        return [Point(vector(g["position"])[:2])]
+    if kind == "annotation":
+        return [shape for part in g["parts"] for shape in spatial_shapes(part)]
+    if kind == "region":
+        try:
+            poly, _, basis, _ = surface(g, 1)
+            origin, ex, ey, _ = basis
+            return [transform(lambda x,y: (origin[0] + np.asarray(x)*ex[0] + np.asarray(y)*ey[0], origin[1] + np.asarray(x)*ex[1] + np.asarray(y)*ey[1]), poly)]
+        except (GeometryError, ValueError, np.linalg.LinAlgError):
+            # Invalid area is still selectable via its displayed source boundaries.
+            return [shape for loop in g["loops"] for shape in spatial_shapes({**loop,"closed":False})]
+    xy = points(g, 1)[:, :2]
+    shape = Polygon(xy) if g["closed"] else LineString(xy)
+    return [shape] if shape.is_valid else [LineString(xy)]
 
 
 def run(request):
@@ -265,13 +339,8 @@ def run(request):
         hits = []
         for o in occurrences:
             g = o.get("geometry")
-            if not g or g["kind"] != "path":
-                continue
             try:
-                pts = points(g, 1)
-                xy = pts[:, :2]
-                shape = Polygon(xy) if g["closed"] else LineString(xy)
-                if shape.is_valid and shape.intersects(rect):
+                if any(shape.intersects(rect) for shape in spatial_shapes(g)):
                     hits.append(o["occurrenceId"])
             except (GeometryError, ValueError):
                 pass

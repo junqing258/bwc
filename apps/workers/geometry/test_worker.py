@@ -1,6 +1,6 @@
 import math
 import unittest
-from worker import run, contour, length, GeometryError
+from worker import run, contour, length, surface, GeometryError
 
 
 def path(points, closed=True):
@@ -62,6 +62,38 @@ class GeometryTests(unittest.TestCase):
     def test_display_geometry_never_enters_metrics(self):
         a=self.measure();self.outer['displayPoints']=[[0,0,0],[1,1,0]]
         self.assertEqual(a,self.measure())
+
+    def test_native_islands_styles_and_no_double_deduction(self):
+        outer=path([[0,0,0],[10,0,0],[10,10,0],[0,10,0]])
+        inner=path([[1,1,0],[9,1,0],[9,9,0],[1,9,0]])
+        island=path([[2,2,0],[8,2,0],[8,8,0],[2,8,0]])
+        region={'kind':'region','islandStyle':'Normal','loops':[island,outer,inner]}
+        self.assertAlmostEqual(surface(region,1)[1],72)
+        self.assertAlmostEqual(surface({**region,'islandStyle':'Outer'},1)[1],36)
+        self.assertAlmostEqual(surface({**region,'islandStyle':'Ignore'},1)[1],100)
+        r=run({'occurrences':[occurrence('outer',region),occurrence('hole',inner)],'scale':1,'quantityKind':'net_area','members':['outer'],'business':{'outer':{'holes':['hole']}}})
+        self.assertFalse(r['complete']);self.assertIsNone(r['items'][0]['value'])
+        self.assertEqual(r['items'][0]['reason'],'HOLE_OUTSIDE_OR_TOUCHING')
+
+    def test_region_transforms_and_invalid_loops_are_not_zero(self):
+        g={'kind':'region','islandStyle':'Normal','loops':[self.outer['geometry'],self.hole['geometry']]}
+        import copy
+        transformed=copy.deepcopy(g)
+        for loop in transformed['loops']:
+            for seg in loop['segments']:
+                for key in ('start','end'):
+                    x,y,z=seg[key];seg[key]=[1e6-2*x,-2e6+3*y,z]
+        self.assertAlmostEqual(surface(transformed,1)[1],138)
+        touching={'kind':'region','islandStyle':'Normal','loops':[self.outer['geometry'],self.outer['geometry']]}
+        with self.assertRaisesRegex(GeometryError,'REGION_BOUNDARIES_TOUCH_OR_CROSS'):surface(touching,1)
+        nonplanar=copy.deepcopy(g);nonplanar['loops'][0]['segments'][0]['start'][2]=1
+        with self.assertRaises(GeometryError):surface(nonplanar,1)
+
+    def test_annotation_text_override_never_becomes_length_area_or_volume(self):
+        annotation=occurrence('dim',{'kind':'annotation','parts':[self.source['geometry']], 'native':{'measurement':999,'textOverride':'1000'}})
+        for kind in ('length','net_area','parameter_volume'):
+            r=run({'occurrences':[annotation],'scale':1,'quantityKind':kind})
+            self.assertIsNone(r['items'][0]['value']);self.assertEqual(r['items'][0]['reason'],'ANNOTATION_NOT_MEASURABLE')
 
 
 if __name__=='__main__':unittest.main()

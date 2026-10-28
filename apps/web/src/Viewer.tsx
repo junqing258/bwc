@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as T from "three";
 import type { Occurrence, Vec3 } from "../../server/types";
-import { bounds, evaluate, sample } from "../../server/geometry";
+import { bounds, evaluate, sample, primitives } from "../../server/geometry";
 interface Props {
   occurrences: Occurrence[];
   selected: string[];
@@ -109,23 +109,40 @@ export default function Viewer(p: Props) {
     function drawLabels() {
       context.clearRect(0, 0, width, height);
       let count = 0;
-      for (const o of visible) {
-        const g = o.geometry;
-        if (g?.kind !== "text") continue;
-        const px = (g.height / span) * height;
-        if (px < 7 || px > 100) continue;
-        const [x, y] = screen(g.position);
-        if (x < -100 || x > width || y < -50 || y > height) continue;
-        if (count++ > 500) break;
-        context.save();
-        context.translate(x, y);
-        context.rotate(-g.rotation);
-        context.fillStyle = state.current.selected.includes(o.occurrenceId)
-          ? "#2563eb"
-          : "#65748a";
-        context.font = `${Math.max(8, Math.min(px, 36))}px sans-serif`;
-        context.fillText(g.text.replace(/\\P/g, " "), 0, 0);
-        context.restore();
+      const selected = new Set(state.current.selected);
+      const ordered = selected.size
+        ? [
+            ...visible.filter((o) => selected.has(o.occurrenceId)),
+            ...visible.filter((o) => !selected.has(o.occurrenceId)),
+          ]
+        : visible;
+      for (const o of ordered) {
+        for (const g of primitives(o.geometry)) {
+          if (g.kind === "point") {
+            const [x, y] = screen(g.position);
+            if (x < 0 || x > width || y < 0 || y > height) continue;
+            context.fillStyle = state.current.selected.includes(o.occurrenceId)
+              ? "#2563eb"
+              : "#65748a";
+            context.fillRect(x - 1.5, y - 1.5, 3, 3);
+            continue;
+          }
+          if (g.kind !== "text") continue;
+          const px = (g.height / span) * height;
+          if (!selected.has(o.occurrenceId) && (px < 7 || px > 100)) continue;
+          const [x, y] = screen(g.position);
+          if (x < -100 || x > width || y < -50 || y > height) continue;
+          if (count++ > 500) break;
+          context.save();
+          context.translate(x, y);
+          context.rotate(-g.rotation);
+          context.fillStyle = state.current.selected.includes(o.occurrenceId)
+            ? "#2563eb"
+            : "#65748a";
+          context.font = `${Math.max(8, Math.min(px, 36))}px sans-serif`;
+          context.fillText(g.text.replace(/\\P/g, " "), 0, 0);
+          context.restore();
+        }
       }
     }
     function geometry(objects: Occurrence[], colors: boolean) {
@@ -133,26 +150,34 @@ export default function Viewer(p: Props) {
         cs: number[] = [];
       const ids: string[] = [];
       for (const o of objects) {
-        const g = o.geometry;
-        if (!g || g.kind !== "path") continue;
-        const pts = sample(g, 96);
-        const color = new T.Color(
-          o.color === "#000000" || o.color === "#ffffff" ? "#687b92" : o.color,
-        );
-        for (let i = 1; i < pts.length; i++) {
-          const a = pts[i - 1],
-            b = pts[i];
-          vertices.push(
-            a[0] - origin[0],
-            a[1] - origin[1],
-            0,
-            b[0] - origin[0],
-            b[1] - origin[1],
-            0,
+        for (const g of primitives(o.geometry)) {
+          if (g.kind !== "path") continue;
+          const color = new T.Color(
+            o.color === "#000000" || o.color === "#ffffff"
+              ? "#687b92"
+              : o.color,
           );
-          ids.push(o.occurrenceId);
-          if (colors)
-            cs.push(color.r, color.g, color.b, color.r, color.g, color.b);
+          for (const segment of g.segments) {
+            const pts = sample(
+              { kind: "path", closed: false, segments: [segment] },
+              96,
+            );
+            for (let i = 1; i < pts.length; i++) {
+              const a = pts[i - 1],
+                b = pts[i];
+              vertices.push(
+                a[0] - origin[0],
+                a[1] - origin[1],
+                0,
+                b[0] - origin[0],
+                b[1] - origin[1],
+                0,
+              );
+              ids.push(o.occurrenceId);
+              if (colors)
+                cs.push(color.r, color.g, color.b, color.r, color.g, color.b);
+            }
+          }
         }
       }
       const geo = new T.BufferGeometry();
@@ -225,16 +250,20 @@ export default function Viewer(p: Props) {
       let best = 14 * 14,
         point: Vec3 | null = null;
       for (const o of visible) {
-        if (o.geometry?.kind !== "path") continue;
-        for (const seg of o.geometry.segments)
-          for (const v of [evaluate(seg, 0), evaluate(seg, 1)]) {
-            const [sx, sy] = screen(v);
-            const d = (sx - x) ** 2 + (sy - y) ** 2;
-            if (d < best) {
-              best = d;
-              point = v;
+        // Dimension picture endpoints are display annotations, not measuring references.
+        if (o.geometry?.kind === "annotation") continue;
+        for (const g of primitives(o.geometry)) {
+          if (g.kind !== "path") continue;
+          for (const seg of g.segments)
+            for (const v of [evaluate(seg, 0), evaluate(seg, 1)]) {
+              const [sx, sy] = screen(v);
+              const d = (sx - x) ** 2 + (sy - y) ** 2;
+              if (d < best) {
+                best = d;
+                point = v;
+              }
             }
-          }
+        }
       }
       return point;
     }
@@ -332,9 +361,11 @@ export default function Viewer(p: Props) {
         : undefined;
       if (!selected) {
         selected = visible.find((o) => {
-          if (o.geometry?.kind !== "text") return false;
-          const [sx, sy] = screen(o.geometry.position);
-          return Math.hypot(sx - x, sy - y) < 14;
+          return primitives(o.geometry).some((g) => {
+            if (g.kind !== "text" && g.kind !== "point") return false;
+            const [sx, sy] = screen(g.position);
+            return Math.hypot(sx - x, sy - y) < 14;
+          });
         })?.occurrenceId;
       }
       state.current.onSelect(selected ? [selected] : [], start.shift);

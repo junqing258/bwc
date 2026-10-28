@@ -4,6 +4,7 @@ import { assert, atomicJson, hash, id, now, within } from "./util.ts";
 import { worker } from "./workers.ts";
 import type { Artifact, Drawing, Takeoff } from "./types.ts";
 import type { WorkflowService } from "./service.ts";
+import { importReport } from "./diagnostics.ts";
 const csvValue = (v: unknown) => `"${String(v ?? "").replaceAll('"', '""')}"`;
 export function resultExport(service: WorkflowService, input: any) {
   const s = service.catalog.open(input.projectId),
@@ -33,15 +34,25 @@ export function resultExport(service: WorkflowService, input: any) {
         join(s.path, dir, "source.dwg"),
       );
       const a = s.artifact(ctx.snapshot);
-      const issues = s
-        .all<any>("issue")
-        .filter((i) => i.geometrySnapshotId === ctx.snapshot.id);
+      const check = service.issues({
+        projectId: input.projectId,
+        workingRevision: ctx.revision.id,
+        geometrySnapshotId: ctx.snapshot.id,
+      });
+      const issues = check.issues;
       const report = {
         schemaVersion: 1,
         exportId: eid,
         createdAt: now(),
         workingRevision: ctx.revision.id,
         geometrySnapshotId: ctx.snapshot.id,
+        parseArtifactVersion: ctx.snapshot.parseArtifactVersion,
+        adapter: {
+          parser: a.parser,
+          parserVersion: a.parserVersion,
+          adapterVersion: a.adapterVersion ?? "bwc-cad-1",
+          coordinateContractVersion: a.coordinateContractVersion,
+        },
         drawing,
         unitProfile: ctx.snapshot.units,
         patches: ctx.snapshot.patches,
@@ -54,7 +65,9 @@ export function resultExport(service: WorkflowService, input: any) {
             }
           : null,
         issues,
+        checkRunId: check.checkRunId,
         importCompleteness: ctx.snapshot.importCompleteness,
+        importReport: importReport(a),
         diagnostics: a.diagnostics,
         notifications: a.notifications,
         conversions: s.all("conversion"),

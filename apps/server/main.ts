@@ -117,7 +117,7 @@ export function createApplication(
         const t = registry[b.tool as keyof typeof registry];
         assert(t, "UNKNOWN_TOOL", "领域工具不存在");
         assert(
-          !["project_list", "dwg_import"].includes(b.tool),
+          !["project_list", "dwg_import", "dwg_reparse"].includes(b.tool),
           "UNSUPPORTED_OPERATION",
           "宿主仅操作已打开项目",
         );

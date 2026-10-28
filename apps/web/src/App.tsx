@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Viewer from "./Viewer";
+import ImportDiagnostics from "./ImportDiagnostics";
 import { api, call, operationId, waitJob } from "./api";
 import type {
   Occurrence,
@@ -50,6 +51,7 @@ export default function App() {
     [layerFilter, setLayerFilter] = useState(""),
     [typeFilter, setTypeFilter] = useState(""),
     [textFilter, setTextFilter] = useState("");
+  const [issuePage, setIssuePage] = useState(0);
   const [issues, setIssues] = useState<any[]>([]),
     [modal, setModal] = useState(""),
     [projectName, setProjectName] = useState(""),
@@ -93,6 +95,17 @@ export default function App() {
     ?.filter((r: any) => r.workingRevision === project?.revision?.id)
     .at(-1);
   const anyResult = activeResult ?? project?.results?.at(-1);
+  const displayable = useMemo(
+    () =>
+      new Set<string>(
+        (preview?.occurrences ?? [])
+          .filter((o: Occurrence) => o.geometry)
+          .map((o: Occurrence) => o.occurrenceId),
+      ),
+    [preview],
+  );
+  useEffect(() => setIssuePage(0), [issues]);
+
   const currentObject: Occurrence | undefined = preview?.occurrences.find(
     (o: Occurrence) => o.occurrenceId === selected[0],
   );
@@ -428,6 +441,17 @@ export default function App() {
     await refresh(pid, false);
     setTab("issues");
   }
+  async function reparse() {
+    const result = await waitJob(
+      pid,
+      await call("dwg_reparse", { ...ctx(), operationId: operationId() }),
+      setJob,
+    );
+    await refresh(pid);
+    setNotice(
+      `已生成新解析版本：尚无规范几何 ${result.report.before.modelWithoutGeometry} → ${result.report.after.modelWithoutGeometry}；旧快照保留。`,
+    );
+  }
   async function exportReport() {
     const out = await waitJob(
       pid,
@@ -657,13 +681,10 @@ export default function App() {
               </span>
               <button
                 className="gap-button"
-                onClick={() => {
-                  setTab("issues");
-                  void guarded(check);
-                }}
+                onClick={() => setModal("diagnostics")}
               >
                 {summary?.importCompleteness === "partial"
-                  ? `${summary.diagnosticCount} 项解析诊断 · ${summary.notificationCount} 条通知`
+                  ? `${summary.diagnosticCount} 条诊断 · ${summary.notificationCount} 条通知`
                   : "当前解析无已知缺口"}{" "}
                 ↗
               </button>
@@ -790,16 +811,15 @@ export default function App() {
                     <div className="issue-card">
                       <span className="status warn">解析不完整</span>
                       <p>
-                        未支持图元和读取通知影响全图覆盖。当前可查询已解析部分；缺项不会自动按零计量。
+                        {summary.importReport
+                          ? `模型空间有 ${summary.importReport.modelWithoutGeometry.toLocaleString()} 个实例尚无规范几何，${summary.importReport.notificationGroupCount} 类读取通知待核验。已有几何仍可查询；计量需确认单位、轮廓和参数。`
+                          : "部分对象尚未覆盖，已有几何仍可查询；读取通知的实际影响需要核验。"}
                       </p>
                       <button
                         className="text-button"
-                        onClick={() => {
-                          setTab("issues");
-                          void guarded(check);
-                        }}
+                        onClick={() => setModal("diagnostics")}
                       >
-                        运行检查并定位 →
+                        查看解析明细 →
                       </button>
                       <button
                         className="text-button"
@@ -988,7 +1008,12 @@ export default function App() {
                     {label}
                     {key === "issues" && issues.length > 0 && (
                       <span>
-                        {issues.filter((i) => i.status !== "passed").length}
+                        {
+                          issues.filter((i) =>
+                            ["failed", "unsupported"].includes(i.status),
+                          ).length
+                        }{" "}
+                        组
                       </span>
                     )}
                   </button>
@@ -1161,9 +1186,14 @@ export default function App() {
                           handle {currentObject.sourceHandle}
                         </p>
                         <code>{currentObject.occurrenceId}</code>
+                        {currentObject.geometry?.kind === "annotation" && (
+                          <p className="muted">
+                            尺寸标注仅供阅读，不作为长度、面积或体积计量对象；标注文字可能含人工覆盖值。
+                          </p>
+                        )}
                         <p className="muted">
                           {currentObject.instancePath.length
-                            ? "块内部和阵列成员可定位、查询、计量；局部图元编辑尚未开放。"
+                            ? "块内部和阵列成员可定位、查询；受支持的规范几何可计量。局部图元编辑尚未开放。"
                             : "模型空间直接对象"}
                         </p>
                       </>
@@ -1424,10 +1454,7 @@ export default function App() {
                 <div>
                   <div className="diagnosis-summary">
                     <b>真实导入诊断</b>
-                    <span>
-                      {summary.diagnosticCount} 项 · {summary.notificationCount}{" "}
-                      条读取通知
-                    </span>
+                    <span>按问题分组 · 显示最近一次已完成检查</span>
                     <button
                       className="text-button"
                       onClick={() => setModal("diagnostics")}
@@ -1442,6 +1469,28 @@ export default function App() {
                       运行检查
                     </button>
                   </div>
+                  {issues.length > 50 && (
+                    <div className="issue-pagination">
+                      <span>
+                        第 {issuePage + 1} / {Math.ceil(issues.length / 50)} 页
+                        · 共 {issues.length} 组
+                      </span>
+                      <button
+                        className="outline"
+                        disabled={issuePage === 0}
+                        onClick={() => setIssuePage((n) => n - 1)}
+                      >
+                        上一页
+                      </button>
+                      <button
+                        className="outline"
+                        disabled={(issuePage + 1) * 50 >= issues.length}
+                        onClick={() => setIssuePage((n) => n + 1)}
+                      >
+                        下一页
+                      </button>
+                    </div>
+                  )}
                   {issues.length ? (
                     <div className="table-scroll">
                       <table>
@@ -1454,32 +1503,75 @@ export default function App() {
                           </tr>
                         </thead>
                         <tbody>
-                          {issues.map((i) => (
-                            <tr key={i.id}>
-                              <td>{i.check}</td>
-                              <td>
-                                <span
-                                  className={`status ${i.status === "passed" ? "good" : "warn"}`}
-                                >
-                                  {stateLabel[i.status] ?? i.status}
-                                </span>
-                              </td>
-                              <td>{i.reason}</td>
-                              <td>
-                                {i.occurrenceIds.length > 0 && (
-                                  <button
-                                    className="text-button"
-                                    onClick={() => {
-                                      select(i.occurrenceIds);
-                                      setFocus((n) => n + 1);
-                                    }}
+                          {issues
+                            .slice(issuePage * 50, (issuePage + 1) * 50)
+                            .map((i) => (
+                              <tr key={i.id}>
+                                <td>
+                                  {(
+                                    {
+                                      units: "单位",
+                                      import: "导入覆盖",
+                                      basic_geometry: "基础曲线",
+                                      contour: "面积轮廓",
+                                      independent_cad_roundtrip:
+                                        "独立 CAD 往返",
+                                      duplicate_overlap: "重复与重叠",
+                                    } as Record<string, string>
+                                  )[i.check] ?? i.check}
+                                </td>
+                                <td>
+                                  <span
+                                    className={`status ${i.status === "passed" ? "good" : "warn"}`}
                                   >
-                                    定位 {i.occurrenceIds.length} 个实例
-                                  </button>
-                                )}
-                              </td>
-                            </tr>
-                          ))}
+                                    {stateLabel[i.status] ?? i.status}
+                                  </span>
+                                </td>
+                                <td>
+                                  {i.reason === "UNITS_UNCONFIRMED"
+                                    ? i.status === "not_run"
+                                      ? "单位未确认，此项尚未执行"
+                                      : "请先采用或校准图纸单位"
+                                    : i.reason === "UNSUPPORTED_GEOMETRY"
+                                      ? "当前适配器尚无此类对象的规范几何"
+                                      : i.reason}
+                                </td>
+                                <td>
+                                  <small>
+                                    {i.occurrenceIds.length
+                                      ? `影响 ${i.occurrenceIds.length.toLocaleString()} 个已索引实例`
+                                      : "文件级 / 范围待核验"}
+                                  </small>
+                                  {i.check === "units" ? (
+                                    <button
+                                      className="text-button"
+                                      onClick={() => setModal("units")}
+                                    >
+                                      校准单位
+                                    </button>
+                                  ) : i.occurrenceIds.some((oid: string) =>
+                                      displayable.has(oid),
+                                    ) ? (
+                                    <button
+                                      className="text-button"
+                                      onClick={() => {
+                                        select(
+                                          i.occurrenceIds.filter(
+                                            (oid: string) =>
+                                              displayable.has(oid),
+                                          ),
+                                        );
+                                        setFocus((n) => n + 1);
+                                      }}
+                                    >
+                                      定位可显示对象
+                                    </button>
+                                  ) : i.occurrenceIds.length > 0 ? (
+                                    <small>尚无可定位的显示几何</small>
+                                  ) : null}
+                                </td>
+                              </tr>
+                            ))}
                         </tbody>
                       </table>
                     </div>
@@ -1768,29 +1860,27 @@ export default function App() {
               </>
             )}
             {modal === "diagnostics" && (
-              <>
-                <div className="eyebrow">IMPORT EVIDENCE</div>
-                <h2>已知缺口与读取通知</h2>
-                <p>
-                  {summary.diagnosticCount} 项诊断；{summary.notificationCount}{" "}
-                  条读取通知。以下为前 100 项诊断和前 30
-                  条通知，完整记录随成果报告导出。
-                </p>
-                <pre>
-                  {JSON.stringify(
-                    {
-                      diagnostics: summary.diagnostics,
-                      notifications: summary.notifications,
-                      dependencies: summary.dependencies,
-                      resources: summary.resources,
-                      registeredClasses: summary.registeredClasses,
-                      displayLimitations: summary.displayLimitations,
-                    },
-                    null,
-                    2,
-                  )}
-                </pre>
-              </>
+              <ImportDiagnostics
+                summary={summary}
+                busy={busy}
+                onReparse={() => void guarded(reparse)}
+                onInspect={(type) => {
+                  void guarded(async () => {
+                    setTypeFilter(type);
+                    setLayerFilter("");
+                    setTextFilter("");
+                    setQuery(
+                      await call("dwg_query", {
+                        ...ctx(),
+                        filter: { space: "model", entityTypes: [type] },
+                        pageSize: 50,
+                      }),
+                    );
+                    setTab("objects");
+                    setModal("");
+                  });
+                }}
+              />
             )}
             {modal === "settings" && (
               <>
