@@ -32,7 +32,7 @@ macOS 可双击 `启动筑材智算.command`。启动器会构建 Worker、建�
 ```bash
 npm run setup
 npm run dev
-# 前端 http://127.0.0.1:5173，API http://127.0.0.1:4310
+# 前端 http://127.0.0.1:4301，API http://127.0.0.1:4310
 ```
 
 服务只绑定本机。`BWC_DATA_DIR` 可设置项目目录，`BWC_PYTHON` 可选择 Python，`BWC_CODEX_BIN` 可选择宿主可执行文件。`npm run launch` 使用默认端口 4310；手动启动服务可通过 `PORT` 改端口。

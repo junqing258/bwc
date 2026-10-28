@@ -7,6 +7,54 @@ import { createApplication, compactPayload } from "../apps/server/main.ts";
 import { HostBridge, parseMessageOperation } from "../apps/server/host.ts";
 import { id, now } from "../apps/server/util.ts";
 
+test("project_open accepts configured local development origins and rejects other origins", async () => {
+  const root = mkdtempSync(join(tmpdir(), "bwc-origin-")),
+    app = createApplication({ dataDir: root, port: 0 });
+  try {
+    await new Promise<void>((r) => app.server.listen(0, "127.0.0.1", r));
+    const url = `http://127.0.0.1:${(app.server.address() as any).port}`,
+      project = app.service.create("Origin regression");
+    const request = async (origin?: string) => {
+      const response = await fetch(`${url}/api/call`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(origin === undefined ? {} : { Origin: origin }),
+        },
+        body: JSON.stringify({
+          tool: "project_open",
+          input: { projectId: project.projectId },
+        }),
+      });
+      return { status: response.status, data: await response.json() };
+    };
+    for (const origin of [
+      undefined,
+      "http://127.0.0.1:4301",
+      "http://localhost:4301",
+      "http://127.0.0.1:5173",
+      "http://localhost:5173",
+    ]) {
+      const response = await request(origin);
+      assert.equal(response.status, 200, origin);
+      assert.equal(response.data.projectId, project.projectId, origin);
+    }
+    for (const origin of [
+      "https://external.invalid",
+      "http://127.0.0.1:4302",
+      "http://localhost.evil.invalid:4301",
+      "null",
+    ]) {
+      const response = await request(origin);
+      assert.equal(response.status, 422, origin);
+      assert.equal(response.data.error.code, "INVALID_ORIGIN", origin);
+    }
+  } finally {
+    app.close();
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("HTTP schemas, origin checks, MCP project binding and data policy share domain results", async () => {
   const root = mkdtempSync(join(tmpdir(), "bwc-http-")),
     app = createApplication({ dataDir: root, port: 0 });

@@ -48,6 +48,8 @@ export function createApplication(
           [
             url,
             "http://localhost:" + port,
+            "http://127.0.0.1:4301",
+            "http://localhost:4301",
             "http://127.0.0.1:5173",
             "http://localhost:5173",
           ].includes(origin),
@@ -410,7 +412,7 @@ export function createApplication(
       assert(
         existsSync(file),
         "WEB_NOT_BUILT",
-        "请先 npm run build，或开发时打开 http://127.0.0.1:5173",
+        "请先 npm run build，或开发时打开 http://127.0.0.1:4301",
       );
       res.writeHead(200, { "Content-Type": mime(file) });
       res.end(readFileSync(file));
