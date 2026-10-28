@@ -62,7 +62,8 @@ export function createApplication(
         return json(res, {
           ok: true,
           schemaVersion: 1,
-          host: "codex_app_server",
+          host: "local_cli_hosts",
+          supportedHosts: ["codex", "claude"],
           offlineDomainTools: true,
         });
       if (path === "/api/projects" && req.method === "GET")
@@ -78,6 +79,23 @@ export function createApplication(
           .strict()
           .parse(await body(req));
         return json(res, service.create(b.name));
+      }
+      if (path === "/api/projects/edit" && req.method === "POST") {
+        const b = z
+          .object({
+            projectId: z.string(),
+            name: z.string().trim().min(1).max(199),
+          })
+          .strict()
+          .parse(await body(req));
+        return json(res, service.renameProject(b.projectId, b.name));
+      }
+      if (path === "/api/projects/remove" && req.method === "POST") {
+        const b = z
+          .object({ projectId: z.string() })
+          .strict()
+          .parse(await body(req));
+        return json(res, service.removeProject(b.projectId));
       }
       if (path === "/api/fixture" && req.method === "POST")
         return json(res, await service.fixture());
@@ -329,7 +347,10 @@ export function createApplication(
           res,
           bridge.create(
             z
-              .object({ projectId: z.string() })
+              .object({
+                projectId: z.string(),
+                host: z.enum(["codex", "claude"]).optional(),
+              })
               .strict()
               .parse(await body(req)),
           ),

@@ -1,11 +1,98 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createApplication, compactPayload } from "../apps/server/main.ts";
 import { HostBridge, parseMessageOperation } from "../apps/server/host.ts";
 import { id, now } from "../apps/server/util.ts";
+import { Catalog } from "../apps/server/store.ts";
+
+test("project edits and list removal persist without deleting local project data", async () => {
+  const root = mkdtempSync(join(tmpdir(), "bwc-project-menu-"));
+  const app = createApplication({ dataDir: root, port: 0 });
+  let projectId = "";
+  let otherId = "";
+  try {
+    try {
+      await new Promise<void>((resolve) =>
+        app.server.listen(0, "127.0.0.1", resolve),
+      );
+      const url = `http://127.0.0.1:${(app.server.address() as any).port}`;
+      async function post(path: string, input: unknown) {
+        const response = await fetch(`${url}/api/${path}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(input),
+        });
+        return { status: response.status, data: await response.json() };
+      }
+      projectId = (await post("projects", { name: "原项目" })).data.projectId;
+      otherId = (await post("projects", { name: "其他项目" })).data.projectId;
+      for (const name of ["", "   ", "名".repeat(200)]) {
+        assert.equal(
+          (await post("projects/edit", { projectId, name })).status,
+          400,
+        );
+      }
+      for (const path of ["projects/edit", "projects/remove"]) {
+        assert.equal(
+          (
+            await post(path, {
+              projectId: "../outside",
+              ...(path.endsWith("edit") ? { name: "名称" } : {}),
+            })
+          ).status,
+          422,
+        );
+        assert.equal(
+          (
+            await post(path, {
+              projectId: id("p"),
+              ...(path.endsWith("edit") ? { name: "名称" } : {}),
+            })
+          ).status,
+          404,
+        );
+      }
+      const edited = await post("projects/edit", {
+        projectId,
+        name: "  新项目名称  ",
+      });
+      assert.equal(edited.status, 200);
+      assert.equal(edited.data.name, "新项目名称");
+      assert.equal(app.service.open(projectId).name, "新项目名称");
+      assert.equal(
+        JSON.parse(readFileSync(join(root, projectId, "project.json"), "utf8"))
+          .name,
+        "新项目名称",
+      );
+      assert.equal((await post("projects/remove", { projectId })).status, 200);
+      const list = await (await fetch(`${url}/api/projects`)).json();
+      assert.deepEqual(
+        list.map((p: any) => p.projectId),
+        [otherId],
+      );
+      assert.equal(existsSync(join(root, projectId, "project.sqlite")), true);
+      assert.equal(app.service.open(projectId).name, "新项目名称");
+    } finally {
+      app.close();
+    }
+    const reopened = new Catalog(root);
+    try {
+      assert.deepEqual(
+        reopened.list().map((p) => p.projectId),
+        [otherId],
+      );
+      assert.equal(reopened.open(projectId).meta().name, "新项目名称");
+      assert.ok(reopened.open(projectId).meta().removedAt);
+    } finally {
+      reopened.close();
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
 
 test("project_open accepts configured local development origins and rejects other origins", async () => {
   const root = mkdtempSync(join(tmpdir(), "bwc-origin-")),

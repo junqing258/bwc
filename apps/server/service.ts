@@ -80,6 +80,19 @@ export class WorkflowService {
     );
     return this.catalog.create(name.trim());
   }
+  renameProject(pid: string, name: string) {
+    const trimmed = name.trim();
+    assert(
+      trimmed.length > 0 && trimmed.length < 200,
+      "INVALID_INPUT",
+      "项目名称需为 1–199 个字符",
+    );
+    return this.catalog.open(pid).updateMeta({ name: trimmed });
+  }
+  removeProject(pid: string) {
+    this.catalog.open(pid).updateMeta({ removedAt: now() });
+    return { projectId: pid, removed: true };
+  }
   open(pid: string) {
     const s = this.catalog.open(pid);
     return {

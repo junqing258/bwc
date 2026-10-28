@@ -4,7 +4,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { WorkflowService } from "../apps/server/service.ts";
-import { HostBridge } from "../apps/server/host.ts";
+import { HostBridge, claudeThreadFromTranscript } from "../apps/server/host.ts";
 import { DomainError, id } from "../apps/server/util.ts";
 async function setup() {
   const root = mkdtempSync(join(tmpdir(), "bwc-host-contract-")),
@@ -91,51 +91,48 @@ test("commit with lost host receipt: duplicate message returns same record; reco
     });
     let starts = 0;
     const client = {
-      request: async (method: string) => {
-        if (method === "turn/start") {
-          starts++;
-          const t = x.store.all<any>("turn").at(-1)!;
-          const intent = x.store.get("intent", t.intentId),
-            operationId = t.id + "_thickness";
-          const proposal = await x.service.propose({
-            projectId: x.pid,
-            baseRevision: c.revision.id,
-            baseGeometrySnapshotId: c.snapshot.id,
-            selectionSet: { id: sel.id, version: 1 },
-            operation: intent.operation,
-            intentId: intent.id,
-            operationId,
-          });
-          x.service.apply({
-            projectId: x.pid,
-            changeId: proposal.id,
-            baseRevision: c.revision.id,
-            candidateFingerprint: proposal.candidateFingerprint,
-            operationId,
-          });
-          throw new DomainError(
-            "MESSAGE_DELIVERY_UNCERTAIN",
-            "simulated lost receipt after commit",
-          );
-        }
-        if (method === "thread/read") {
-          const t = x.store.all<any>("turn").at(-1)!;
-          return {
-            thread: {
-              turns: [
-                {
-                  id: "host_turn",
-                  status: "completed",
-                  items: [
-                    { type: "userMessage", content: [{ text: t.messageId }] },
-                    { type: "agentMessage", text: "applied" },
-                  ],
-                },
-              ],
-            },
-          };
-        }
-        return {};
+      startTurn: async () => {
+        starts++;
+        const t = x.store.all<any>("turn").at(-1)!;
+        const intent = x.store.get("intent", t.intentId),
+          operationId = t.id + "_thickness";
+        const proposal = await x.service.propose({
+          projectId: x.pid,
+          baseRevision: c.revision.id,
+          baseGeometrySnapshotId: c.snapshot.id,
+          selectionSet: { id: sel.id, version: 1 },
+          operation: intent.operation,
+          intentId: intent.id,
+          operationId,
+        });
+        x.service.apply({
+          projectId: x.pid,
+          changeId: proposal.id,
+          baseRevision: c.revision.id,
+          candidateFingerprint: proposal.candidateFingerprint,
+          operationId,
+        });
+        throw new DomainError(
+          "MESSAGE_DELIVERY_UNCERTAIN",
+          "simulated lost receipt after commit",
+        );
+      },
+      readThread: async () => {
+        const t = x.store.all<any>("turn").at(-1)!;
+        return {
+          thread: {
+            turns: [
+              {
+                id: "host_turn",
+                status: "completed",
+                items: [
+                  { type: "userMessage", content: [{ text: t.messageId }] },
+                  { type: "agentMessage", text: "applied" },
+                ],
+              },
+            ],
+          },
+        };
       },
       stop: () => {},
     };
@@ -195,10 +192,14 @@ test("interrupting Agent does not cancel persisted domain jobs; restart retains 
     const c = x.store.context();
     const calls: string[] = [];
     const fake = {
-      request: async (m: string) => {
-        calls.push(m);
-        return m === "turn/start" ? { turn: { id: "host_turn" } } : {};
+      startTurn: async () => {
+        calls.push("turn/start");
+        return { hostTurnId: "host_turn" };
       },
+      interrupt: async () => {
+        calls.push("turn/interrupt");
+      },
+      readThread: async () => ({ thread: { turns: [] } }),
       stop: () => {},
     };
     bridge.connect = async () => fake as any;
@@ -241,6 +242,125 @@ test("interrupting Agent does not cancel persisted domain jobs; restart retains 
     bridge.close();
     if (reopened) reopened.close();
     else x.service.close();
+    rmSync(x.root, { recursive: true, force: true });
+  }
+});
+
+test("claude host: create records host kind; stream events and transcript reconcile like codex", async () => {
+  const x = await setup(),
+    bridge = new HostBridge(x.service, "http://127.0.0.1:0", "test");
+  try {
+    assert.equal(bridge.create({ projectId: x.pid }).host, "codex");
+    const session = bridge.create({ projectId: x.pid, host: "claude" });
+    assert.equal(session.host, "claude");
+    const tid = id("turn");
+    x.store.put("turn", {
+      id: tid,
+      sessionId: session.id,
+      status: "running",
+      response: "",
+      text: "查询当前范围",
+    });
+    bridge.active.set(session.id, tid);
+    bridge.claudeEvent(session, {
+      type: "stream_event",
+      event: {
+        type: "content_block_delta",
+        delta: { type: "text_delta", text: "读取中" },
+      },
+    });
+    bridge.claudeEvent(session, {
+      type: "assistant",
+      message: {
+        role: "assistant",
+        content: [
+          {
+            type: "tool_use",
+            id: "t1",
+            name: "mcp__bwc__dwg_summary",
+            input: {},
+          },
+        ],
+      },
+    });
+    bridge.claudeEvent(session, {
+      type: "result",
+      subtype: "success",
+      session_id: "sess_1",
+    });
+    const t = x.store.get<any>("turn", tid);
+    assert.equal(t.response, "读取中");
+    assert.equal(t.status, "completed");
+    assert.equal(t.hostTurnId, "sess_1");
+    const events = x.store.events(`session:${session.id}`);
+    assert.ok(
+      events.some(
+        (e) =>
+          e.type === "item" && e.tool === "dwg_summary" && e.server === "bwc",
+      ),
+    );
+    assert.ok(
+      events.some(
+        (e) => e.type === "turn_completed" && e.status === "completed",
+      ),
+    );
+    const history = claudeThreadFromTranscript([
+      { type: "summary", summary: "x" },
+      {
+        type: "user",
+        uuid: "u1",
+        message: {
+          role: "user",
+          content: [{ type: "text", text: "msg_abc 冻结上下文" }],
+        },
+      },
+      {
+        type: "assistant",
+        uuid: "a1",
+        message: {
+          role: "assistant",
+          content: [
+            {
+              type: "tool_use",
+              id: "t1",
+              name: "mcp__bwc__dwg_summary",
+              input: {},
+            },
+          ],
+        },
+      },
+      {
+        type: "user",
+        isMeta: true,
+        uuid: "u2",
+        message: {
+          role: "user",
+          content: [{ type: "tool_result", tool_use_id: "t1" }],
+        },
+      },
+      {
+        type: "assistant",
+        uuid: "a2",
+        message: {
+          role: "assistant",
+          content: [{ type: "text", text: "完成" }],
+        },
+      },
+      {
+        type: "user",
+        uuid: "u3",
+        message: { role: "user", content: [{ type: "text", text: "第二条" }] },
+      },
+    ]);
+    assert.equal(history.thread.turns.length, 2);
+    assert.equal(history.thread.turns[0].status, "completed");
+    assert.ok(
+      history.thread.turns[0].items[0].content[0].text.includes("msg_abc"),
+    );
+    assert.equal(history.thread.turns[1].status, "running");
+  } finally {
+    bridge.close();
+    x.service.close();
     rmSync(x.root, { recursive: true, force: true });
   }
 });

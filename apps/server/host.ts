@@ -1,20 +1,19 @@
-import {
-  copyFileSync,
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  writeFileSync,
-} from "node:fs";
+import { spawn } from "node:child_process";
+import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
 import { join } from "node:path";
+import { createInterface } from "node:readline";
+import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import { JsonRpcProcess } from "./rpc.ts";
 import type { WorkflowService } from "./service.ts";
 import type { Intent, Operation } from "./types.ts";
 import { assert, canonical, DomainError, id, now } from "./util.ts";
 import { ROOT } from "./workers.ts";
+export type HostKind = "codex" | "claude";
 export interface Session {
   id: string;
   projectId: string;
-  host: "codex";
+  host: HostKind;
   hostVersion: string;
   model?: string;
   hostSessionId: string | null;
@@ -35,11 +34,243 @@ export interface Turn {
   context: any;
   createdAt: string;
 }
+export interface HostClient {
+  startTurn(
+    session: Session,
+    turn: Turn,
+    text: string,
+  ): Promise<{ hostTurnId: string | null }>;
+  interrupt(session: Session, turn: Turn): Promise<void>;
+  readThread(session: Session): Promise<any>;
+  stop(): void;
+}
+class CodexHost implements HostClient {
+  constructor(private process: JsonRpcProcess) {}
+  startTurn(session: Session, turn: Turn, text: string) {
+    return this.process
+      .request(
+        "turn/start",
+        {
+          threadId: session.hostSessionId,
+          clientUserMessageId: turn.clientMessageId,
+          input: [{ type: "text", text }],
+        },
+        60000,
+      )
+      .then((r: any) => ({ hostTurnId: r.turn.id }));
+  }
+  interrupt(session: Session, turn: Turn) {
+    return this.process
+      .request("turn/interrupt", {
+        threadId: session.hostSessionId,
+        turnId: turn.hostTurnId,
+      })
+      .then(() => {});
+  }
+  readThread(session: Session) {
+    return this.process.request("thread/read", {
+      threadId: session.hostSessionId,
+      includeTurns: true,
+    });
+  }
+  stop() {
+    this.process.stop();
+  }
+}
+class ClaudeHost implements HostClient {
+  constructor(
+    private process: ClaudeProcess,
+    private cwd: string,
+  ) {}
+  async startTurn(_session: Session, _turn: Turn, text: string) {
+    this.process.say(text);
+    return { hostTurnId: null };
+  }
+  async interrupt(_session: Session, _turn: Turn) {
+    await this.process.interrupt();
+  }
+  async readThread(session: Session) {
+    const dir = process.env.CLAUDE_CONFIG_DIR
+      ? join(process.env.CLAUDE_CONFIG_DIR, "projects")
+      : join(homedir(), ".claude", "projects");
+    const file = join(
+      dir,
+      this.cwd.replace(/[^A-Za-z0-9]/g, "-"),
+      `${session.hostSessionId}.jsonl`,
+    );
+    const lines = readFileSync(file, "utf8")
+      .trim()
+      .split("\n")
+      .map((l) => JSON.parse(l));
+    return claudeThreadFromTranscript(lines);
+  }
+  stop() {
+    this.process.stop();
+  }
+}
+export function claudeThreadFromTranscript(lines: any[]): any {
+  const turns: any[] = [];
+  let current: any = null;
+  for (const line of lines) {
+    if (line?.type === "user" && !line.isMeta) {
+      const content = line.message?.content;
+      if (
+        Array.isArray(content) &&
+        content.some((b) => b.type === "tool_result")
+      )
+        continue;
+      const text =
+        typeof content === "string"
+          ? content
+          : (content ?? [])
+              .filter((b: any) => b.type === "text")
+              .map((b: any) => b.text)
+              .join("\n");
+      if (!text?.trim()) continue;
+      if (current) turns.push(current);
+      current = {
+        id: line.uuid,
+        status: "running",
+        items: [{ type: "userMessage", content: [{ text }] }],
+      };
+    } else if (line?.type === "assistant" && current) {
+      for (const b of line.message?.content ?? [])
+        if (b.type === "text" && b.text?.trim())
+          current.items.push({ type: "agentMessage", text: b.text });
+    }
+  }
+  if (current) turns.push(current);
+  for (const t of turns)
+    if (
+      t.status === "running" &&
+      t.items.some((i: any) => i.type === "agentMessage")
+    )
+      t.status = "completed";
+  return { thread: { turns } };
+}
+export class ClaudeProcess {
+  child: ChildProcessWithoutNullStreams;
+  stderrTail = "";
+  private pending = new Map<
+    string,
+    { resolve: (v: any) => void; timer: NodeJS.Timeout }
+  >();
+  private initWaiter: {
+    resolve: (v: any) => void;
+    reject: (e: Error) => void;
+    timer: NodeJS.Timeout;
+  } | null = null;
+  private controlSeq = 0;
+  constructor(
+    command: string,
+    args: string[],
+    cwd: string,
+    handlers: { onEvent: (m: any) => void; onExit: () => void },
+  ) {
+    this.child = spawn(command, args, { cwd, stdio: ["pipe", "pipe", "pipe"] });
+    createInterface({ input: this.child.stdout }).on("line", (line) => {
+      let m: any;
+      try {
+        m = JSON.parse(line);
+      } catch {
+        return;
+      }
+      if (m.type === "control_response") {
+        const p = this.pending.get(m.response?.request_id);
+        if (p) {
+          clearTimeout(p.timer);
+          this.pending.delete(m.response.request_id);
+          p.resolve(m.response);
+        }
+        return;
+      }
+      if (m.type === "system" && m.subtype === "init" && this.initWaiter) {
+        clearTimeout(this.initWaiter.timer);
+        this.initWaiter.resolve(m);
+        this.initWaiter = null;
+      }
+      handlers.onEvent(m);
+    });
+    this.child.stderr.on("data", (d: Buffer) => {
+      this.stderrTail = (this.stderrTail + d.toString()).slice(-2000);
+    });
+    let exitedOnce = false;
+    const exited = () => {
+      if (exitedOnce) return;
+      exitedOnce = true;
+      if (this.initWaiter) {
+        clearTimeout(this.initWaiter.timer);
+        const tail = this.stderrTail.trim().split("\n").at(-1);
+        this.initWaiter.reject(
+          new DomainError(
+            "HOST_UNAVAILABLE",
+            `claude CLI 启动失败${tail ? `: ${tail}` : "（进程退出）"}`,
+          ),
+        );
+        this.initWaiter = null;
+      }
+      for (const p of this.pending.values()) {
+        clearTimeout(p.timer);
+        p.resolve({ subtype: "process_exited" });
+      }
+      this.pending.clear();
+      handlers.onExit();
+    };
+    this.child.on("error", exited);
+    this.child.on("exit", exited);
+  }
+  waitInit(timeout: number): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this.initWaiter = null;
+        reject(new DomainError("HOST_TIMEOUT", "claude CLI 初始化超时"));
+      }, timeout);
+      this.initWaiter = { resolve, reject, timer };
+    });
+  }
+  say(text: string) {
+    if (this.child.stdin.destroyed) return;
+    this.child.stdin.write(
+      JSON.stringify({
+        type: "user",
+        message: { role: "user", content: [{ type: "text", text }] },
+        parent_tool_use_id: null,
+      }) + "\n",
+    );
+  }
+  interrupt(timeout = 5000) {
+    const rid = `bwc_${++this.controlSeq}`;
+    return new Promise<void>((resolve) => {
+      const timer = setTimeout(() => {
+        this.pending.delete(rid);
+        resolve();
+      }, timeout);
+      this.pending.set(rid, {
+        resolve: () => {
+          clearTimeout(timer);
+          resolve();
+        },
+        timer,
+      });
+      if (!this.child.stdin.destroyed)
+        this.child.stdin.write(
+          JSON.stringify({
+            type: "control_request",
+            request_id: rid,
+            request: { subtype: "interrupt" },
+          }) + "\n",
+        );
+    });
+  }
+  stop() {
+    this.child.kill("SIGTERM");
+  }
+}
 export class HostBridge {
   closing = false;
-  processes = new Set<JsonRpcProcess>();
-  clients = new Map<string, JsonRpcProcess>();
-  connecting = new Map<string, Promise<JsonRpcProcess>>();
+  processes = new Set<{ stop(): void }>();
+  clients = new Map<string, HostClient>();
+  connecting = new Map<string, Promise<HostClient>>();
   active = new Map<string, string>();
   constructor(
     public service: WorkflowService,
@@ -61,12 +292,16 @@ export class HostBridge {
     }
   }
   create(input: any) {
-    const s = this.service.catalog.open(input.projectId);
+    const s = this.service.catalog.open(input.projectId),
+      host: HostKind = input.host === "claude" ? "claude" : "codex";
     const session: Session = {
       id: id("as"),
       projectId: input.projectId,
-      host: "codex",
-      hostVersion: "local CLI (protocol v2)",
+      host,
+      hostVersion:
+        host === "claude"
+          ? "local CLI (stream-json)"
+          : "local CLI (protocol v2)",
       hostSessionId: null,
       status: "created",
       createdAt: now(),
@@ -108,7 +343,7 @@ export class HostBridge {
       events: s.events(`session:${session.id}`, input.after ?? 0),
     };
   }
-  async connect(session: Session): Promise<JsonRpcProcess> {
+  async connect(session: Session): Promise<HostClient> {
     if (this.clients.has(session.id)) return this.clients.get(session.id)!;
     if (this.connecting.has(session.id))
       return this.connecting.get(session.id)!;
@@ -116,14 +351,16 @@ export class HostBridge {
       const s = this.service.catalog.open(session.projectId),
         cwd = join(s.path, "agent-workspace");
       mkdirSync(join(cwd, ".agents/skills/dwg-workflow"), { recursive: true });
-      copyFileSync(
-        join(ROOT, "skills/dwg-workflow/SKILL.md"),
-        join(cwd, ".agents/skills/dwg-workflow/SKILL.md"),
-      );
-      writeFileSync(
-        join(cwd, "AGENTS.md"),
-        "Use the dwg-workflow skill and only the bwc MCP domain tools. Do not edit project files, run shell commands, use other connectors, or send messages outside this workbench. All domain writes require a persisted intent and exact frozen context.\n",
-      );
+      mkdirSync(join(cwd, ".claude/skills/dwg-workflow"), { recursive: true });
+      for (const dir of [".agents", ".claude"])
+        copyFileSync(
+          join(ROOT, "skills/dwg-workflow/SKILL.md"),
+          join(cwd, `${dir}/skills/dwg-workflow/SKILL.md`),
+        );
+      const instructions =
+        "Use the dwg-workflow skill and only the bwc MCP domain tools. Do not edit project files, run shell commands, use other connectors, or send messages outside this workbench. All domain writes require a persisted intent and exact frozen context.";
+      writeFileSync(join(cwd, "AGENTS.md"), instructions + "\n");
+      writeFileSync(join(cwd, "CLAUDE.md"), instructions + "\n");
       const mcp = {
         bwc: {
           default_tools_approval_mode: "auto",
@@ -141,93 +378,36 @@ export class HostBridge {
           },
         },
       };
-      const client = new JsonRpcProcess(
-        process.env.BWC_CODEX_BIN ?? "codex",
-        ["app-server", "-c", `mcp_servers=${toToml(mcp)}`],
-        {
-          cwd,
-          onNotification: (m, p) => this.notification(session, m, p),
-          onRequest: async (m, p) => {
-            s.event(`session:${session.id}`, {
-              type: "host_interaction",
-              method: m,
-              request: p,
-            });
-            throw new Error("Host interaction requires supported UI");
-          },
-          onExit: () => {
-            this.processes.delete(client);
-            if (this.closing) return;
-            this.clients.delete(session.id);
-            const tid = this.active.get(session.id);
-            if (tid && s.has("turn", tid)) {
-              const t = s.get<Turn>("turn", tid);
-              if (["sending", "running"].includes(t.status)) {
-                t.status = "delivery_uncertain";
-                s.put("turn", t);
-                s.event(`session:${session.id}`, {
-                  type: "recovery_required",
-                  turnId: t.id,
-                  code: "HOST_UNAVAILABLE",
-                });
-              }
-            }
-            session.status = "unavailable";
-            s.put("session", session);
-            this.active.delete(session.id);
-          },
-        },
+      writeFileSync(
+        join(cwd, "mcp.json"),
+        JSON.stringify({ mcpServers: { bwc: mcp.bwc } }, null, 2),
       );
-      this.processes.add(client);
-      try {
-        const init = await client.request("initialize", {
-          clientInfo: {
-            name: "bwc_dwg_workbench",
-            title: "筑材智算",
-            version: "0.1.0",
-          },
-        });
-        client.notify("initialized");
-        session.hostVersion =
-          init.userAgent ?? init.serverInfo?.version ?? "codex local";
-        const params = {
-          cwd,
-          approvalPolicy: "never",
-          sandbox: "read-only",
-          config: { mcp_servers: mcp },
-          developerInstructions: readFileSync(
-            join(ROOT, "skills/dwg-workflow/SKILL.md"),
-            "utf8",
-          ),
-        };
-        let r: any;
-        if (session.hostSessionId)
-          r = await client.request(
-            "thread/resume",
-            { ...params, threadId: session.hostSessionId, excludeTurns: true },
-            60000,
-          );
-        else r = await client.request("thread/start", params, 60000);
-        session.hostSessionId = r.thread.id;
-        session.model = r.model ?? r.thread.model ?? "host_default_unreported";
-        const inventory = await client.request(
-          "mcpServerStatus/list",
-          { threadId: session.hostSessionId, serverName: "bwc" },
-          60000,
-        );
-        s.event(`session:${session.id}`, {
-          type: "host_setup",
-          method: "mcpServerStatus/list",
-          inventory,
-        });
-        session.status = "ready";
+      const onExit = () => {
+        if (this.closing) return;
+        this.clients.delete(session.id);
+        const tid = this.active.get(session.id);
+        if (tid && s.has("turn", tid)) {
+          const t = s.get<Turn>("turn", tid);
+          if (["sending", "running"].includes(t.status)) {
+            t.status = "delivery_uncertain";
+            s.put("turn", t);
+            s.event(`session:${session.id}`, {
+              type: "recovery_required",
+              turnId: t.id,
+              code: "HOST_UNAVAILABLE",
+            });
+          }
+        }
+        session.status = "unavailable";
         s.put("session", session);
-        this.clients.set(session.id, client);
-        return client;
-      } catch (e) {
-        client.stop();
-        throw e;
-      }
+        this.active.delete(session.id);
+      };
+      let client: HostClient;
+      if (session.host === "claude")
+        client = await this.connectClaude(session, cwd, onExit);
+      else client = await this.connectCodex(session, cwd, mcp, onExit);
+      this.clients.set(session.id, client);
+      return client;
     })();
     this.connecting.set(session.id, task);
     try {
@@ -235,6 +415,203 @@ export class HostBridge {
     } finally {
       this.connecting.delete(session.id);
     }
+  }
+  private async connectCodex(
+    session: Session,
+    cwd: string,
+    mcp: any,
+    onExit: () => void,
+  ): Promise<HostClient> {
+    const s = this.service.catalog.open(session.projectId);
+    const client = new JsonRpcProcess(
+      process.env.BWC_CODEX_BIN ?? "codex",
+      ["app-server", "-c", `mcp_servers=${toToml(mcp)}`],
+      {
+        cwd,
+        onNotification: (m, p) => this.notification(session, m, p),
+        onRequest: async (m, p) => {
+          s.event(`session:${session.id}`, {
+            type: "host_interaction",
+            method: m,
+            request: p,
+          });
+          throw new Error("Host interaction requires supported UI");
+        },
+        onExit: () => {
+          this.processes.delete(client);
+          onExit();
+        },
+      },
+    );
+    this.processes.add(client);
+    try {
+      const init = await client.request("initialize", {
+        clientInfo: {
+          name: "bwc_dwg_workbench",
+          title: "筑材智算",
+          version: "0.1.0",
+        },
+      });
+      client.notify("initialized");
+      session.hostVersion =
+        init.userAgent ?? init.serverInfo?.version ?? "codex local";
+      const params = {
+        cwd,
+        approvalPolicy: "never",
+        sandbox: "read-only",
+        config: { mcp_servers: mcp },
+        developerInstructions: readFileSync(
+          join(ROOT, "skills/dwg-workflow/SKILL.md"),
+          "utf8",
+        ),
+      };
+      let r: any;
+      if (session.hostSessionId)
+        r = await client.request(
+          "thread/resume",
+          { ...params, threadId: session.hostSessionId, excludeTurns: true },
+          60000,
+        );
+      else r = await client.request("thread/start", params, 60000);
+      session.hostSessionId = r.thread.id;
+      session.model = r.model ?? r.thread.model ?? "host_default_unreported";
+      const inventory = await client.request(
+        "mcpServerStatus/list",
+        { threadId: session.hostSessionId, serverName: "bwc" },
+        60000,
+      );
+      s.event(`session:${session.id}`, {
+        type: "host_setup",
+        method: "mcpServerStatus/list",
+        inventory,
+      });
+      session.status = "ready";
+      s.put("session", session);
+      return new CodexHost(client);
+    } catch (e) {
+      client.stop();
+      throw e;
+    }
+  }
+  private async connectClaude(
+    session: Session,
+    cwd: string,
+    onExit: () => void,
+  ): Promise<HostClient> {
+    const s = this.service.catalog.open(session.projectId);
+    const args = [
+      "-p",
+      "--input-format",
+      "stream-json",
+      "--output-format",
+      "stream-json",
+      "--include-partial-messages",
+      "--verbose",
+      "--permission-mode",
+      "default",
+      "--allowedTools",
+      "mcp__bwc",
+      "--disallowedTools",
+      [
+        "Task",
+        "Bash",
+        "BashOutput",
+        "KillShell",
+        "Glob",
+        "Grep",
+        "Read",
+        "Edit",
+        "Write",
+        "NotebookEdit",
+        "WebFetch",
+        "WebSearch",
+        "SlashCommand",
+        "TodoWrite",
+      ].join(","),
+      "--strict-mcp-config",
+      "--mcp-config",
+      join(cwd, "mcp.json"),
+    ];
+    if (session.hostSessionId) args.push("--resume", session.hostSessionId);
+    const proc = new ClaudeProcess(
+      process.env.BWC_CLAUDE_BIN ?? "claude",
+      args,
+      cwd,
+      {
+        onEvent: (m) => this.claudeEvent(session, m),
+        onExit: () => {
+          this.processes.delete(proc);
+          onExit();
+        },
+      },
+    );
+    this.processes.add(proc);
+    try {
+      const init = await proc.waitInit(60000);
+      if (init.session_id) session.hostSessionId = init.session_id;
+      session.model = init.model ?? "host_default_unreported";
+      session.hostVersion = `claude CLI ${init.version ?? ""}`.trim();
+      const inventory = (init.mcp_servers ?? []).map((x: any) => ({
+        name: x.name,
+        status: x.status,
+      }));
+      s.event(`session:${session.id}`, {
+        type: "host_setup",
+        method: "system/init",
+        inventory,
+      });
+      session.status = "ready";
+      s.put("session", session);
+      return new ClaudeHost(proc, cwd);
+    } catch (e) {
+      proc.stop();
+      throw e;
+    }
+  }
+  claudeEvent(session: Session, m: any) {
+    if (this.closing) return;
+    if (
+      m.type === "stream_event" &&
+      m.event?.type === "content_block_delta" &&
+      m.event.delta?.type === "text_delta"
+    )
+      return this.notification(session, "item/agentMessage/delta", {
+        delta: m.event.delta.text,
+      });
+    if (m.type === "assistant")
+      for (const b of m.message?.content ?? [])
+        if (b.type === "tool_use") {
+          const name = String(b.name ?? ""),
+            parts = name.split("__");
+          this.notification(session, "item/started", {
+            item: {
+              type: "mcpToolCall",
+              id: b.id,
+              tool: parts.length > 2 ? parts.slice(2).join("__") : name,
+              server: parts.length > 2 ? parts[1] : name,
+            },
+          });
+        }
+    if (m.type === "user")
+      for (const b of m.message?.content ?? [])
+        if (b.type === "tool_result")
+          this.notification(session, "item/completed", {
+            item: { type: "mcpToolCall", id: b.tool_use_id },
+          });
+    if (m.type === "result")
+      this.notification(session, "turn/completed", {
+        turn:
+          m.subtype === "success"
+            ? { id: m.session_id ?? null, status: "completed" }
+            : {
+                id: m.session_id ?? null,
+                status: "failed",
+                error: {
+                  message:
+                    m.error ?? m.result ?? m.subtype ?? "claude CLI 轮次失败",
+                },
+              },
+      });
   }
   submit(input: any) {
     const s = this.service.catalog.open(input.projectId),
@@ -350,17 +727,9 @@ export class HostBridge {
         geometrySnapshotId: turn.context.geometrySnapshotId,
         at: now(),
       });
-      const r = await client.request(
-        "turn/start",
-        {
-          threadId: session.hostSessionId,
-          clientUserMessageId: turn.clientMessageId,
-          input: [{ type: "text", text }],
-        },
-        60000,
-      );
+      const r = await client.startTurn(session, turn, text);
       const latest = s.get<Turn>("turn", turn.id);
-      latest.hostTurnId = r.turn.id;
+      if (r.hostTurnId) latest.hostTurnId = r.hostTurnId;
       if (latest.status === "sending") latest.status = "running";
       s.put("turn", latest);
       s.event(`session:${session.id}`, {
@@ -467,14 +836,11 @@ export class HostBridge {
     );
     const client = this.clients.get(session.id);
     assert(
-      client && t.hostTurnId,
+      client && (session.host === "claude" || t.hostTurnId),
       "HOST_UNAVAILABLE",
       "宿主不可用，先进行对账",
     );
-    await client.request("turn/interrupt", {
-      threadId: session.hostSessionId,
-      turnId: t.hostTurnId,
-    });
+    await client.interrupt(session, t);
     return { status: "interrupt_requested", domainJobsCancelled: false };
   }
   async reconcile(input: any) {
@@ -488,10 +854,7 @@ export class HostBridge {
     const client = await this.connect(session);
     let history: any;
     try {
-      history = await client.request("thread/read", {
-        threadId: session.hostSessionId,
-        includeTurns: true,
-      });
+      history = await client.readThread(session);
     } catch (e) {
       return {
         status: "recovery_required",

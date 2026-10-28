@@ -1,8 +1,31 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  ArrowUp,
+  ArrowUpRight,
+  ChevronDown,
+  ChevronUp,
+  Download,
+  FileSliders,
+  FolderOpen,
+  Hand,
+  Layers,
+  Maximize2,
+  Minimize2,
+  MousePointer2,
+  Plus,
+  Ruler,
+  Settings,
+  Sparkles,
+  X,
+} from "lucide-react";
 import Viewer from "./Viewer";
 import ImportDiagnostics from "./ImportDiagnostics";
 import QuickQuestions, { type QuickQuestion } from "./QuickQuestions";
 import Markdown from "./Markdown";
+import ProjectActions from "./ProjectActions";
+import { useProjectStore } from "@/stores/project-store";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { api, call, operationId, waitJob } from "./api";
 import type {
   Occurrence,
@@ -35,9 +58,11 @@ const stateLabel: Record<string, string> = {
   sending: "发送中",
 };
 export default function App() {
-  const [projects, setProjects] = useState<any[]>([]),
-    [pid, setPid] = useState(""),
-    [project, setProject] = useState<any>(null),
+  const projects = useProjectStore((state) => state.projects);
+  const setProjects = useProjectStore((state) => state.setProjects);
+  const pid = useProjectStore((state) => state.activeProjectId);
+  const setPid = useProjectStore((state) => state.setActiveProjectId);
+  const [project, setProject] = useState<any>(null),
     [summary, setSummary] = useState<any>(null),
     [preview, setPreview] = useState<any>(null),
     [samples, setSamples] = useState<any[]>([]);
@@ -80,10 +105,17 @@ export default function App() {
     [turns, setTurns] = useState<any[]>([]),
     [message, setMessage] = useState(""),
     [hostEvents, setHostEvents] = useState<any[]>([]),
-    [policy, setPolicy] = useState("summary");
+    [policy, setPolicy] = useState("summary"),
+    [host, setHost] = useState<string>(
+      () => localStorage.getItem("bwc-host") ?? "codex",
+    ),
+    [paneExpanded, setPaneExpanded] = useState(false),
+    [detailsCollapsed, setDetailsCollapsed] = useState(false);
   const [questionScope, setQuestionScope] = useState<
     QuickQuestion["scope"] | null
   >(null);
+  const [managedProject, setManagedProject] = useState<any>(null);
+  const [editedProjectName, setEditedProjectName] = useState("");
   const composerInput = useRef<HTMLTextAreaElement>(null);
   const aiPending = turns.some((t) =>
     ["accepted", "sending", "running", "delivery_uncertain"].includes(t.status),
@@ -182,6 +214,7 @@ export default function App() {
     setHoles(null);
     setCandidate(null);
     setIssues([]);
+    sessionRef.current = null;
     setSession(null);
     setTurns([]);
     setMessage("");
@@ -196,6 +229,10 @@ export default function App() {
     setTypeFilter("");
     setDiagnosticFilter(null);
     setTextFilter("");
+    if (!projectId) {
+      localStorage.removeItem("bwc-project");
+      return;
+    }
     localStorage.setItem("bwc-project", projectId);
     await refresh(projectId);
     const sid = localStorage.getItem(`bwc-session:${projectId}`);
@@ -203,6 +240,7 @@ export default function App() {
       try {
         const s = await api("session/read", { projectId, sessionId: sid });
         if (pidRef.current === projectId) {
+          sessionRef.current = s.id;
           setSession(s);
           setTurns(s.turns);
         }
@@ -261,13 +299,15 @@ export default function App() {
           return n;
         });
       if (event.turnId && event.sessionId === sessionRef.current) {
+        const sessionId = sessionRef.current;
         setHostEvents((old) => [...old.slice(-19), event]);
         void api("session/read", {
           projectId: pid,
-          sessionId: sessionRef.current,
+          sessionId,
         })
           .then((s) => {
-            if (pidRef.current === pid) setTurns(s.turns);
+            if (pidRef.current === pid && sessionRef.current === sessionId)
+              setTurns(s.turns);
           })
           .catch(() => {});
       }
@@ -302,6 +342,32 @@ export default function App() {
     await chooseProject(p.projectId);
     setModal("import");
     setSamples(await api("samples"));
+  }
+  async function editProject() {
+    const projectId = managedProject.projectId;
+    const updated = await api("projects/edit", {
+      projectId,
+      name: editedProjectName.trim(),
+    });
+    setProjects((list) =>
+      list.map((p) =>
+        p.projectId === projectId ? { ...p, name: updated.name } : p,
+      ),
+    );
+    if (pidRef.current === projectId)
+      setProject((p: any) => (p ? { ...p, name: updated.name } : p));
+    setModal("");
+    setNotice("项目名称已更新");
+  }
+  async function removeProject() {
+    const projectId = managedProject.projectId;
+    await api("projects/remove", { projectId });
+    const list = await api("projects");
+    setProjects(list);
+    setModal("");
+    if (pidRef.current === projectId)
+      await chooseProject(list[0]?.projectId ?? "");
+    setNotice("项目已从列表移除，本地文件已保留");
   }
   async function importFile(ref = fileRef) {
     const result = await waitJob(
@@ -493,7 +559,24 @@ export default function App() {
     setExported(out);
     setModal("exports");
   }
+  function startNewSession() {
+    if (aiPending) throw new Error("请先停止 AI 或完成恢复对账，再新建会话");
+    sessionRef.current = null;
+    setSession(null);
+    setTurns([]);
+    setHostEvents([]);
+    setMessage("");
+    setQuestionScope(null);
+    localStorage.removeItem(`bwc-session:${pid}`);
+    setNotice("已新建会话，可选择 AI 宿主；图纸和当前选择已保留");
+    composerInput.current?.focus();
+  }
   async function sendMessage(prompt?: string, wholeDrawing = false) {
+    const text = prompt ?? message;
+    if (/^\/(?:clear|new)$/i.test(text.trim())) {
+      startNewSession();
+      return;
+    }
     if (!project?.revision) throw new Error("请先导入 DWG");
     const fromComposer = prompt === undefined;
     if (fromComposer && questionScope === "selection" && !selection)
@@ -502,11 +585,12 @@ export default function App() {
       wholeDrawing || (fromComposer && questionScope === "drawing");
     let s = session;
     if (!s) {
-      s = await api("session/create", { projectId: pid });
+      s = await api("session/create", { projectId: pid, host });
+      if (pidRef.current !== pid) return;
+      sessionRef.current = s.id;
       setSession(s);
       localStorage.setItem(`bwc-session:${pid}`, s.id);
     }
-    const text = prompt ?? message;
     const t = await api("session/message", {
       projectId: pid,
       sessionId: s.id,
@@ -521,6 +605,7 @@ export default function App() {
         dataPolicyVersion: project.dataPolicy.id,
       },
     });
+    if (pidRef.current !== pid || sessionRef.current !== s.id) return;
     setTurns((old) => [...old, t]);
     setMessage("");
     setQuestionScope(null);
@@ -550,30 +635,48 @@ export default function App() {
         <div className="rail-label">
           本地项目{" "}
           <button aria-label="新建项目" onClick={() => setModal("new")}>
-            ＋
+            <Plus aria-hidden="true" />
           </button>
         </div>
         <div className="project-list">
           {projects.map((p) => (
-            <button
-              className={
-                pid === p.projectId ? "project-link active" : "project-link"
-              }
+            <div
+              className={`project-row${pid === p.projectId ? " active" : ""}`}
               key={p.projectId}
-              onClick={() => void guarded(() => chooseProject(p.projectId))}
             >
-              <span className="file-icon">▧</span>
-              <span>
-                {p.name}
-                <small>
-                  {p.currentRevision ? "已保存到本机" : "待导入图纸"}
-                </small>
-              </span>
-            </button>
+              <button
+                className="project-link"
+                disabled={busy}
+                onClick={() => void guarded(() => chooseProject(p.projectId))}
+              >
+                <FileSliders className="file-icon" aria-hidden="true" />
+                <span>
+                  {p.name}
+                  <small>
+                    {p.currentRevision ? "已保存到本机" : "待导入图纸"}
+                  </small>
+                </span>
+              </button>
+              <ProjectActions
+                name={p.name}
+                disabled={busy}
+                onEdit={() => {
+                  setManagedProject(p);
+                  setEditedProjectName(p.name);
+                  setError("");
+                  setModal("edit-project");
+                }}
+                onRemove={() => {
+                  setManagedProject(p);
+                  setError("");
+                  setModal("remove-project");
+                }}
+              />
+            </div>
           ))}
         </div>
         <button className="outline rail-new" onClick={() => setModal("new")}>
-          ＋ 新建项目
+          <Plus aria-hidden="true" /> 新建项目
         </button>
         <div className="rail-footer">
           <span className="live-dot" /> 本地引擎
@@ -590,11 +693,18 @@ export default function App() {
             target="_blank"
             rel="noreferrer"
           >
-            ACadSharp 3.8.30 ↗
+            ACadSharp 3.8.30 <ArrowUpRight aria-hidden="true" />
           </a>
         </div>
       </aside>
-      <main>
+      <main
+        className={[
+          project?.revision && "main-workspace",
+          detailsCollapsed && "main-collapsed",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
         <header>
           <div className="breadcrumbs">
             项目工作台 <span>/</span> <b>{project?.name ?? "最近项目"}</b>
@@ -607,19 +717,23 @@ export default function App() {
               <span className="live-dot" /> 本地持久化
             </span>
             <button
-              className="outline"
+              className="header-icon-button"
+              title="打开 DWG"
+              aria-label="打开 DWG"
               onClick={() => {
                 setModal(pid ? "import" : "new");
               }}
             >
-              打开 DWG
+              <FolderOpen aria-hidden="true" />
             </button>
             <button
-              className="primary"
+              className="header-icon-button export-action"
+              title="导出成果"
+              aria-label="导出成果"
               disabled={!project?.revision || busy}
               onClick={() => void guarded(exportReport)}
             >
-              导出成果 ↗
+              <Download aria-hidden="true" />
             </button>
           </div>
         </header>
@@ -627,7 +741,7 @@ export default function App() {
           <div className="alert error" role="alert">
             {error}
             <button aria-label="关闭错误" onClick={() => setError("")}>
-              ×
+              <X aria-hidden="true" />
             </button>
           </div>
         )}
@@ -635,7 +749,7 @@ export default function App() {
           <div className="alert success">
             {notice}
             <button aria-label="关闭提示" onClick={() => setNotice("")}>
-              ×
+              <X aria-hidden="true" />
             </button>
           </div>
         )}
@@ -691,7 +805,9 @@ export default function App() {
             </div>
           </div>
         ) : (
-          <>
+          <section
+            className={`workbench${paneExpanded ? " task-expanded" : ""}`}
+          >
             <div className="context-bar">
               <span
                 className={
@@ -719,349 +835,405 @@ export default function App() {
                 {summary?.importCompleteness === "partial"
                   ? `${summary.diagnosticCount} 条诊断 · ${summary.notificationCount} 条通知`
                   : "当前解析无已知缺口"}{" "}
-                ↗
+                <ArrowUpRight aria-hidden="true" />
               </button>
             </div>
-            <section className="workbench">
-              <div className="drawing-pane">
-                <div className="drawing-toolbar">
-                  <div className="view-tabs">
-                    <button className="active">二维图纸</button>
-                    <span title="当前只开放二维受支持图元">三维暂未开放</span>
-                  </div>
-                  <div className="view-controls">
-                    <button onClick={() => setFit((n) => n + 1)}>
-                      适配全图
-                    </button>
-                    <button
-                      disabled={!selected.length}
-                      onClick={() => setFocus((n) => n + 1)}
-                    >
-                      定位选中
-                    </button>
-                    <button
-                      className={isolated ? "selected" : ""}
-                      disabled={!selected.length}
-                      onClick={() => setIsolated((v) => !v)}
-                    >
-                      隔离
-                    </button>
-                  </div>
+            <div className="drawing-pane">
+              <div className="drawing-toolbar">
+                <div className="view-tabs">
+                  <button className="active">二维图纸</button>
+                  <span title="当前只开放二维受支持图元">三维暂未开放</span>
                 </div>
-                {preview && (
-                  <Viewer
-                    occurrences={preview.occurrences}
-                    selected={selected}
-                    onSelect={select}
-                    hidden={hidden}
-                    isolated={isolated}
-                    tool={tool}
-                    fitToken={fit}
-                    focusToken={focus}
-                    scale={preview.units.metresPerDrawingUnit}
-                  />
-                )}
-                <div className="floating-tools">
+                <div className="view-controls">
+                  <button onClick={() => setFit((n) => n + 1)}>适配全图</button>
                   <button
-                    className={tool === "select" ? "active" : ""}
-                    onClick={() => setTool("select")}
-                    title="选择"
-                  >
-                    ↖ 选择
-                  </button>
-                  <button
-                    className={tool === "pan" ? "active" : ""}
-                    onClick={() => setTool("pan")}
-                  >
-                    ✥ 平移
-                  </button>
-                  <button
-                    className={tool === "measure" ? "active" : ""}
-                    onClick={() => setTool("measure")}
-                  >
-                    ⌁ 测距
-                  </button>
-                  <button onClick={() => setModal("layers")}>☷ 图层</button>
-                </div>
-                <div className="selection-strip">
-                  <span>
-                    {selected.length
-                      ? `已选 ${selected.length} 个实例`
-                      : "点击或框选对象，建立任务范围"}
-                  </span>
-                  {selection ? (
-                    <code>已冻结 {selection.id.slice(0, 12)}</code>
-                  ) : selected.length ? (
-                    <span>正在冻结…</span>
-                  ) : null}
-                  <button
-                    className="text-button"
                     disabled={!selected.length}
-                    onClick={() => {
-                      setSelected([]);
-                      setSelection(null);
-                      setIsolated(false);
-                    }}
+                    onClick={() => setFocus((n) => n + 1)}
                   >
-                    清空
+                    定位选中
+                  </button>
+                  <button
+                    className={isolated ? "selected" : ""}
+                    disabled={!selected.length}
+                    onClick={() => setIsolated((v) => !v)}
+                  >
+                    隔离
                   </button>
                 </div>
               </div>
-              <aside className="task-pane">
-                <div className="task-title">
-                  <span className="spark">✦</span>
-                  <div>
-                    <h2>图纸任务助手</h2>
-                    <small>Codex CLI · 真实领域工具</small>
-                  </div>
+              {preview && (
+                <Viewer
+                  occurrences={preview.occurrences}
+                  selected={selected}
+                  onSelect={select}
+                  hidden={hidden}
+                  isolated={isolated}
+                  tool={tool}
+                  fitToken={fit}
+                  focusToken={focus}
+                  scale={preview.units.metresPerDrawingUnit}
+                />
+              )}
+              <div className="floating-tools">
+                <button
+                  className={tool === "select" ? "active" : ""}
+                  onClick={() => setTool("select")}
+                  title="选择"
+                >
+                  <MousePointer2 aria-hidden="true" /> 选择
+                </button>
+                <button
+                  className={tool === "pan" ? "active" : ""}
+                  onClick={() => setTool("pan")}
+                >
+                  <Hand aria-hidden="true" /> 平移
+                </button>
+                <button
+                  className={tool === "measure" ? "active" : ""}
+                  onClick={() => setTool("measure")}
+                >
+                  <Ruler aria-hidden="true" /> 测距
+                </button>
+                <button onClick={() => setModal("layers")}>
+                  <Layers aria-hidden="true" /> 图层
+                </button>
+              </div>
+              <div className="selection-strip">
+                <span>
+                  {selected.length
+                    ? `已选 ${selected.length} 个实例`
+                    : "点击或框选对象，建立任务范围"}
+                </span>
+                {selection ? (
+                  <code>已冻结 {selection.id.slice(0, 12)}</code>
+                ) : selected.length ? (
+                  <span>正在冻结…</span>
+                ) : null}
+                <button
+                  className="text-button"
+                  disabled={!selected.length}
+                  onClick={() => {
+                    setSelected([]);
+                    setSelection(null);
+                    setIsolated(false);
+                  }}
+                >
+                  清空
+                </button>
+              </div>
+            </div>
+            <aside className="task-pane">
+              <div className="task-title">
+                <span className="spark">
+                  <Sparkles aria-hidden="true" />
+                </span>
+                <div>
+                  <h2>图纸任务助手</h2>
+                  <small>
+                    <select
+                      className="host-select"
+                      value={session?.host ?? host}
+                      disabled={!!session}
+                      title={
+                        session
+                          ? "已建立的会话使用固定宿主；新建会话生效"
+                          : "选择新会话使用的 AI 宿主"
+                      }
+                      onChange={(e) => {
+                        setHost(e.target.value);
+                        localStorage.setItem("bwc-host", e.target.value);
+                      }}
+                    >
+                      <option value="codex">Codex CLI</option>
+                      <option value="claude">Claude Code</option>
+                    </select>{" "}
+                    · 真实领域工具
+                  </small>
+                </div>
+                <div className="task-title-actions">
+                  <button
+                    type="button"
+                    className="text-button"
+                    disabled={busy || aiPending}
+                    title={
+                      aiPending
+                        ? "请先停止 AI 或完成恢复对账"
+                        : "新建会话（/new 或 /clear），保留图纸和当前选择"
+                    }
+                    onClick={() => void guarded(async () => startNewSession())}
+                  >
+                    新建会话
+                  </button>
+                  <button
+                    className="icon-button"
+                    title={paneExpanded ? "还原助手面板" : "放大助手面板"}
+                    aria-label={paneExpanded ? "还原助手面板" : "放大助手面板"}
+                    onClick={() => setPaneExpanded((v) => !v)}
+                  >
+                    {paneExpanded ? (
+                      <Minimize2 aria-hidden="true" />
+                    ) : (
+                      <Maximize2 aria-hidden="true" />
+                    )}
+                  </button>
                   <button
                     className="icon-button"
                     title="数据发送设置"
+                    aria-label="数据发送设置"
                     onClick={() => setModal("settings")}
                   >
-                    ⚙
+                    <Settings aria-hidden="true" />
                   </button>
                 </div>
-                <div className="task-scroll">
-                  <div className="assistant-intro">
-                    <b>先把范围和依据说清楚。</b>
+              </div>
+              <div className="task-scroll">
+                <div className="assistant-intro">
+                  <b>先把范围和依据说清楚。</b>
+                  <p>
+                    我可以查询当前图纸、定位问题，并对受支持对象进行修改和计量。图层名称只作为候选依据。
+                  </p>
+                </div>
+                <div className="scope-card">
+                  <span>当前任务范围</span>
+                  <b>
+                    {selection
+                      ? `${selection.members.length} 个冻结实例`
+                      : "尚未选择对象"}
+                  </b>
+                  <small>
+                    {project.revision.geometrySnapshotId.slice(0, 18)}…
+                  </small>
+                </div>
+                {summary?.importCompleteness === "partial" && (
+                  <div className="issue-card">
+                    <span className="status warn">解析不完整</span>
                     <p>
-                      我可以查询当前图纸、定位问题，并对受支持对象进行修改和计量。图层名称只作为候选依据。
+                      {summary.importReport
+                        ? `模型空间有 ${summary.importReport.modelWithoutGeometry.toLocaleString()} 个实例尚无规范几何，${summary.importReport.notificationGroupCount} 类读取通知待核验。已有几何仍可查询；计量需确认单位、轮廓和参数。`
+                        : "部分对象尚未覆盖，已有几何仍可查询；读取通知的实际影响需要核验。"}
                     </p>
+                    <button
+                      className="text-button"
+                      onClick={() => setModal("diagnostics")}
+                    >
+                      查看解析明细 →
+                    </button>
+                    <button
+                      className="text-button"
+                      onClick={() => setModal("compatibility")}
+                    >
+                      登记兼容副本 →
+                    </button>
+                    <button
+                      className="outline"
+                      disabled={busy}
+                      onClick={() => void guarded(() => diagnose())}
+                    >
+                      让 AI 排查解析问题
+                    </button>
                   </div>
-                  <div className="scope-card">
-                    <span>当前任务范围</span>
-                    <b>
-                      {selection
-                        ? `${selection.members.length} 个冻结实例`
-                        : "尚未选择对象"}
-                    </b>
-                    <small>
-                      {project.revision.geometrySnapshotId.slice(0, 18)}…
-                    </small>
-                  </div>
-                  {summary?.importCompleteness === "partial" && (
-                    <div className="issue-card">
-                      <span className="status warn">解析不完整</span>
-                      <p>
-                        {summary.importReport
-                          ? `模型空间有 ${summary.importReport.modelWithoutGeometry.toLocaleString()} 个实例尚无规范几何，${summary.importReport.notificationGroupCount} 类读取通知待核验。已有几何仍可查询；计量需确认单位、轮廓和参数。`
-                          : "部分对象尚未覆盖，已有几何仍可查询；读取通知的实际影响需要核验。"}
-                      </p>
-                      <button
-                        className="text-button"
-                        onClick={() => setModal("diagnostics")}
-                      >
-                        查看解析明细 →
-                      </button>
-                      <button
-                        className="text-button"
-                        onClick={() => setModal("compatibility")}
-                      >
-                        登记兼容副本 →
-                      </button>
-                      <button
-                        className="outline"
-                        disabled={busy}
-                        onClick={() => void guarded(() => diagnose())}
-                      >
-                        让 AI 排查解析问题
-                      </button>
-                    </div>
-                  )}
-                  {turns.map((t) => (
-                    <div className="conversation" key={t.id}>
-                      <div className="user-message">{t.text}</div>
-                      <div className="assistant-message">
-                        {t.response ? (
-                          <Markdown text={t.response} />
-                        ) : (
-                          "消息已受理，等待宿主…"
-                        )}
-                        {t.error?.message && (
-                          <p className="conversation-error">
-                            AI 服务：{t.error.message}
-                          </p>
-                        )}
-                        <small>{stateLabel[t.status] ?? t.status}</small>
-                      </div>
-                      {t.status === "delivery_uncertain" && (
-                        <button
-                          className="outline"
-                          onClick={() =>
-                            void guarded(async () => {
-                              const r = await api("session/reconcile", {
-                                projectId: pid,
-                                sessionId: session.id,
-                              });
-                              setNotice(
-                                r.status === "reconciled"
-                                  ? "宿主与本地状态已对账"
-                                  : "仍需恢复核对；未自动重发消息",
-                              );
-                              setTurns(
-                                (
-                                  await api("session/read", {
-                                    projectId: pid,
-                                    sessionId: session.id,
-                                  })
-                                ).turns,
-                              );
-                            })
-                          }
-                        >
-                          恢复并对账
-                        </button>
+                )}
+                {turns.map((t) => (
+                  <div className="conversation" key={t.id}>
+                    <div className="user-message">{t.text}</div>
+                    <div className="assistant-message">
+                      {t.response ? (
+                        <Markdown text={t.response} />
+                      ) : (
+                        "消息已受理，等待宿主…"
                       )}
-                    </div>
-                  ))}
-                  {hostEvents.slice(-3).map((e, i) => (
-                    <div className="host-event" key={i}>
-                      {e.type === "error"
-                        ? e.message
-                        : e.type === "domain_tool"
-                          ? `工具 ${e.tool}`
-                          : (e.method ?? e.type)}
-                    </div>
-                  ))}
-                  {job && (
-                    <div className="job-card">
-                      <span className="live-dot" />
-                      <b>{job.kind}</b>
-                      <span>
-                        {stateLabel[job.status] ?? job.status} · {job.stage}
-                      </span>
-                      {["queued", "running"].includes(job.status) && (
-                        <button
-                          className="text-button"
-                          onClick={() =>
-                            void guarded(async () => {
-                              await call("job_cancel", {
-                                projectId: pid,
-                                jobId: job.id,
-                              });
-                            })
-                          }
-                        >
-                          取消任务
-                        </button>
+                      {t.error?.message && (
+                        <p className="conversation-error">
+                          AI 服务：{t.error.message}
+                        </p>
                       )}
+                      <small>{stateLabel[t.status] ?? t.status}</small>
                     </div>
-                  )}
-                  <details className="manual" open>
-                    <summary>
-                      人工工具 <small>无需 AI 账号</small>
-                    </summary>
-                    <div className="manual-buttons">
+                    {t.status === "delivery_uncertain" && (
                       <button
                         className="outline"
-                        disabled={busy}
-                        onClick={() => void guarded(check)}
-                      >
-                        检查当前范围
-                      </button>
-                      <button
-                        className="outline"
-                        disabled={!selection || busy}
-                        onClick={() => void guarded(() => measure("length"))}
-                      >
-                        曲线长度
-                      </button>
-                      <button
-                        className="outline"
-                        disabled={!selection || busy}
-                        onClick={() => void guarded(() => measure("net_area"))}
-                      >
-                        净面积
-                      </button>
-                      <button
-                        className="primary"
-                        disabled={!selection || busy}
                         onClick={() =>
-                          void guarded(() => measure("parameter_volume"))
+                          void guarded(async () => {
+                            const r = await api("session/reconcile", {
+                              projectId: pid,
+                              sessionId: session.id,
+                            });
+                            setNotice(
+                              r.status === "reconciled"
+                                ? "宿主与本地状态已对账"
+                                : "仍需恢复核对；未自动重发消息",
+                            );
+                            setTurns(
+                              (
+                                await api("session/read", {
+                                  projectId: pid,
+                                  sessionId: session.id,
+                                })
+                              ).turns,
+                            );
+                          })
                         }
                       >
-                        参数体积
+                        恢复并对账
                       </button>
-                    </div>
-                  </details>
-                </div>
-                <form
-                  className="composer"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    void guarded(sendMessage);
-                  }}
-                >
-                  <QuickQuestions
-                    hasSelection={!!selection && viewSynchronized}
-                    unitsConfirmed={!!summary?.unitProfile.confirmed}
-                    hasGaps={summary?.importCompleteness === "partial"}
-                    disabled={busy || aiPending || !viewSynchronized}
-                    onPick={pickQuestion}
-                  />
-                  <label htmlFor="task-input">任务目标 / 补充依据</label>
-                  <textarea
-                    ref={composerInput}
-                    id="task-input"
-                    placeholder="检查选中轮廓；或将计量厚度设为150mm并重算"
-                    value={message}
-                    onChange={(e) => {
-                      setMessage(e.target.value);
-                      if (!e.target.value.trim()) setQuestionScope(null);
-                    }}
-                  />
-                  <div>
-                    <small>
-                      {policy === "summary"
-                        ? "发送摘要及明确参数"
-                        : "允许发送详细几何"}{" "}
-                      ·{" "}
-                      {questionScope === "drawing"
-                        ? "整张图纸"
-                        : selection
-                          ? `选中 ${selection.members.length} 个对象`
-                          : "未选范围"}
-                    </small>
+                    )}
+                  </div>
+                ))}
+                {hostEvents.slice(-3).map((e, i) => (
+                  <div className="host-event" key={i}>
+                    {e.type === "error"
+                      ? e.message
+                      : e.type === "domain_tool"
+                        ? `工具 ${e.tool}`
+                        : (e.method ?? e.type)}
+                  </div>
+                ))}
+                {job && (
+                  <div className="job-card">
+                    <span className="live-dot" />
+                    <b>{job.kind}</b>
+                    <span>
+                      {stateLabel[job.status] ?? job.status} · {job.stage}
+                    </span>
+                    {["queued", "running"].includes(job.status) && (
+                      <button
+                        className="text-button"
+                        onClick={() =>
+                          void guarded(async () => {
+                            await call("job_cancel", {
+                              projectId: pid,
+                              jobId: job.id,
+                            });
+                          })
+                        }
+                      >
+                        取消任务
+                      </button>
+                    )}
+                  </div>
+                )}
+                <details className="manual" open>
+                  <summary>
+                    人工工具 {/* <small>无需 AI 账号</small> */}
+                  </summary>
+                  <div
+                    className="manual-buttons"
+                    role="group"
+                    aria-label="人工工具"
+                    tabIndex={0}
+                  >
                     <button
-                      type="button"
-                      className="text-button"
-                      disabled={
-                        !turns.some((t) =>
-                          ["running", "sending"].includes(t.status),
-                        )
-                      }
-                      onClick={() =>
-                        void guarded(async () => {
-                          const t = turns.findLast((t) =>
-                            ["running", "sending"].includes(t.status),
-                          );
-                          await api("session/interrupt", {
-                            projectId: pid,
-                            sessionId: session.id,
-                            turnId: t.id,
-                          });
-                        })
-                      }
+                      className="outline"
+                      disabled={busy}
+                      onClick={() => void guarded(check)}
                     >
-                      停止 AI
+                      检查当前范围
+                    </button>
+                    <button
+                      className="outline"
+                      disabled={!selection || busy}
+                      onClick={() => void guarded(() => measure("length"))}
+                    >
+                      曲线长度
+                    </button>
+                    <button
+                      className="outline"
+                      disabled={!selection || busy}
+                      onClick={() => void guarded(() => measure("net_area"))}
+                    >
+                      净面积
                     </button>
                     <button
                       className="primary"
-                      disabled={
-                        !message.trim() ||
-                        busy ||
-                        aiPending ||
-                        (questionScope === "selection" && !selection)
+                      disabled={!selection || busy}
+                      onClick={() =>
+                        void guarded(() => measure("parameter_volume"))
                       }
                     >
-                      发送 ↑
+                      参数体积
                     </button>
                   </div>
-                </form>
-              </aside>
-            </section>
-            <section className="details-pane">
+                </details>
+              </div>
+              <form
+                className="composer"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void guarded(sendMessage);
+                }}
+              >
+                {/* <QuickQuestions
+                  hasSelection={!!selection && viewSynchronized}
+                  unitsConfirmed={!!summary?.unitProfile.confirmed}
+                  hasGaps={summary?.importCompleteness === "partial"}
+                  disabled={busy || aiPending || !viewSynchronized}
+                  onPick={pickQuestion}
+                /> */}
+                <label htmlFor="task-input">任务目标 / 补充依据</label>
+                <textarea
+                  ref={composerInput}
+                  id="task-input"
+                  placeholder="检查选中轮廓；或将计量厚度设为150mm并重算"
+                  value={message}
+                  onChange={(e) => {
+                    setMessage(e.target.value);
+                    if (!e.target.value.trim()) setQuestionScope(null);
+                  }}
+                />
+                <div>
+                  <small>
+                    {policy === "summary"
+                      ? "发送摘要及明确参数"
+                      : "允许发送详细几何"}{" "}
+                    ·{" "}
+                    {questionScope === "drawing"
+                      ? "整张图纸"
+                      : selection
+                        ? `选中 ${selection.members.length} 个对象`
+                        : "未选范围"}
+                  </small>
+                  <button
+                    type="button"
+                    className="text-button"
+                    disabled={
+                      !turns.some((t) =>
+                        ["running", "sending"].includes(t.status),
+                      )
+                    }
+                    onClick={() =>
+                      void guarded(async () => {
+                        const t = turns.findLast((t) =>
+                          ["running", "sending"].includes(t.status),
+                        );
+                        await api("session/interrupt", {
+                          projectId: pid,
+                          sessionId: session.id,
+                          turnId: t.id,
+                        });
+                      })
+                    }
+                  >
+                    停止 AI
+                  </button>
+                  <button
+                    className="primary"
+                    disabled={
+                      !message.trim() ||
+                      busy ||
+                      aiPending ||
+                      (questionScope === "selection" &&
+                        !selection &&
+                        !/^\/(?:clear|new)$/i.test(message.trim()))
+                    }
+                  >
+                    发送 <ArrowUp aria-hidden="true" />
+                  </button>
+                </div>
+              </form>
+            </aside>
+            <section
+              className={`details-pane${detailsCollapsed ? " collapsed" : ""}`}
+            >
               <div className="details-tabs">
                 {[
                   ["objects", "对象与范围"],
@@ -1095,6 +1267,17 @@ export default function App() {
                       ? "版本一致 · 依据可追溯"
                       : "正在更新图纸修订…"}
                 </small>
+                <button
+                  className="collapse-toggle"
+                  title={detailsCollapsed ? "展开下方面板" : "收起下方面板"}
+                  onClick={() => setDetailsCollapsed((v) => !v)}
+                >
+                  {detailsCollapsed ? (
+                    <ChevronDown aria-hidden="true" />
+                  ) : (
+                    <ChevronUp aria-hidden="true" />
+                  )}
+                </button>
               </div>
               {tab === "objects" && (
                 <>
@@ -1150,7 +1333,7 @@ export default function App() {
                           setNotice("已移除诊断组筛选，请重新查询。");
                         }}
                       >
-                        诊断组筛选中 ×
+                        诊断组筛选中 <X aria-hidden="true" />
                       </button>
                     )}
                     <button
@@ -1721,7 +1904,7 @@ export default function App() {
                 </div>
               )}
             </section>
-          </>
+          </section>
         )}
         <footer>
           <span>筑材智算 / 本地 DWG 工作流</span>
@@ -1742,8 +1925,73 @@ export default function App() {
               disabled={busy}
               onClick={() => setModal("")}
             >
-              ×
+              <X aria-hidden="true" />
             </button>
+            {(modal === "edit-project" || modal === "remove-project") && (
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  if (!busy)
+                    void guarded(
+                      modal === "edit-project" ? editProject : removeProject,
+                    );
+                }}
+              >
+                <div className="eyebrow">PROJECT</div>
+                <h2>{modal === "edit-project" ? "编辑项目" : "移除项目"}</h2>
+                {modal === "edit-project" ? (
+                  <label>
+                    项目名称
+                    <Input
+                      autoFocus
+                      required
+                      maxLength={199}
+                      value={editedProjectName}
+                      disabled={busy}
+                      onChange={(event) =>
+                        setEditedProjectName(event.target.value)
+                      }
+                    />
+                  </label>
+                ) : (
+                  <p>
+                    确定从本地项目列表移除“{managedProject?.name}
+                    ”？本地文件、修订和会话会保留。
+                  </p>
+                )}
+                {error && (
+                  <p role="alert" className="project-form-error">
+                    {error}
+                  </p>
+                )}
+                <div className="modal-actions">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={busy}
+                    onClick={() => setModal("")}
+                  >
+                    取消
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant={
+                      modal === "remove-project" ? "destructive" : "default"
+                    }
+                    disabled={
+                      busy ||
+                      (modal === "edit-project" && !editedProjectName.trim())
+                    }
+                  >
+                    {busy
+                      ? "保存中…"
+                      : modal === "edit-project"
+                        ? "保存"
+                        : "确认移除"}
+                  </Button>
+                </div>
+              </form>
+            )}
             {modal === "new" && (
               <>
                 <div className="eyebrow">PROJECT</div>
@@ -1980,7 +2228,11 @@ export default function App() {
                 <div className="eyebrow">PROJECT SETTINGS</div>
                 <h2>资料发送配置</h2>
                 <p>
-                  AI 使用本机 Codex CLI 的登录与模型配置。账号凭据由宿主管理。
+                  AI 使用本机
+                  {(session?.host ?? host) === "claude"
+                    ? " Claude Code"
+                    : " Codex CLI"}{" "}
+                  的登录与模型配置。账号凭据由宿主管理。
                 </p>
                 <label>
                   任务资料发送范围

@@ -1,0 +1,58 @@
+@layer theme, base, legacy, components, utilities;
+@import "tailwindcss" source(".");
+@import "tw-animate-css";
+@import "./style.css" layer(legacy);
+
+/* Existing buttons use .outline as a component class, not an outline utility. */
+@source not inline("outline");
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  :root {
+    --background: #f3f6fa;
+    --foreground: #1d2b42;
+    --card: #fff;
+    --card-foreground: #1d2b42;
+    --popover: #fff;
+    --popover-foreground: #33445e;
+    --primary: #2563eb;
+    --primary-foreground: #fff;
+    --secondary: #edf3ff;
+    --secondary-foreground: #1d5ddb;
+    --muted: #f0f4fa;
+    --muted-foreground: #7b8799;
+    --accent: #f0f4fa;
+    --accent-foreground: #1d5ddb;
+    --destructive: #c33c3c;
+    --border: #e2e8f0;
+    --input: #dce3ed;
+    --ring: #93b4ff;
+    --radius: 0.5rem;
+  }
+}

@@ -37,6 +37,22 @@ npm run dev
 
 服务只绑定本机。`BWC_DATA_DIR` 可设置项目目录，`BWC_PYTHON` 可选择 Python，`BWC_CODEX_BIN` 可选择宿主可执行文件。`npm run launch` 使用默认端口 4310；手动启动服务可通过 `PORT` 改端口。
 
+## 前端开发
+
+前端使用 React、TypeScript、Zustand、Tailwind CSS v4 和 shadcn/ui。`@/` 指向 `apps/web/src/`。
+
+- 项目列表和当前项目 ID 由 `apps/web/src/stores/project-store.ts` 管理；项目文件及业务数据仍通过后端保存。
+- `apps/web/src/tailwind.css` 是样式入口，包含 Tailwind、shadcn/ui 主题变量，以及现有样式的 `legacy` 层。Tailwind 工具类可以覆盖现有样式。
+- `apps/web/src/components/ui/` 保存 shadcn/ui 组件源码。项目菜单和编辑表单已使用 DropdownMenu、Button、Input。
+
+在仓库根目录添加组件：
+
+```bash
+pnpm dlx shadcn@latest add dialog
+```
+
+组件路径和主题配置见根目录 `components.json`。开发服务监听前端与后端代码变更并自动重新加载。
+
 ## 第一个任务
 
 1. 点击“体验受控基准”，导入真实生成的 DWG。此文件是测试样本，不是实际建筑的楼板认定。

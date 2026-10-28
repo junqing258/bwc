@@ -222,7 +222,7 @@ export class Catalog {
       dataPolicy: {
         id: id("dp"),
         mode: "summary",
-        provider: "Codex CLI 配置的模型服务方",
+        provider: "本机 AI CLI（Codex/Claude Code）配置的模型服务方",
       },
     });
     store.writeManifest();
@@ -245,7 +245,8 @@ export class Catalog {
           /^p_[a-f0-9]{32}$/.test(p) &&
           existsSync(join(this.root, p, "project.sqlite")),
       )
-      .map((p) => ({ ...this.open(p).meta(), projectId: p }));
+      .map((p) => ({ ...this.open(p).meta(), projectId: p }))
+      .filter((p) => !p.removedAt);
   }
   close() {
     for (const s of this.stores.values()) s.close();

@@ -167,6 +167,7 @@ export interface Drawing {
 export interface Project {
   id: string;
   name: string;
+  removedAt?: string;
   createdAt: string;
   currentRevision: string | null;
   dataPolicy: {

@@ -1,6 +1,8 @@
 import { spawn } from "node:child_process";
 const children = [
-  spawn("npm", ["run", "server"], { stdio: "inherit" }),
+  spawn("npm", ["exec", "--", "tsx", "watch", "apps/server/main.ts"], {
+    stdio: "inherit",
+  }),
   spawn("npm", ["run", "web"], { stdio: "inherit" }),
 ];
 let stopping = false;
