@@ -53,6 +53,7 @@ for (const [name, tool] of Object.entries(registry)) {
     "takeoff_get",
     "export_verify",
     "viewer_open",
+    "component_list",
   ].includes(name);
   server.registerTool(
     name,

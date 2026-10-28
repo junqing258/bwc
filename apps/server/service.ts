@@ -103,7 +103,10 @@ export class WorkflowService {
       results: s.all<Takeoff>("takeoff").map((r) => ({
         ...r,
         validity:
-          r.workingRevision === s.meta().currentRevision ? "valid" : "stale",
+          r.validity === "valid" &&
+          r.workingRevision === s.meta().currentRevision
+            ? "valid"
+            : "stale",
       })),
       jobs: s.all<Job>("job").map((job) => this.publicJob(job)),
       changes: s.all("change"),
@@ -1534,6 +1537,16 @@ export class WorkflowService {
           "entity_count",
           "business_count",
         ],
+        componentRecognition: {
+          method:
+            "closed source boundaries, exact endpoint line cycles, door/window insert instances",
+          aiAssistance: "source-referenced pending suggestions only",
+          confirmation: "human review in workbench; versioned audit records",
+          quantities:
+            "confirmed components only; symbol groups count only; topology and physical parameters still required",
+          limitations:
+            "no automatic floor assignment, wall height, inferred gap filling or plan/elevation deduplication",
+        },
         delivery: {
           candidateDwg: "supported only without import gaps or dependencies",
           independentCad: "not_run",

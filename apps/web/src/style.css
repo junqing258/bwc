@@ -1755,3 +1755,206 @@ hr {
   border-radius: 6px;
   font-size: 12px;
 }
+
+/* Component recognition and human review share the exact source selection. */
+.component-panel {
+  padding: 16px 24px 24px;
+  font-size: 13px;
+}
+.component-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.component-toolbar > div {
+  flex: 1 1 320px;
+}
+.component-toolbar strong {
+  color: #243f60;
+  font-size: 15px;
+}
+.component-toolbar p,
+.component-quantities p {
+  color: #6a7d95;
+  margin: 5px 0;
+  line-height: 1.6;
+}
+.component-toolbar button,
+.component-actions button,
+.component-quantities button {
+  font-size: 12px;
+  padding: 9px 12px;
+}
+.component-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 14px 0;
+  color: #60758e;
+}
+.component-stats .pending {
+  color: #a16a18;
+}
+.component-stats .confirmed {
+  color: #16836c;
+}
+.component-workspace {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.85fr) minmax(350px, 1.15fr);
+  gap: 20px;
+}
+.component-browser {
+  min-width: 0;
+}
+.component-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.component-filters input {
+  min-width: 0;
+  flex: 1;
+}
+.component-panel input,
+.component-panel select {
+  font-size: 13px;
+  padding: 8px 10px;
+  min-height: 36px;
+}
+.component-list {
+  max-height: 360px;
+  overflow: auto;
+  border: 1px solid #e6ecf4;
+  border-radius: 8px;
+}
+.component-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 12px;
+  text-align: left;
+  border-bottom: 1px solid #eef2f7;
+  background: white;
+  color: #49617c;
+}
+.component-card:hover {
+  background: #f6f9fd;
+}
+.component-card.active {
+  background: #eef5ff;
+  box-shadow: inset 3px 0 #2866c6;
+}
+.component-card > div {
+  flex: 1;
+  min-width: 0;
+}
+.component-card b {
+  font-size: 13px;
+  color: #2c4563;
+  overflow-wrap: anywhere;
+}
+.component-card small {
+  display: block;
+  margin-top: 5px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #71839a;
+}
+.component-card > span:last-child {
+  font-size: 11px;
+  white-space: nowrap;
+}
+.component-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #aebacc;
+  flex-shrink: 0;
+}
+.component-dot.pending {
+  background: #d69c36;
+}
+.component-dot.confirmed {
+  background: #24a887;
+}
+.component-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  color: #74859a;
+  font-size: 12px;
+}
+.component-review {
+  border: 1px solid #e5ebf3;
+  border-radius: 8px;
+  padding: 16px;
+  min-width: 0;
+}
+.component-review h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: #2c4563;
+}
+.component-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 14px 0;
+}
+.component-panel label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: #61758e;
+  font-size: 12px;
+}
+.component-panel label input,
+.component-panel label select {
+  width: 100%;
+  min-width: 0;
+}
+.component-evidence {
+  padding: 10px 12px;
+  background: #f7f9fc;
+  border-radius: 6px;
+  margin: 12px 0;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #61758e;
+}
+.component-evidence ul {
+  padding-left: 18px;
+  margin: 8px 0 0;
+}
+.component-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.component-empty {
+  padding: 24px 14px;
+  color: #71839a;
+  line-height: 1.9;
+}
+.component-quantities {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #e6ecf4;
+}
+.component-quantities button {
+  margin: 6px 6px 0 0;
+}
+@media (max-width: 1050px) {
+  .component-workspace {
+    grid-template-columns: 1fr;
+  }
+}
+@media (min-width: 1051px) {
+  .workbench:has(.component-panel) {
+    grid-template-rows: auto minmax(240px, 1fr) minmax(0, 48%);
+  }
+}

@@ -24,6 +24,8 @@ import ImportDiagnostics from "./ImportDiagnostics";
 import QuickQuestions, { type QuickQuestion } from "./QuickQuestions";
 import Markdown from "./Markdown";
 import ProjectActions from "./ProjectActions";
+import ComponentPanel from "./ComponentPanel";
+import type { DrawingComponent } from "../../server/components";
 import { useProjectStore } from "@/stores/project-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -80,6 +82,11 @@ export default function App() {
     [typeFilter, setTypeFilter] = useState(""),
     [textFilter, setTextFilter] = useState("");
   const [diagnosticFilter, setDiagnosticFilter] = useState<string | null>(null);
+  const [components, setComponents] = useState<DrawingComponent[]>([]);
+  const [activeComponentId, setActiveComponentId] = useState<string | null>(
+    null,
+  );
+  const [componentMode, setComponentMode] = useState(false);
   const [issuePage, setIssuePage] = useState(0);
   const [issues, setIssues] = useState<any[]>([]),
     [modal, setModal] = useState(""),
@@ -177,7 +184,7 @@ export default function App() {
     setProject(p);
     setPolicy(p.dataPolicy.mode);
     if (p.revision) {
-      const [s, v, rows, checks] = await Promise.all([
+      const [s, v, rows, checks, componentData] = await Promise.all([
         call("dwg_summary", { projectId }),
         geometry
           ? api(`preview?projectId=${projectId}`)
@@ -188,17 +195,26 @@ export default function App() {
           pageSize: 50,
         }),
         call("issue_list", { projectId }),
+        call("component_list", {
+          projectId,
+          workingRevision: p.revision.id,
+          geometrySnapshotId: p.revision.geometrySnapshotId,
+        }),
       ]);
       if (pidRef.current !== projectId) return null;
       setSummary(s);
       if (v) setPreview(v);
       setQuery(rows);
       setIssues(checks.issues);
+      setComponents(componentData.items);
     }
     setProjects(await api("projects"));
     return p;
   }
   async function chooseProject(projectId: string) {
+    setComponents([]);
+    setActiveComponentId(null);
+    setComponentMode(false);
     pidRef.current = projectId;
     revisionRef.current = null;
     setPid(projectId);
@@ -265,6 +281,12 @@ export default function App() {
     let debounce: ReturnType<typeof setTimeout> | undefined;
     stream.onmessage = (e) => {
       const event = JSON.parse(e.data);
+      if (event.type === "components_updated") {
+        clearTimeout(debounce);
+        debounce = setTimeout(() => {
+          if (pidRef.current === pid) void refresh(pid, false);
+        }, 200);
+      }
       if (event.type === "revision_published") {
         clearTimeout(debounce);
         debounce = setTimeout(() => {
@@ -337,6 +359,35 @@ export default function App() {
       toast.error(e.message, { duration: 8000 }),
     );
   };
+  function selectDrawing(ids: string[], append = false) {
+    if (!componentMode) {
+      select(ids, append);
+      return;
+    }
+    const matched = components.filter(
+      (c) => c.status !== "rejected" && c.members.some((m) => ids.includes(m)),
+    );
+    if (ids.length === 1 && matched.length > 1) {
+      const preferred =
+        matched.find((c) => c.id === activeComponentId) ??
+        matched.find((c) => c.status === "confirmed") ??
+        matched.sort((a, b) => a.members.length - b.members.length)[0];
+      setActiveComponentId(preferred.id);
+      select(preferred.members, append);
+      return;
+    }
+    if (matched.length === 1) setActiveComponentId(matched[0].id);
+    select(
+      [...new Set([...ids, ...matched.flatMap((c) => c.members)])],
+      append,
+    );
+  }
+  function selectComponent(c: DrawingComponent, append = false) {
+    setComponentMode(true);
+    setActiveComponentId(c.id);
+    select(c.members, append);
+    setFocus((n) => n + 1);
+  }
   async function createProject() {
     const p = await api("projects", { name: projectName || "未命名 DWG 项目" });
     await chooseProject(p.projectId);
@@ -622,7 +673,10 @@ export default function App() {
       true,
     );
   }
-  const switchTab = (t: string) => setTab(t);
+  const switchTab = (t: string) => {
+    setTab(t);
+    if (t === "components") setComponentMode(true);
+  };
   return (
     <div className="app">
       <aside className="rail">
@@ -827,6 +881,15 @@ export default function App() {
                   <span title="当前只开放二维受支持图元">三维暂未开放</span>
                 </div>
                 <div className="view-controls">
+                  <button
+                    className={componentMode ? "selected" : ""}
+                    onClick={() => {
+                      setComponentMode((v) => !v);
+                      setTab("components");
+                    }}
+                  >
+                    {componentMode ? "构件选择 ✓" : "构件选择"}
+                  </button>
                   <button onClick={() => setFit((n) => n + 1)}>适配全图</button>
                   <button
                     disabled={!selected.length}
@@ -847,7 +910,16 @@ export default function App() {
                 <Viewer
                   occurrences={preview.occurrences}
                   selected={selected}
-                  onSelect={select}
+                  onSelect={selectDrawing}
+                  components={
+                    componentMode
+                      ? components.filter((c) => c.status !== "rejected")
+                      : []
+                  }
+                  onComponentSelect={(c, append) => {
+                    selectComponent(c, append);
+                    setTab("components");
+                  }}
                   hidden={hidden}
                   isolated={isolated}
                   tool={tool}
@@ -1219,6 +1291,7 @@ export default function App() {
               <div className="details-tabs">
                 {[
                   ["objects", "对象与范围"],
+                  ["components", "二维构件"],
                   ["properties", "属性与修改"],
                   ["results", "计量结果"],
                   ["issues", "问题清单"],
@@ -1261,6 +1334,25 @@ export default function App() {
                   )}
                 </button>
               </div>
+              {tab === "components" && project?.revision && (
+                <ComponentPanel
+                  context={{
+                    projectId: pid,
+                    workingRevision: project.revision.id,
+                    geometrySnapshotId: project.revision.geometrySnapshotId,
+                  }}
+                  components={components}
+                  selected={selected}
+                  activeId={activeComponentId}
+                  busy={busy}
+                  aiPending={aiPending}
+                  onSelect={selectComponent}
+                  onAction={(fn) => void guarded(fn)}
+                  onRefresh={() => refresh(pid, false)}
+                  onAI={(prompt) => sendMessage(prompt)}
+                  onResults={() => setTab("results")}
+                />
+              )}
               {tab === "objects" && (
                 <>
                   <div className="filter-bar">
@@ -1628,7 +1720,10 @@ export default function App() {
                       <div className="result-summary">
                         <div>
                           <small>
-                            {anyResult.quantityKind} · 冻结选择集范围
+                            {anyResult.quantityKind} ·{" "}
+                            {anyResult.scope === "confirmed_components_only"
+                              ? "已确认构件范围"
+                              : "冻结选择集范围"}
                           </small>
                           <h2>
                             {num(anyResult.knownSubtotal)}{" "}
@@ -1676,11 +1771,11 @@ export default function App() {
                                   <button
                                     className="text-button"
                                     onClick={() => {
-                                      select([i.id]);
+                                      select(i.sourceOccurrenceIds ?? [i.id]);
                                       setFocus((n) => n + 1);
                                     }}
                                   >
-                                    {i.id.slice(0, 20)}
+                                    {i.componentLabel ?? i.id.slice(0, 20)}
                                   </button>
                                 </td>
                                 <td>{stateLabel[i.status] ?? i.status}</td>

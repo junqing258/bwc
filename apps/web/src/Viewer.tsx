@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as T from "three";
 import type { Occurrence, Vec3 } from "../../server/types";
+import type { DrawingComponent } from "../../server/components";
 import {
   bounds,
   evaluate,
@@ -18,6 +19,8 @@ interface Props {
   fitToken: number;
   focusToken: number;
   scale: number | null;
+  components?: DrawingComponent[];
+  onComponentSelect?: (component: DrawingComponent, append: boolean) => void;
 }
 export default function Viewer(p: Props) {
   const host = useRef<HTMLDivElement>(null),
@@ -37,7 +40,7 @@ export default function Viewer(p: Props) {
   useEffect(() => {
     api.current?.highlight();
     if (p.isolated) api.current?.rebuild();
-  }, [p.selected]);
+  }, [p.selected, p.components]);
   useEffect(() => {
     api.current?.fit();
   }, [p.fitToken]);
@@ -88,6 +91,12 @@ export default function Viewer(p: Props) {
         shift: boolean;
       } | null = null;
     const context = canvas.getContext("2d")!;
+    let componentHits: {
+      c: DrawingComponent;
+      x: number;
+      y: number;
+      w: number;
+    }[] = [];
     function world(x: number, y: number): Vec3 {
       return [
         cx + ((x / width - 0.5) * span * width) / height + origin[0],
@@ -165,6 +174,67 @@ export default function Viewer(p: Props) {
           context.restore();
         }
       }
+      drawComponents();
+    }
+    function drawComponents() {
+      componentHits = [];
+      const props = state.current;
+      const visibleIds = new Set(visible.map((o) => o.occurrenceId));
+      const selectedIds = new Set(props.selected);
+      const ordered = [...(props.components ?? [])].sort(
+        (a, b) =>
+          Number(a.members.every((m) => selectedIds.has(m))) -
+          Number(b.members.every((m) => selectedIds.has(m))),
+      );
+      for (const c of ordered) {
+        if (!c.members.some((m) => visibleIds.has(m))) continue;
+        const selected = c.members.every((m) => selectedIds.has(m));
+        const [left, top] = screen([c.bounds[0], c.bounds[3], 0]);
+        const [right, bottom] = screen([c.bounds[2], c.bounds[1], 0]);
+        if (right < 0 || left > width || bottom < 0 || top > height) continue;
+        if (!selected && (right - left < 12 || bottom - top < 8)) continue;
+        const text = `${c.status === "confirmed" ? "✓" : "?"} ${c.label.slice(0, 20)}`;
+        context.font = "12px sans-serif";
+        const w = context.measureText(text).width + 16;
+        const x = Math.min(
+          Math.max(0, (left + right - w) / 2),
+          Math.max(0, width - w),
+        );
+        const y = Math.min(Math.max(0, top - 23), Math.max(0, height - 22));
+        if (
+          !selected &&
+          (componentHits.length >= 180 ||
+            componentHits.some(
+              (h) => x < h.x + h.w && x + w > h.x && Math.abs(y - h.y) < 24,
+            ))
+        )
+          continue;
+        context.save();
+        context.strokeStyle = selected
+          ? "#2563eb"
+          : c.status === "confirmed"
+            ? "#16836c"
+            : "#ba7919";
+        context.lineWidth = selected ? 2 : 1;
+        context.setLineDash(c.status === "confirmed" ? [] : [4, 3]);
+        context.strokeRect(left, top, right - left, bottom - top);
+        context.setLineDash([]);
+        context.fillStyle = selected
+          ? "#2563eb"
+          : c.status === "confirmed"
+            ? "#e3f5ef"
+            : "#fff2d9";
+        context.fillRect(x, y, w, 22);
+        context.fillStyle = selected
+          ? "white"
+          : c.status === "confirmed"
+            ? "#126b59"
+            : "#87550e";
+        context.fillText(text, x + 8, y + 15);
+        context.restore();
+        componentHits.push({ c, x, y, w });
+      }
+      canvas.dataset.componentMarkers = String(componentHits.length);
     }
     function geometry(objects: Occurrence[], colors: boolean) {
       const vertices: number[] = [],
@@ -374,6 +444,13 @@ export default function Viewer(p: Props) {
         return;
       }
       raycaster.params.Line = { threshold: (span / height) * 7 };
+      const marker = [...componentHits]
+        .reverse()
+        .find((h) => x >= h.x && x <= h.x + h.w && y >= h.y && y <= h.y + 22);
+      if (marker) {
+        state.current.onComponentSelect?.(marker.c, start.shift);
+        return;
+      }
       raycaster.setFromCamera(
         new T.Vector2((x / width) * 2 - 1, (-y / height) * 2 + 1),
         camera,

@@ -5,6 +5,7 @@ import { worker } from "./workers.ts";
 import type { Artifact, Drawing, Takeoff } from "./types.ts";
 import type { WorkflowService } from "./service.ts";
 import { importReport } from "./diagnostics.ts";
+import type { DrawingComponent } from "./components.ts";
 const csvValue = (v: unknown) => `"${String(v ?? "").replaceAll('"', '""')}"`;
 export function resultExport(service: WorkflowService, input: any) {
   const s = service.catalog.open(input.projectId),
@@ -57,11 +58,17 @@ export function resultExport(service: WorkflowService, input: any) {
         unitProfile: ctx.snapshot.units,
         patches: ctx.snapshot.patches,
         business: ctx.snapshot.business,
+        components: s
+          .all<DrawingComponent>("component")
+          .filter((c) => c.geometrySnapshotId === ctx.snapshot.id),
         result: result
           ? {
               ...result,
               validity:
-                result.workingRevision === s.current().id ? "valid" : "stale",
+                s.get<Takeoff>("takeoff", result.id).validity === "valid" &&
+                result.workingRevision === s.current().id
+                  ? "valid"
+                  : "stale",
             }
           : null,
         issues,
@@ -71,7 +78,9 @@ export function resultExport(service: WorkflowService, input: any) {
         diagnostics: a.diagnostics,
         notifications: a.notifications,
         conversions: s.all("conversion"),
-        scope: "frozen_selection_only",
+        scope:
+          (result as (Takeoff & { scope?: string }) | null)?.scope ??
+          "frozen_selection_only",
         completeDelivery: false,
       };
       atomicJson(join(s.path, dir, "report.json"), report);

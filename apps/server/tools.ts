@@ -8,6 +8,7 @@ import {
 } from "./schemas.ts";
 import { dwgExport, resultExport } from "./exports.ts";
 import { assert, id, now } from "./util.ts";
+import { componentTools } from "./components.ts";
 const context = ContextSchema.shape;
 export function toolRegistry(service: WorkflowService) {
   const tool = (
@@ -17,6 +18,7 @@ export function toolRegistry(service: WorkflowService) {
   ) => ({ description, schema, run });
   const op = z.string().min(1).max(200);
   return {
+    ...componentTools(service),
     project_list: tool("列出本地项目", z.object({}).strict(), () =>
       service.projects(),
     ),

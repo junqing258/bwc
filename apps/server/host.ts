@@ -358,7 +358,7 @@ export class HostBridge {
           join(cwd, `${dir}/skills/dwg-workflow/SKILL.md`),
         );
       const instructions =
-        "Use the dwg-workflow skill and only the bwc MCP domain tools. Do not edit project files, run shell commands, use other connectors, or send messages outside this workbench. All domain writes require a persisted intent and exact frozen context.";
+        "Use the dwg-workflow skill and only the bwc MCP domain tools. Do not edit project files, run shell commands, use other connectors, or send messages outside this workbench. Domain edits require a persisted intent and exact frozen context. component_recognize and component_suggest may save pending recognition drafts within the user's frozen scope; they never confirm components. Human confirmation is only available in the workbench review panel.";
       writeFileSync(join(cwd, "AGENTS.md"), instructions + "\n");
       writeFileSync(join(cwd, "CLAUDE.md"), instructions + "\n");
       const mcp = {

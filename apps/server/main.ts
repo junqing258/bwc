@@ -21,6 +21,12 @@ import { isReparseInstruction } from "./maintenance.ts";
 import { assert, DomainError, hash, id, now, within } from "./util.ts";
 import { ROOT } from "./workers.ts";
 import { OperationSchema, SelectionRef } from "./schemas.ts";
+import {
+  ComponentReviewSchema,
+  reviewComponent,
+  suggestComponent,
+} from "./components.ts";
+import { ContextSchema } from "./schemas.ts";
 
 export function createApplication(
   options: { dataDir?: string; port?: number; host?: boolean } = {},
@@ -99,6 +105,31 @@ export function createApplication(
       }
       if (path === "/api/fixture" && req.method === "POST")
         return json(res, await service.fixture());
+      if (path === "/api/components/review" && req.method === "POST")
+        return json(
+          res,
+          reviewComponent(
+            service,
+            ComponentReviewSchema.parse(await body(req)),
+          ),
+        );
+      if (path === "/api/components/manual" && req.method === "POST") {
+        const b = ContextSchema.extend({
+          members: z.array(z.string()).min(1).max(2000),
+        })
+          .strict()
+          .parse(await body(req));
+        return json(
+          res,
+          suggestComponent(service, {
+            ...b,
+            origin: "manual",
+            category: "未分类",
+            label: "手工标识",
+            reason: "用户在二维图中选择来源，等待类型与边界核对",
+          }),
+        );
+      }
       if (path === "/api/call" && req.method === "POST") {
         const b = z
           .object({ tool: z.string(), input: z.record(z.unknown()) })
@@ -151,6 +182,43 @@ export function createApplication(
           )
           .at(-1);
         assert(active, "SESSION_IDLE", "没有正在执行的宿主轮次");
+        if (b.tool.startsWith("component_")) {
+          assert(
+            b.input.workingRevision === active.context.workingRevision &&
+              b.input.geometrySnapshotId === active.context.geometrySnapshotId,
+            "SNAPSHOT_MISMATCH",
+            "构件工具必须使用本轮冻结的修订和快照",
+          );
+          if (
+            ["component_recognize", "component_suggest"].includes(b.tool) &&
+            active.context.selectionSet
+          ) {
+            const frozen = service.selected(
+              s,
+              s.context(
+                active.context.workingRevision,
+                active.context.geometrySnapshotId,
+              ).snapshot,
+              active.context.selectionSet,
+            );
+            if (b.tool === "component_suggest")
+              assert(
+                Array.isArray(b.input.members) &&
+                  b.input.members.every((m: unknown) =>
+                    frozen.members.includes(String(m)),
+                  ),
+                "INVALID_COMPONENT_SCOPE",
+                "AI 建议必须属于本轮冻结的选择范围",
+              );
+            else
+              assert(
+                JSON.stringify(b.input.selectionSet) ===
+                  JSON.stringify(active.context.selectionSet),
+                "INVALID_COMPONENT_SCOPE",
+                "局部识别必须使用本轮冻结选择集",
+              );
+          }
+        }
         if (b.tool === "dwg_reparse")
           assert(
             b.input.intentId === active.intentId &&
@@ -528,6 +596,7 @@ export function compactPayload(value: any, mode: string): any {
           "delta",
           "sources",
           "occurrences",
+          "bounds",
         ].includes(k)
       ) {
         out[k] = { omittedByDataPolicy: true };
