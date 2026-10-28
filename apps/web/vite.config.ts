@@ -1,10 +1,16 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import { CodeInspectorPlugin } from "code-inspector-plugin";
 import { fileURLToPath } from "node:url";
 export default defineConfig({
   root: fileURLToPath(new URL(".", import.meta.url)),
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    // 按住 Shift + Option(Mac)/ Shift + Alt(Windows)点击页面元素,自动在编辑器中定位源码
+    CodeInspectorPlugin({ bundler: "vite" }),
+  ],
   resolve: {
     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
   },

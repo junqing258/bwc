@@ -207,9 +207,6 @@ label textarea {
   background: #edf3ff;
   color: #1d5ddb;
 }
-.project-form-error {
-  color: #c33c3c;
-}
 .file-icon {
   color: #9baac0;
 }
@@ -1296,31 +1293,6 @@ footer {
   font-size: 9px;
   color: #a8b3c2;
   letter-spacing: 0.3px;
-}
-.alert {
-  flex: none;
-  margin: 10px 22px;
-  padding: 11px 16px;
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  font-size: 11px;
-  line-height: 1.7;
-  overflow-wrap: anywhere;
-}
-.alert.error {
-  background: #fff0ec;
-  color: #ac624c;
-  border: 1px solid #f2d9d0;
-}
-.alert.success {
-  background: #edf7f2;
-  color: #4e8b72;
-}
-.alert button {
-  margin-left: auto;
-  padding-left: 18px;
-  font-size: 18px;
 }
 .modal-backdrop {
   position: fixed;

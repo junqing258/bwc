@@ -123,7 +123,6 @@ export class WorkflowService {
           : join(ROOT, "2026-10"),
         prefix: "incoming",
       },
-      { dir: resolve(ROOT, "../zhu-suan/assets/dwg"), prefix: "original" },
     ];
     const list: any[] = [];
     for (const r of roots)

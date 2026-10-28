@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 import {
   ArrowUp,
   ArrowUpRight,
@@ -86,8 +87,6 @@ export default function App() {
     [fileRef, setFileRef] = useState(""),
     [compatible, setCompatible] = useState(false),
     [busy, setBusy] = useState(false),
-    [error, setError] = useState(""),
-    [notice, setNotice] = useState(""),
     [candidate, setCandidate] = useState<any>(null),
     [exported, setExported] = useState<any>(null),
     [job, setJob] = useState<any>(null);
@@ -153,12 +152,12 @@ export default function App() {
   );
   async function guarded(fn: () => Promise<void>) {
     setBusy(true);
-    setError("");
     try {
       await fn();
     } catch (e) {
-      setError(
+      toast.error(
         `${(e as any).code ? `[${(e as any).code}] ` : ""}${(e as Error).message}`,
+        { duration: 8000 },
       );
     } finally {
       setBusy(false);
@@ -220,9 +219,8 @@ export default function App() {
     setMessage("");
     setQuestionScope(null);
     setHostEvents([]);
-    setError("");
+    toast.dismiss();
     setExported(null);
-    setNotice("");
     setJob(null);
     setIsolated(false);
     setLayerFilter("");
@@ -335,7 +333,9 @@ export default function App() {
       setSelection(result);
   }
   const select = (ids: string[], append = false) => {
-    void freeze(ids, append).catch((e) => setError(e.message));
+    void freeze(ids, append).catch((e) =>
+      toast.error(e.message, { duration: 8000 }),
+    );
   };
   async function createProject() {
     const p = await api("projects", { name: projectName || "未命名 DWG 项目" });
@@ -357,7 +357,7 @@ export default function App() {
     if (pidRef.current === projectId)
       setProject((p: any) => (p ? { ...p, name: updated.name } : p));
     setModal("");
-    setNotice("项目名称已更新");
+    toast.success("项目名称已更新");
   }
   async function removeProject() {
     const projectId = managedProject.projectId;
@@ -367,7 +367,7 @@ export default function App() {
     setModal("");
     if (pidRef.current === projectId)
       await chooseProject(list[0]?.projectId ?? "");
-    setNotice("项目已从列表移除，本地文件已保留");
+    toast.success("项目已从列表移除，本地文件已保留");
   }
   async function importFile(ref = fileRef) {
     const result = await waitJob(
@@ -384,7 +384,7 @@ export default function App() {
     setSelected([]);
     setSelection(null);
     await refresh();
-    setNotice(
+    toast.success(
       `已导入 ${result.occurrenceCount} 个实例，${result.completeness === "partial" ? "存在未覆盖范围" : "已生成初始快照"}`,
     );
   }
@@ -490,7 +490,7 @@ export default function App() {
       setSelected(selected);
       setSelection(sel);
     }
-    setNotice("新修订已发布，旧结果已失效；请重新计量。");
+    toast.success("新修订已发布，旧结果已失效；请重新计量。");
   }
   async function measure(kind: string) {
     if (!selection) throw new Error("请选择明确计量范围");
@@ -529,7 +529,7 @@ export default function App() {
       setJob,
     );
     await refresh(pid);
-    setNotice(
+    toast.success(
       `已生成新解析版本：尚无规范几何 ${result.report.before.modelWithoutGeometry} → ${result.report.after.modelWithoutGeometry}；旧快照保留。`,
     );
   }
@@ -568,7 +568,7 @@ export default function App() {
     setMessage("");
     setQuestionScope(null);
     localStorage.removeItem(`bwc-session:${pid}`);
-    setNotice("已新建会话，可选择 AI 宿主；图纸和当前选择已保留");
+    toast.success("已新建会话，可选择 AI 宿主；图纸和当前选择已保留");
     composerInput.current?.focus();
   }
   async function sendMessage(prompt?: string, wholeDrawing = false) {
@@ -663,12 +663,10 @@ export default function App() {
                 onEdit={() => {
                   setManagedProject(p);
                   setEditedProjectName(p.name);
-                  setError("");
                   setModal("edit-project");
                 }}
                 onRemove={() => {
                   setManagedProject(p);
-                  setError("");
                   setModal("remove-project");
                 }}
               />
@@ -682,19 +680,19 @@ export default function App() {
           <span className="live-dot" /> 本地引擎
           <small>图纸与任务自动保存</small>
           <button
-            className="text-button"
+            className="text-button mb-0"
             disabled={!pid}
             onClick={() => setModal("settings")}
           >
             项目设置
           </button>
-          <a
+          {/*  <a
             href="https://domcr.github.io/ACadSharp/index.html"
             target="_blank"
             rel="noreferrer"
           >
             ACadSharp 3.8.30 <ArrowUpRight aria-hidden="true" />
-          </a>
+          </a> */}
         </div>
       </aside>
       <main
@@ -737,22 +735,6 @@ export default function App() {
             </button>
           </div>
         </header>
-        {error && (
-          <div className="alert error" role="alert">
-            {error}
-            <button aria-label="关闭错误" onClick={() => setError("")}>
-              <X aria-hidden="true" />
-            </button>
-          </div>
-        )}
-        {notice && (
-          <div className="alert success">
-            {notice}
-            <button aria-label="关闭提示" onClick={() => setNotice("")}>
-              <X aria-hidden="true" />
-            </button>
-          </div>
-        )}
         {!project?.revision ? (
           <div className="welcome">
             <div className="eyebrow">从工程文件，到可追溯的数量</div>
@@ -1058,7 +1040,7 @@ export default function App() {
                               projectId: pid,
                               sessionId: session.id,
                             });
-                            setNotice(
+                            toast.success(
                               r.status === "reconciled"
                                 ? "宿主与本地状态已对账"
                                 : "仍需恢复核对；未自动重发消息",
@@ -1330,7 +1312,7 @@ export default function App() {
                         className="text-button"
                         onClick={() => {
                           setDiagnosticFilter(null);
-                          setNotice("已移除诊断组筛选，请重新查询。");
+                          toast.success("已移除诊断组筛选，请重新查询。");
                         }}
                       >
                         诊断组筛选中 <X aria-hidden="true" />
@@ -1480,7 +1462,7 @@ export default function App() {
                           ids: selected,
                           snapshot: project.revision.geometrySnapshotId,
                         });
-                        setNotice(
+                        toast.success(
                           `已暂记 ${selected.length} 个洞口。请再选外轮廓并应用洞口关联。`,
                         );
                       }}
@@ -1957,11 +1939,6 @@ export default function App() {
                   <p>
                     确定从本地项目列表移除“{managedProject?.name}
                     ”？本地文件、修订和会话会保留。
-                  </p>
-                )}
-                {error && (
-                  <p role="alert" className="project-form-error">
-                    {error}
                   </p>
                 )}
                 <div className="modal-actions">

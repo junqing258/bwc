@@ -40,7 +40,7 @@ export default function ImportDiagnostics({
       <p className="muted">
         填充和面显示边界；尺寸标注使用缓存图形，仅供阅读。显示依据不代表面积有效或业务构件已确认。
       </p>
-      <button className="outline" disabled={busy} onClick={onReparse}>
+      <button className="outline mr-2" disabled={busy} onClick={onReparse}>
         使用当前适配器重新解析
       </button>
       <button className="outline" disabled={busy} onClick={() => onDiagnose()}>
