@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-29T05:19:08.956Z",
+  "fixture": "controlled CAD fixture",
+  "disabledReasonVisible": true,
+  "enabledAfterUnitAndEvidence": true,
+  "unitEvidenceIndependent": true,
+  "staleContextRefreshesInline": true,
+  "adoptionShowsCurrentRevision": true,
+  "reloadKeepsReviewSession": true,
+  "userDrawingUnitsChanged": false,
+  "activeRuntimeRestarted": false,
+  "activeReviewerAssetsUpdated": true
+}

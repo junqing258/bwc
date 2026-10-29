@@ -1,0 +1,17 @@
+{
+  "node": "v22.23.1",
+  "platform": "darwin-arm64",
+  "python": "/tmp/bwc-plugin-acceptance-python/bin/python",
+  "installedOutsideCheckout": true,
+  "readonlyInstallation": true,
+  "dependencies": true,
+  "cadParsed": true,
+  "geometryCalculated": true,
+  "exported": true,
+  "coveragePreservesMissingSources": true,
+  "scopeReportExported": true,
+  "viewerServed": true,
+  "toolCount": 36,
+  "mcpDisconnectSurvives": true,
+  "legacyHostExcluded": true
+}

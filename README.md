@@ -1,6 +1,18 @@
 # 筑材智算 · DWG 工作流
 
-基于 [DWG-AI 工作流实施规划](DWG-AI工作流实施规划.md) 的本地可运行实现。React/TypeScript/Three.js 工作台连接 Node 项目服务、SQLite、ACadSharp .NET Worker 和 Python 几何 Worker；Codex CLI App Server 承担 Agent 运行时。
+现已提供 Codex 工作目录插件入口：独立 stdio MCP / CLI 连接单写入领域运行时，图纸与任务保存在工程 `.bwc/`，Web 仅用于本地审阅。新链路不启动 Codex App Server。旧工作台保留兼容。
+
+插件构建与使用见 [运行指南](docs/plugin-runtime.md)，实施与验收边界见 [Codex 插件实施记录](docs/plans/Codex插件实施记录.md)。
+
+```sh
+npm run build:plugin
+npm run bwc -- runtime start /工程绝对路径
+# 本地安装：
+# codex plugin marketplace add /本仓库/release
+# codex plugin add bwc-workspace@bwc-local
+```
+
+macOS arm64 发行包包含编译后的服务、CLI、审阅静态资源和两个 Worker。Node/.NET/Python 与指定几何库预装要求、只读安装验证及故障排查详见运行指南。
 
 **当前交付是受支持二维子集的真实闭环，规划尚未全部验收。** 七份真实 DWG 均已运行解析与不改另存探测；真实图纸仍有未支持内容，不能宣称完整显示或完整编辑交付。详情见 [实施进度与验收](docs/实施进度与验收.md)、[样本实测](docs/evidence/样本解析实测.md)。
 

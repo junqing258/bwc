@@ -507,13 +507,13 @@ export function componentTakeoff(service: WorkflowService, input: any) {
   const components = [...new Set<string>(input.componentIds)].map((k) =>
     s.get<DrawingComponent>("component", k),
   );
-  assert(components.length > 0, "INVALID_COMPONENT_SCOPE", "请选择已确认构件");
+  assert(components.length > 0, "INVALID_COMPONENT_SCOPE", "请选择构件");
   assert(
     components.every(
-      (c) => c.geometrySnapshotId === snapshot.id && c.status === "confirmed",
+      (c) => c.geometrySnapshotId === snapshot.id && c.status !== "rejected",
     ),
-    "COMPONENT_NOT_CONFIRMED",
-    "只有当前快照的已确认构件可进入构件算量",
+    "INVALID_COMPONENT_SCOPE",
+    "只能计量当前快照中未被排除的构件",
   );
   const members = new Set<string>();
   for (const c of components)
@@ -611,7 +611,7 @@ export function componentTakeoff(service: WorkflowService, input: any) {
         methodVersion: measured.methodVersion,
         unitProfileVersion: snapshot.units.id,
         exclusions: [],
-        scope: "confirmed_components_only",
+        scope: "non_rejected_components",
         componentVersions: versions,
         projectCompleteTotal: null,
       };
@@ -648,7 +648,7 @@ export function componentTools(service: WorkflowService) {
     },
     component_suggest: {
       description:
-        "AI 辅助提交一个待人工确认的二维构件建议。必须引用实际源实例 ID，提供类型、名称和理由；几何由服务端从源数据确定，禁止臆造边界。无法闭合的符号组只支持确认后计数。",
+        "AI 辅助提交一个待人工确认的二维构件建议。必须引用实际源实例 ID，提供类型、名称和理由；几何由服务端从源数据确定，禁止臆造边界。无法闭合的符号组只支持计数。",
       schema: z
         .object({
           ...base,
@@ -662,7 +662,7 @@ export function componentTools(service: WorkflowService) {
     },
     component_takeoff: {
       description:
-        "仅计算当前快照人工确认的二维构件；未确认候选拒绝计量。符号组不具有面积，高度/厚度不能从 AI 推测。",
+        "计算当前快照中未被排除的二维构件，待确认候选也可计量。符号组不具有面积，高度/厚度不能从 AI 推测。",
       schema: z
         .object({
           ...base,

@@ -63,7 +63,7 @@ export default function ComponentPanel(p: Props) {
   );
   const selectedComponents = p.components.filter(
     (c) =>
-      c.status === "confirmed" &&
+      c.status !== "rejected" &&
       c.members.every((m) => p.selected.includes(m)),
   );
   const run = (fn: () => Promise<void>) => p.onAction(fn);
@@ -122,7 +122,7 @@ export default function ComponentPanel(p: Props) {
         <div>
           <strong>二维构件识别</strong>
           <p>
-            候选需人工核对。图层和 AI
+            候选可直接计量，也可人工核对。图层和 AI
             建议不直接认定构件；尺寸标注、轴线与文字不参与识别。
           </p>
         </div>
@@ -181,7 +181,7 @@ export default function ComponentPanel(p: Props) {
         <span>
           已排除 {p.components.filter((c) => c.status === "rejected").length}
         </span>
-        <span>已选确认构件 {selectedComponents.length} 个</span>
+        <span>已选可计量构件 {selectedComponents.length} 个</span>
       </div>
       <div className="component-workspace">
         <div className="component-browser">
@@ -382,7 +382,7 @@ export default function ComponentPanel(p: Props) {
             </div>
           )}
           <div className="component-quantities">
-            <b>计算已选的确认构件</b>
+            <b>计算已选构件</b>
             <p>
               仅汇总所选构件；闭合边界仍需通过几何校验。符号组只计数，墙高等参数不自动推测。
             </p>

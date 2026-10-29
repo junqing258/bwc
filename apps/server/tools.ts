@@ -210,7 +210,10 @@ export function toolRegistry(service: WorkflowService) {
           r = s.get("takeoff", i.resultVersion);
         return {
           ...r,
-          validity: r.workingRevision === s.current().id ? "valid" : "stale",
+          validity:
+            r.validity === "valid" && r.workingRevision === s.current().id
+              ? "valid"
+              : "stale",
         };
       },
     ),

@@ -1,58 +1,54 @@
 ---
 name: dwg-workflow
-description: 查询和处理筑材智算本地项目中的 DWG，冻结对象范围，执行受支持的检查、变更、确定性计量与成果导出。用于工作台发起的图纸任务。
+description: 在 Codex 当前工作目录发现和解析 DWG，识别建筑构件候选，准备本地人工审阅，计算确定性几何量并导出可追溯成果。
 ---
 
-# DWG 工作流
+# 工作目录建筑算量
 
-通过 `bwc` MCP 工具处理当前工作台项目。项目服务和几何工具提供事实、数量与版本；对话历史不替代项目状态。
+仅使用 bwc MCP 领域工具获取工程事实和数值。先取 Codex 当前任务工作目录的绝对路径，调用 `workspace_open(root)`；不能假定 MCP 进程 cwd 就是工程目录。若返回 RUNTIME_NOT_STARTED，指导用户在独立终端显式运行发行包 `apps/server/cli.js runtime start <绝对路径>`。不启动 Codex App Server，不维护第二套聊天。
 
-先读 `project_open`、`dwg_capabilities` 和 `dwg_summary`。使用用户消息附带的 projectId、workingRevision、geometrySnapshotId 和冻结 selectionSet；不要从后来变化的视图推测任务目标。
+所有后续调用携带返回的 workspaceId；图纸工具另携带 drawingId。通过 `drawing_discover` 发现 DWG，通过 `drawing_import(path, operationId)` 复制不可变来源并启动持久任务，工程外文件须显式 externalImport。保留 operationId，用 `job_get` 轮询，任务返回不等于完成。重新导入同一逻辑图纸时显式提供 drawingId，不能覆盖另一张图纸。`drawing_list` 给出各图独立当前修订。
 
-## 查询与定位
+## 查询与冻结范围
 
-按实际类型、图层、文字、空间或已确认业务分类调用 `dwg_query`。图层名和文字只生成候选，不能自动确认为楼板、墙或门窗。结果分页；对全部结果操作时，用 queryId 调用 `selection_create` 冻结所有成员。`viewer_focus` 将同一选择集定位到真实工作台。
+先读 `dwg_capabilities`、`dwg_summary` 与 `dwg_diagnostics`。记录 workingRevision 与 geometrySnapshotId，后续查询、选择和计算都显式携带这些版本。图层、文字、块名只能作为候选线索，不能推断单位、楼层或高度。
 
-源记录数、展开实例数与已确认构件数分别表达。MINSERT 的每个行列成员和嵌套路径是独立实例，不以裸 handle 去重。
+`dwg_query` 按类型、图层、空间、文字或诊断组筛选并分页。使用 `selection_create(queryId)` 冻结完整查询结果，不能把第一页当全部。对多图任务调用 `input_manifest_create`，冻结每张图的 drawingId/revisionId/snapshotId；不要通过反复切换全局当前图纸完成跨图任务。`scope_coverage_prepare` 用该清单独立冻结专业、目标类别、每张图的楼层/视图及可选来源选择集；不能从候选列表反推范围，未知楼层/视图显式传 null。未提供选择集时基准是整张模型视图，提供时只代表该来源子集。
 
-## 二维构件识别与人工核对
+源记录数、展开实例数、实体计数和建筑构件数分别汇报。MINSERT 每个行列单元与嵌套实例是独立来源，不以裸 handle 去重。诊断辅助点位和范围不能用于计量；partial、unsupported 和 not_run 均不能解释为完整或通过。
 
-用户请求识别构件时，使用 `component_recognize` 在冻结快照生成候选；若本轮有 selectionSet，必须传入该选择集。`component_list` 返回具体构件 ID、来源 members、状态、分类线索和几何用途。可先识别规则支持的闭合轮廓、精确端点线环和门窗块实例，再用实际 `dwg_query` / `dwg_get` 数据补充判断。
+## 识别与可信人工审阅
 
-规则无法判定类型或用户要求 AI 辅助时，调用 `component_suggest` 提交一个实际图元组，必须给出真实 occurrenceId、分类、名称及可复核理由。当前冻结选择集存在时，members 必须是其子集。工具依据源几何决定是否形成闭合边界，模型不能传入虚构坐标或把标注、文字、辅助点位作为面积边界。不将整层所有墙线当成一面墙，不从图层或文字臆造层高、厚度、洞口及置信度。
+`component_recognize` 在冻结快照生成待核对候选，支持选择集；`component_suggest` 提交实际 occurrenceId 组成的单个构件建议，附类型、名称与理由。禁止虚构坐标、边界、尺寸或把整层墙线视作一面墙。AI 建议不能自动升级为人工确认。
 
-这两个工具只保存 pending 草稿，允许在识别请求内执行，不修改原 DWG，也不需要调用 change_apply。AI 没有构件确认工具。告知用户在“二维构件”面板查看图中编号及来源，核对类型、楼层、材料和厚度后点击“确认构件”或“排除此候选”。符号组可确认计数，但不能据此计算面积、体积；几何闭合也不代表拓扑已经有效。
+优先调用 `review_in_session(workspaceId,drawingId,action)`，在 Codex 原生表单中让用户填写并确认。action 为 units（单位及依据）、component（另传 componentId，核对单个候选分类、楼层、材料、厚度与依据）、policy（当前快照资料授权）、coverage（另传 coverageId，独立覆盖结论及参考定位）。模型只选择操作与对象，不传表单答案或 userConfirmed；正式提交只来自宿主 elicitation 返回的用户接受。拒绝、取消、超时不保存。服务绑定修订、快照、候选版本和内容指纹，版本变化后重新发起，不能自动重试旧确认。
 
-`component_takeoff` 仅接受当前快照已人工确认的构件 ID；支持 business_count、length、net_area、parameter_volume，返回 job 后等待实际结果。构件计数与图元数量不同；参数体积仍需用户提供均匀厚度，净面积不自动扣除另一个候选洞口。确认信息改变会使相关结果失效；图纸快照变化后需重新识别和核对，旧构件不自动迁移。汇报规则未覆盖、待确认、已排除和已确认的范围，不把全部候选数量称为已识别工程构件总数。
+`review_prepare` 冻结图纸与候选版本；`viewer_open` 返回指定图纸/批次的本地审阅链接。需要看图判断、批量操作或宿主不支持表单时，使用工具返回的 Web 链接。不能自报 userConfirmed、伪造意图或通过 shell 调用人工提交接口。不要在用户取消表单后反复发起同一请求。
 
-## 检查、修改与计算
+`component_list` 区分 pending/confirmed/rejected。`component_takeoff` 可计量当前快照的 pending/confirmed 构件，无须先人工确认；rejected 构件不参与计量。符号组只支持计数，闭合边界仍需拓扑检查；厚度、高度与洞口不能臆造。图纸或人工信息变化后旧结果失效。
 
-解析不完整时先调用 `dwg_diagnostics`，区分模型几何缺失、显示近似和文档保持待核验。使用返回的真实诊断组 ID，通过 `dwg_query(filter={diagnosticGroupId:...})` 或 `selection_create(filter={diagnosticGroupId:...})` 冻结精确成员，再 `viewer_focus` 定位；不要把所有同类图元当成问题对象。分页读取本组时使用 groupId、offset、limit。没有模型实例的源记录不创建空选择集。
+## 独立范围覆盖与多图小计
 
-diagnosticPreview 仅是辅助点位或参考范围，不是已解析几何，不能用于面积、长度或体积，不能解释成已修复。端点重合但 bulge 非零时保留原始证据，需独立 CAD 复核；WIPEOUT 的参考范围不代替遮罩效果；OLE 框角不代表嵌入内容已读取。读取通知即使像样式对象也保持待核验。不要建议把解析缺项按零计量或把 partial 改名为 complete。
+调用 `scope_coverage_prepare` 准备覆盖范围后，通过 `scope_coverage_status` 分页读取 sourcePage、未归属来源、解析缺口和阻止项。使用 `viewer_open(drawingId, coverageId)` 让用户独立对照原图或参考清单，逐项核对未纳入候选的来源，为排除成员填写理由和证据。结论可用 `review_in_session(action="coverage",coverageId)` 填写 incomplete 或 reviewed_complete 及依据；服务仍检查所有阻止项，不能用候选全确认代替独立覆盖。来源排除/撤回仍在 Web 操作，不得伪造人工来源。
 
-用户可发“请重新解析当前图纸”或“请使用当前适配器重新解析当前图纸”。这类明确指令可直接调用 `dwg_reparse`，必须携带本轮次 intentId、workingRevision、geometrySnapshotId 和稳定 operationId，再用 job_get 等待结果。随后使用返回的新修订读取 summary/diagnostics，汇报覆盖变化与仍存缺口。不要从“为什么解析不完整”“能否重新解析”“如果重新解析”等询问推断写入授权；服务器会独立校验原始消息。重解析不要求重复确认。
+补充候选、修改构件或改变图纸版本会使旧覆盖结论失效；来源排除变化也会使已绑定结果的完成声明失效。重新冻结候选时不自动沿用排除理由；图纸修订变化必须重新冻结输入清单。未知楼层/视图、无法定位的解析缺口、未归属来源和重复关系不能静默排除。同楼层同类别完全相同的边界仅提示疑似重复，不静默合并；任意跨视图语义匹配尚未实现。
 
-“只分析可计算部分”可用 `geometryKinds=["path","region"]` 生成候选，冻结具体成员并执行检查。该筛选不会确认业务分类，也不能代替单位采用、有效轮廓、洞口或厚度依据；汇报时明确这是部分范围。
+`scope_takeoff_run(coverageId,quantityKind,operationId)` 在冻结范围内逐图计算已确认目标构件；用 `scope_takeoff_get(scopeResultId)` 查看子任务、knownSubtotal、calculationComplete 与独立的 scopeComplete。覆盖未通过仍可输出已知小计，completeTotal 保持 null。结果固定覆盖版本与人工审阅 ID，后续补审不会自动把旧小计升级为范围完成；需要重新发起计算。缺参数、未关联洞口或旧版本结果仍阻止完成声明。
 
-- `dwg_check` 只声明实际执行的检查。`not_run` / `unsupported` 不是通过。遇到未知专业对象，查看转换缺口，要求正确的兼容副本与必要依据；文件名中的 `_t3` 不是转换核验。
-- 单位未采用时保留预览，涉及物理尺寸的计算与几何编辑等待单位采用。只有与任务实际相关的缺项才询问。
-- 修改必须使用该轮次服务端记录的 intentId，以及冻结基础修订、快照与选择集。服务器会校验其与已保存原始用户消息的关系。不得自报授权、创建伪造意图或修改数据库/文件绕过领域工具。
-- 明确的计量厚度指令（例如“将选中轮廓的计量厚度设为150mm并重算”）已被服务端解析为固定物理量。`change_propose` 使用 `kind=set_measurement_parameter, field=uniform_thickness, value=150, unit=mm, unitBinding=physical_quantity`；用候选返回的 operationId、baseRevision、candidateFingerprint 调用 `change_apply`。明确目标和数值的修改校验通过可继续执行，不要求用户重复确认。
-- 未匹配的自然语言编辑，使用工作台的结构化表单收敛范围和值；不要把工具的 INTENT_MISMATCH 当作可绕过的故障。
-- 发布新修订后读取其返回版本；旧选择集不可直接用于新修订。身份保持的操作可用明确旧成员创建新选择集；块克隆/拆分等歧义迁移当前尚未开放。
-- `takeoff_run` 返回持久 jobId，使用 `job_get` 获取真实结果。只汇报工具计算的数值、公式、单位、范围和缺项。未算项为 null；小计不是全图总量。
-- 净面积使用有效共面闭合轮廓及明确、互不重叠的内部洞口。参数体积是净面积乘均匀厚度，不能称为三维实体体积。
-- `physical_quantity` 厚度随源单位重解释保持不变；`source_geometry` 参数须明确长度来源对象并重新提取。
+`scope_result_export(scopeResultId,operationId)` 返回 drawingId 与持久 job；通过 job_get 轮询，交付跨图 CSV、冻结输入清单、来源图纸和覆盖证据报告。scopeComplete 只适用于明确冻结的几何范围，不代表整层/整栋或地区规范清单验收。
 
-## 交付与恢复
+## 计算与交付
 
-`result_export` 提供原 DWG、CSV、问题、版本和项目补丁。源图复制不表示已编辑 DWG。`dwg_export(mode=candidate)` 仅对无已知解析缺口或依赖的图纸提供候选；程序往返不替代独立 CAD 验收。完整 DWG、依赖迁移和字体/显示资源三项状态分别汇报，缺少必需项时完整交付为 false。
+`dwg_check` 执行确定性检查。`takeoff_run` 对冻结选择集计算长度、净面积、参数体积或实体计数；`component_takeoff` 对已确认构件计算。使用 `job_get` 等待真实结果，`takeoff_get` 检查结果时效。单位未采用、厚度或洞口依据缺失时只汇报已知小计与缺项，未算项保持 null。
 
-每次写入使用本轮次 operationId 前缀加稳定操作后缀。超时先查操作、修订和 job，不换 ID 盲重试；`change_apply` 相同 ID 去重。收到 REVISION_CONFLICT 读取当前值，重新确定用户意图与候选。MESSAGE_DELIVERY_UNCERTAIN 等待工作台恢复对账，不能自动重发有副作用的任务。
+净面积需要明确、有效、共面且互不重叠的洞口；参数体积是净面积乘人工参数，不等于三维实体恢复。未指定专业、地区、规范及版本时，结果只称几何量，不称符合某规范的工程清单量。未经过独立人工覆盖审阅时，覆盖状态为 unknown 或 incomplete；候选全部确认或选择集全部算出都不能声明整图、整层或整栋完成。
 
-停止 AI 与取消领域 job 是不同操作；已发布修订通过变更历史处理。没有网络或宿主不可用时说明 AI 不可用，人工领域工具仍可操作。
+`result_export` 输出 CSV、依据报告、源图和快照信息。轮询导出任务完成后返回 outputs/bwc 下的成果路径。原图复制不表示已编辑 DWG。报告中保留范围、公式、方法版本、未决项与完整性。
 
-## 资料边界
+operationId 在重试时保持稳定。超时先查任务与已提交修订；interrupted 需要对账，不换新 ID 盲重跑。REVISION_CONFLICT 时重新读取版本和核对范围。job_cancel 不撤销已发布修订。
 
-执行当前项目 dataPolicy。摘要模式不发送规范几何；详细模式可通过受约束工具发送详细属性与几何。源文件附件上传未实现时如实说明。只使用 bwc MCP；不要运行 shell、读取工程数据库、修改文件、调用其他连接器或向外部联系人发消息。账号凭据由宿主保管。
+## 资料发送边界
+
+先读取 `data_policy_get`，默认摘要。MCP 与 CLI 的响应、嵌套任务结果、分页和错误统一经过过滤与发送审计。详细资料授权精确绑定人工选择的快照；新快照不自动继承授权。只获取当前任务必要的有限明细。
+
+资料扩大授权优先用 `review_in_session(action="policy")` 由用户在原生表单设置，也可在 Web 设置，或由用户直接执行发行包的 `policy` CLI 人工入口。模型不得运行该命令、调用人工 HTTP 接口、读取数据库/源文件/几何产物/导出报告，或通过 shell、其他连接器和引用读取绕过策略。插件输出策略不是宿主全盘文件访问隔离。审阅与成果属于本地访问通道，不应自动送给模型。

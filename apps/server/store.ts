@@ -21,9 +21,12 @@ import type {
 import { bounds } from "./geometry.ts";
 export class ProjectStore {
   db: DatabaseSync;
-  constructor(public path: string) {
+  constructor(
+    public path: string,
+    private options: { db?: DatabaseSync; namespace?: string } = {},
+  ) {
     mkdirSync(path, { recursive: true });
-    this.db = new DatabaseSync(join(path, "project.sqlite"));
+    this.db = options.db ?? new DatabaseSync(join(path, "project.sqlite"));
     this.db
       .exec(`PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;
       CREATE TABLE IF NOT EXISTS records(kind TEXT NOT NULL,id TEXT NOT NULL,json TEXT NOT NULL,PRIMARY KEY(kind,id));
@@ -32,31 +35,35 @@ export class ProjectStore {
       CREATE VIRTUAL TABLE IF NOT EXISTS spatial USING rtree(n,minX,maxX,minY,maxY);
       CREATE INDEX IF NOT EXISTS snapshot_index ON occurrences(snapshot);`);
   }
+  private key(kind: string) {
+    return `${this.options.namespace ?? ""}${kind}`;
+  }
+  published(_revision: Revision, _snapshot: Snapshot) {}
   put(kind: string, data: any, recordId = data.id) {
     this.db
       .prepare(
         "INSERT INTO records VALUES(?,?,?) ON CONFLICT(kind,id) DO UPDATE SET json=excluded.json",
       )
-      .run(kind, recordId, JSON.stringify(data));
+      .run(this.key(kind), recordId, JSON.stringify(data));
     return data;
   }
   get<T = any>(kind: string, recordId: string): T {
     const row = this.db
       .prepare("SELECT json FROM records WHERE kind=? AND id=?")
-      .get(kind, recordId) as { json: string } | undefined;
+      .get(this.key(kind), recordId) as { json: string } | undefined;
     assert(row, "NOT_FOUND", `${kind}/${recordId} 不存在`);
     return JSON.parse(row.json);
   }
   has(kind: string, recordId: string) {
     return !!this.db
       .prepare("SELECT 1 FROM records WHERE kind=? AND id=?")
-      .get(kind, recordId);
+      .get(this.key(kind), recordId);
   }
   all<T = any>(kind: string): T[] {
     return (
       this.db
         .prepare("SELECT json FROM records WHERE kind=? ORDER BY rowid")
-        .all(kind) as { json: string }[]
+        .all(this.key(kind)) as { json: string }[]
     ).map((r) => JSON.parse(r.json));
   }
   meta() {
@@ -70,24 +77,39 @@ export class ProjectStore {
     return p;
   }
   writeManifest() {
-    atomicJson(join(this.path, "project.json"), this.meta());
+    atomicJson(
+      join(
+        this.path,
+        this.options.namespace
+          ? `artifacts/drawings/${this.meta().id}/project.json`
+          : "project.json",
+      ),
+      this.meta(),
+    );
   }
+  private transactionDepth = 0;
   transaction<T>(fn: () => T): T {
-    this.db.exec("BEGIN IMMEDIATE");
+    const nested = this.transactionDepth > 0;
+    const savepoint = `nested_${this.transactionDepth}`;
+    this.db.exec(nested ? `SAVEPOINT ${savepoint}` : "BEGIN IMMEDIATE");
+    this.transactionDepth++;
     try {
       const r = fn();
-      this.db.exec("COMMIT");
+      this.db.exec(nested ? `RELEASE ${savepoint}` : "COMMIT");
       return r;
     } catch (e) {
-      this.db.exec("ROLLBACK");
+      this.db.exec(nested ? `ROLLBACK TO ${savepoint}` : "ROLLBACK");
+      if (nested) this.db.exec(`RELEASE ${savepoint}`);
       throw e;
+    } finally {
+      this.transactionDepth--;
     }
   }
   event(channel: string, payload: any) {
     const data = { eventId: id("evt"), at: now(), ...payload };
     const result = this.db
       .prepare("INSERT INTO events(channel,json) VALUES(?,?)")
-      .run(channel, JSON.stringify(data));
+      .run(this.key(channel), JSON.stringify(data));
     return { ...data, sequence: Number(result.lastInsertRowid) };
   }
   events(channel: string, after = 0, limit = 500) {
@@ -95,21 +117,21 @@ export class ProjectStore {
       (channel === "*"
         ? this.db
             .prepare(
-              "SELECT seq,channel,json FROM events WHERE seq>? ORDER BY seq LIMIT ?",
+              "SELECT seq,channel,json FROM events WHERE seq>? AND channel LIKE ? ORDER BY seq LIMIT ?",
             )
-            .all(after, limit)
+            .all(after, `${this.options.namespace ?? ""}%`, limit)
         : this.db
             .prepare(
               "SELECT seq,channel,json FROM events WHERE channel=? AND seq>? ORDER BY seq LIMIT ?",
             )
-            .all(channel, after, limit)) as {
+            .all(this.key(channel), after, limit)) as {
         seq: number;
         channel: string;
         json: string;
       }[]
     ).map((r) => ({
       ...JSON.parse(r.json),
-      channel: r.channel,
+      channel: r.channel.slice((this.options.namespace ?? "").length),
       ...(r.channel.startsWith("session:")
         ? { sessionId: r.channel.slice(8) }
         : {}),
@@ -201,7 +223,7 @@ export class ProjectStore {
     return (rows as { json: string }[]).map((r) => JSON.parse(r.json));
   }
   close() {
-    this.db.close();
+    if (!this.options.db) this.db.close();
   }
 }
 export class Catalog {

@@ -254,6 +254,7 @@ export interface Change {
   trial?: unknown;
 }
 export interface Job {
+  ownerInstanceId?: string;
   id: string;
   kind: string;
   operationId: string;

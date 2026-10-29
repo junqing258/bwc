@@ -1721,7 +1721,7 @@ export default function App() {
                         <div>
                           <small>
                             {anyResult.quantityKind} ·{" "}
-                            {anyResult.scope === "confirmed_components_only"
+                            {["confirmed_components_only", "non_rejected_components"].includes(anyResult.scope)
                               ? "已确认构件范围"
                               : "冻结选择集范围"}
                           </small>

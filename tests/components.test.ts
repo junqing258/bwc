@@ -163,7 +163,7 @@ const review = (ctx: any, c: DrawingComponent, patch: any = {}) => ({
   ...patch,
 });
 
-test("recognition joins exact cycles, excludes axis data and leaves evidence as unconfirmed candidates", () => {
+test("recognition joins exact cycles, excludes axis data and leaves evidence as unconfirmed candidates", async () => {
   const root = mkdtempSync(join(tmpdir(), "bwc-component-rule-"));
   const service = new WorkflowService(root);
   try {
@@ -181,16 +181,15 @@ test("recognition joins exact cycles, excludes axis data and leaves evidence as 
       again.items.map((c) => c.id),
       r.items.map((c) => c.id),
     );
-    assert.throws(
-      () =>
-        componentTakeoff(service, {
-          ...ctx(),
-          componentIds: [wall.id],
-          quantityKind: "net_area",
-          operationId: id("op"),
-        }),
-      /已确认构件/,
-    );
+    const job = componentTakeoff(service, {
+      ...ctx(),
+      componentIds: [wall.id],
+      quantityKind: "net_area",
+      operationId: id("op"),
+    });
+    const measured = await wait(service, ctx().projectId, job);
+    assert.equal(measured.completeness, "complete");
+    assert.equal(wall.status, "pending");
     assert.throws(
       () =>
         suggestComponent(service, {

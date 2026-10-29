@@ -21,6 +21,7 @@ export function runProcess(
       cwd: ROOT,
       stdio: ["ignore", "pipe", "pipe"],
       signal,
+      env: { ...process.env, PYTHONDONTWRITEBYTECODE: "1" },
     });
     let stdout = "",
       stderr = "",
@@ -85,7 +86,9 @@ export async function worker<T>(
       await runProcess(
         "dotnet",
         [
-          join(ROOT, "apps/workers/cad/bin/Release/net8.0/CadWorker.dll"),
+          existsSync(join(ROOT, "workers/runtime.json"))
+            ? join(ROOT, "workers/cad/CadWorker.dll")
+            : join(ROOT, "apps/workers/cad/bin/Release/net8.0/CadWorker.dll"),
           input,
           output,
         ],
@@ -94,10 +97,17 @@ export async function worker<T>(
     else
       await runProcess(
         process.env.BWC_PYTHON ??
-          (existsSync(join(ROOT, ".venv/bin/python"))
+          (!existsSync(join(ROOT, "workers/runtime.json")) &&
+          existsSync(join(ROOT, ".venv/bin/python"))
             ? join(ROOT, ".venv/bin/python")
             : "python3"),
-        [join(ROOT, "apps/workers/geometry/worker.py"), input, output],
+        [
+          existsSync(join(ROOT, "workers/runtime.json"))
+            ? join(ROOT, "workers/geometry/worker.py")
+            : join(ROOT, "apps/workers/geometry/worker.py"),
+          input,
+          output,
+        ],
         signal,
       );
     return JSON.parse(readFileSync(output, "utf8"));

@@ -354,7 +354,7 @@ export class HostBridge {
       mkdirSync(join(cwd, ".claude/skills/dwg-workflow"), { recursive: true });
       for (const dir of [".agents", ".claude"])
         copyFileSync(
-          join(ROOT, "skills/dwg-workflow/SKILL.md"),
+          join(ROOT, "docs/archive/legacy-dwg-workflow-SKILL.md"),
           join(cwd, `${dir}/skills/dwg-workflow/SKILL.md`),
         );
       const instructions =
@@ -461,7 +461,7 @@ export class HostBridge {
         sandbox: "read-only",
         config: { mcp_servers: mcp },
         developerInstructions: readFileSync(
-          join(ROOT, "skills/dwg-workflow/SKILL.md"),
+          join(ROOT, "docs/archive/legacy-dwg-workflow-SKILL.md"),
           "utf8",
         ),
       };

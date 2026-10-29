@@ -1,0 +1,14 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "bwc-workspace",
+  "version": "0.4.0",
+  "description": "当前工作目录内的 DWG 建筑构件识别、人工审阅与可追溯几何计量。",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "筑材智算",
+        "shortDescription": "DWG 识别、核对与可追溯工程量"
+      }
+    }
+  }
+}

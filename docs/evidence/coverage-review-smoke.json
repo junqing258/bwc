@@ -1,0 +1,10 @@
+{
+  "at": "2026-10-29T04:48:47.942Z",
+  "fixture": "controlled CAD fixture",
+  "sourceInstances": 10,
+  "candidateConfirmationIndependentOfCoverage": true,
+  "completeButtonDisabledWithUnresolvedItems": true,
+  "incompleteConclusionPersisted": true,
+  "reference": "受控样本原图 / 模型空间",
+  "realProjectReviewed": false
+}

@@ -16,12 +16,19 @@
     "test": "tsx --test tests/*.test.ts",
     "test:geometry": ".venv/bin/python -m unittest discover -s apps/workers/geometry -p 'test_*.py'",
     "probe": "tsx scripts/probe.ts",
-    "mcp": "tsx apps/server/mcp.ts",
+    "mcp": "tsx apps/server/plugin-mcp.ts",
     "host:probe": "tsx scripts/host-probe.ts",
     "format": "prettier --write apps/server apps/web scripts tests tsconfig.json package.json",
     "check": "npm test && npm run test:geometry && npm run build",
     "host:smoke": "tsx scripts/bridge-smoke.ts",
-    "launch": "node scripts/launch.mjs"
+    "launch": "node scripts/launch.mjs",
+    "bwc": "tsx apps/server/cli.ts",
+    "mcp:plugin": "tsx apps/server/plugin-mcp.ts",
+    "build:reviewer": "vite build --config apps/reviewer/vite.config.ts",
+    "build:plugin": "node scripts/build-plugin.mjs",
+    "test:plugin": "tsx --test tests/workspace.test.ts tests/plugin.test.ts tests/scope-coverage.test.ts tests/session-review.test.ts",
+    "probe:session": "tsx scripts/session-review-probe.ts",
+    "mcp:legacy": "tsx apps/server/mcp.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.29.0",

@@ -50,16 +50,50 @@ import type {
 
 export class WorkflowService {
   closing = false;
+  instanceId?: string;
+  outputDirectory?: string;
   catalog: Catalog;
   controllers = new Map<string, AbortController>();
-  constructor(root = process.env.BWC_DATA_DIR ?? join(ROOT, ".data/projects")) {
-    this.catalog = new Catalog(resolve(root));
+  constructor(
+    root: string | Catalog = process.env.BWC_DATA_DIR ??
+      join(ROOT, ".data/projects"),
+    instanceId?: string,
+  ) {
+    this.instanceId = instanceId;
+    this.catalog = typeof root === "string" ? new Catalog(resolve(root)) : root;
     for (const p of this.catalog.list()) {
       const s = this.catalog.open(p.projectId);
       for (const job of s.all<Job>("job"))
-        if (["queued", "running"].includes(job.status)) {
-          job.status = "interrupted";
-          job.stage = "recovery_required";
+        if (
+          ["queued", "running"].includes(job.status) &&
+          (!instanceId || job.ownerInstanceId !== instanceId)
+        ) {
+          const committed = s
+            .all<Revision>("revision")
+            .find((r) => r.operationId === job.operationId);
+          if (committed && ["import", "reparse"].includes(job.kind)) {
+            const snapshot = s.get<Snapshot>(
+              "snapshot",
+              committed.geometrySnapshotId,
+            );
+            job.workingRevision = committed.id;
+            job.geometrySnapshotId = snapshot.id;
+            job.result = {
+              workingRevision: committed.id,
+              geometrySnapshotId: snapshot.id,
+              drawingVersion: snapshot.drawingVersion,
+              completeness: snapshot.importCompleteness,
+              recoveredFromCommit: true,
+            };
+            job.status =
+              snapshot.importCompleteness === "partial"
+                ? "partial"
+                : "succeeded";
+            job.stage = "reconciled";
+          } else {
+            job.status = "interrupted";
+            job.stage = "recovery_required";
+          }
           s.put("job", job);
           s.event("jobs", {
             jobId: job.id,
@@ -119,6 +153,7 @@ export class WorkflowService {
       .context(input.workingRevision, input.geometrySnapshotId);
   }
   samples() {
+    if (this.instanceId) return [];
     const roots = [
       {
         dir: existsSync(join(ROOT, "docs/2026-10"))
@@ -173,6 +208,7 @@ export class WorkflowService {
       kind,
       operationId,
       requestFingerprint: fp,
+      ...(this.instanceId ? { ownerInstanceId: this.instanceId } : {}),
       status: "queued",
       stage: "queued",
       createdAt: now(),
@@ -231,9 +267,23 @@ export class WorkflowService {
     return job;
   }
   getJob(input: any) {
-    return this.publicJob(
-      this.catalog.open(input.projectId).get<Job>("job", input.jobId),
-    );
+    const s = this.catalog.open(input.projectId);
+    const job = s.get<Job>("job", input.jobId);
+    if (job.result?.id && s.has("takeoff", job.result.id)) {
+      const result = s.get<Takeoff>("takeoff", job.result.id);
+      return this.publicJob({
+        ...job,
+        result: {
+          ...result,
+          validity:
+            result.validity === "valid" &&
+            result.workingRevision === s.current().id
+              ? "valid"
+              : "stale",
+        },
+      });
+    }
+    return this.publicJob(job);
   }
   cancelJob(input: any) {
     const s = this.catalog.open(input.projectId),
@@ -289,7 +339,7 @@ export class WorkflowService {
           path: sourcePath,
           format: bytes.subarray(0, 6).toString(),
           role,
-          sourcePath: sample?.path,
+          sourcePath: sample?.path ?? upload?.sourcePath,
         };
         const artifact = await worker<Artifact>(
           "cad",
@@ -496,6 +546,7 @@ export class WorkflowService {
       );
       extra?.(revision);
       s.put("revision", revision);
+      s.published(revision, snapshot);
       s.put("project", { ...s.meta(), currentRevision: revision.id }, "meta");
       for (const result of s.all<Takeoff>("takeoff"))
         if (result.validity === "valid")
@@ -1543,7 +1594,7 @@ export class WorkflowService {
           aiAssistance: "source-referenced pending suggestions only",
           confirmation: "human review in workbench; versioned audit records",
           quantities:
-            "confirmed components only; symbol groups count only; topology and physical parameters still required",
+            "pending and confirmed components; symbol groups count only; topology and physical parameters still required",
           limitations:
             "no automatic floor assignment, wall height, inferred gap filling or plan/elevation deduplication",
         },

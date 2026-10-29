@@ -27,6 +27,9 @@ import {
   suggestComponent,
 } from "./components.ts";
 import { ContextSchema } from "./schemas.ts";
+import type { ProjectStore } from "./store.ts";
+import { modelOutput, modelError } from "./model-output.ts";
+export { compactPayload } from "./model-output.ts";
 
 export function createApplication(
   options: { dataDir?: string; port?: number; host?: boolean } = {},
@@ -38,6 +41,8 @@ export function createApplication(
   const url = `http://127.0.0.1:${port}`;
   const bridge = new HostBridge(service, url, token);
   const server = createServer(async (req, res) => {
+    let modelBoundaryStore: ProjectStore | undefined;
+    let modelTool = "unknown";
     try {
       const u = new URL(req.url ?? "/", url),
         path = u.pathname;
@@ -173,6 +178,8 @@ export function createApplication(
           "UNSUPPORTED_OPERATION",
           "宿主仅操作已打开项目",
         );
+        modelBoundaryStore = s;
+        modelTool = b.tool;
         const active = s
           .all<any>("turn")
           .filter(
@@ -256,7 +263,14 @@ export function createApplication(
             : {}),
         });
         const out = await t.run(input);
-        const compact = compactPayload(out, s.meta().dataPolicy.mode);
+        const compact = modelOutput(s, b.tool, out, {
+          sessionId: session.id,
+          turnId: active.id,
+          workingRevision:
+            b.input.workingRevision ?? active.context.workingRevision,
+          geometrySnapshotId:
+            b.input.geometrySnapshotId ?? active.context.geometrySnapshotId,
+        });
         const mapping = {
           id: id("tool"),
           sessionId: session.id,
@@ -269,17 +283,6 @@ export function createApplication(
           at: now(),
         };
         s.put("tool_call", mapping);
-        s.put("data_send", {
-          ...mapping,
-          id: id("send"),
-          policyVersion: s.meta().dataPolicy.id,
-          categories: [
-            s.meta().dataPolicy.mode === "geometry"
-              ? "domain_result_with_geometry"
-              : "domain_summary",
-          ],
-          geometrySnapshotId: out?.geometrySnapshotId ?? null,
-        });
         s.event(`session:${session.id}`, { type: "domain_tool", ...mapping });
         return json(res, compact);
       }
@@ -360,12 +363,20 @@ export function createApplication(
           .strict()
           .parse(await body(req));
         const s = service.catalog.open(b.projectId);
-        return json(
-          res,
-          s.updateMeta({
-            dataPolicy: { ...s.meta().dataPolicy, id: id("dp"), mode: b.mode },
-          }).dataPolicy,
-        );
+        const before = s.meta().dataPolicy;
+        const after = { ...before, id: id("dp"), mode: b.mode };
+        s.transaction(() => {
+          s.put("policy_audit", {
+            id: id("policy"),
+            before,
+            after,
+            source: "local_web",
+            at: now(),
+          });
+          s.put("project", { ...s.meta(), dataPolicy: after }, "meta");
+        });
+        s.writeManifest();
+        return json(res, after);
       }
       if (path === "/api/conversion" && req.method === "POST") {
         const b = z
@@ -517,6 +528,14 @@ export function createApplication(
               : error instanceof z.ZodError
                 ? 400
                 : 422;
+      if (req.url?.split("?")[0] === "/api/mcp")
+        return json(
+          res,
+          modelBoundaryStore
+            ? modelOutput(modelBoundaryStore, modelTool, modelError(e))
+            : modelError(e),
+          status,
+        );
       json(
         res,
         {
@@ -573,42 +592,6 @@ function mime(file: string) {
       } as Record<string, string>
     )[extname(file)] ?? "application/octet-stream"
   );
-}
-export function compactPayload(value: any, mode: string): any {
-  if (Array.isArray(value)) {
-    if (value.length > 50)
-      return {
-        items: value.slice(0, 50).map((v) => compactPayload(v, mode)),
-        total: value.length,
-        truncated: true,
-      };
-    return value.map((v) => compactPayload(v, mode));
-  }
-  if (value && typeof value === "object") {
-    const out: any = {};
-    for (const [k, v] of Object.entries(value)) {
-      if (
-        mode === "summary" &&
-        [
-          "geometry",
-          "diagnosticPreview",
-          "matrix",
-          "delta",
-          "sources",
-          "occurrences",
-          "bounds",
-        ].includes(k)
-      ) {
-        out[k] = { omittedByDataPolicy: true };
-        continue;
-      }
-      out[k] = compactPayload(v, mode);
-    }
-    return out;
-  }
-  return typeof value === "string" && value.length > 20000
-    ? value.slice(0, 20000) + " [truncated]"
-    : value;
 }
 if (
   process.argv[1] &&

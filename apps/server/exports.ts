@@ -1,5 +1,13 @@
-import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import {
+  copyFileSync,
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  realpathSync,
+  writeFileSync,
+} from "node:fs";
+import { dirname, join, sep } from "node:path";
 import { assert, atomicJson, hash, id, now, within } from "./util.ts";
 import { worker } from "./workers.ts";
 import type { Artifact, Drawing, Takeoff } from "./types.ts";
@@ -137,10 +145,31 @@ export function resultExport(service: WorkflowService, input: any) {
       };
       atomicJson(join(s.path, dir, "export-manifest.json"), manifest);
       if (signal.aborted) assert(false, "CANCELLED", "任务已取消");
-      s.put("export", { ...manifest, path: dir });
+      let outputPath: string | undefined;
+      if (service.outputDirectory) {
+        // Verify existing ancestors before creating the user-facing output directory.
+        const workspaceRoot = realpathSync(dirname(s.path));
+        let ancestor = service.outputDirectory;
+        while (!existsSync(ancestor)) ancestor = dirname(ancestor);
+        const real = realpathSync(ancestor);
+        assert(
+          real === workspaceRoot || real.startsWith(workspaceRoot + sep),
+          "INVALID_PATH",
+          "成果目录必须在工作目录内",
+        );
+        outputPath = join(service.outputDirectory, eid);
+        mkdirSync(outputPath, { recursive: true });
+        cpSync(join(s.path, dir), outputPath, { recursive: true });
+      }
+      s.put("export", {
+        ...manifest,
+        path: dir,
+        ...(outputPath ? { outputPath } : {}),
+      });
       return {
         ...manifest,
         path: dir,
+        ...(outputPath ? { outputPath } : {}),
         files: [...manifest.files, "export-manifest.json"].map((name) => ({
           name,
           path: `${dir}/${name}`,

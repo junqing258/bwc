@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "rewriteRelativeImportExtensions": true,
+    "rootDir": ".",
+    "outDir": ".cache/plugin-code",
+    "declaration": false,
+    "sourceMap": false,
+    "types": ["node"]
+  },
+  "include": [
+    "apps/server/cli.ts",
+    "apps/server/plugin-mcp.ts",
+    "apps/server/runtime.ts"
+  ],
+  "exclude": ["apps/web", "tests"]
+}
